@@ -25,23 +25,12 @@ function Header() {
           <div className="user-info"  >
             <div
               className="user-icon"
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                backgroundColor: "#ccc",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-                fontSize: "1.2rem",
-              }}
             >
               {firstLetter}
             </div>
-            <button onClick={() => setShowLogoutModal(true)}>
+            <span onClick={() => setShowLogoutModal(true)} className="logout-button">
               <LogOut size={18} /> Logout
-            </button>
+            </span>
           </div>
         )}
       </div>

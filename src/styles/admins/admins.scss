@@ -1,0 +1,88 @@
+@use '../variables' as *;
+
+.ambassa_wrapper {
+    .font-bold {
+        display: flex;
+        align-items: center;
+        color: $primary-color;
+        font-size: 30px;
+        font-weight: 500;
+    }
+
+    .lucide {
+        width: 30px;
+        height: 22px;
+
+    }
+
+    .lucide-user-check {
+        width: 34px;
+        height: 34px;
+        background-color: $primary-color;
+        padding: 10px;
+        border-radius: 50px;
+        margin: 10px;
+        color: rgb(255, 255, 255);
+    }
+
+    .admin_table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 24px;
+            white-space: nowrap;
+
+            &:last-child {
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
+
+        .approve_btn,
+        .reject_btn {         
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+                    }
+
+        
+
+        .approve_btn {
+            background-color: green;
+        }
+
+        .reject_btn {
+            background-color: red;
+        }
+
+        //   .disabled { background-color: gray; cursor: not-allowed; }
+
+
+
+
+
+        .aprove-reject-buttons {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            gap: 10px;
+        }
+    }
+}

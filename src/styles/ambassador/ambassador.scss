@@ -1,0 +1,69 @@
+@use '../variables' as *;
+
+
+.table-container {
+    overflow-x: auto;
+  
+  
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border: 1px solid #ddd;
+    margin-top: 20px;
+
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        font-size: 24px;
+        white-space: nowrap;
+            &:last-child{
+                justify-content: center;
+                text-align: center;
+            }
+      }
+      th {
+        background-color: #f4f4f4;
+      }
+
+
+      .approve-btn,
+      .reject-btn {
+          padding: 10px;
+          border: none;
+          cursor: pointer;
+          color: white;
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+
+      }
+
+  
+  .approve-btn {
+    background-color: green;
+  }
+  
+  .reject-btn {
+    background-color: red;
+  }
+  
+  // .disabled {
+  //   background-color: gray ;
+  //   cursor: not-allowed;
+  // }
+  .aprove-reject-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+}
+
+  } 
+
+}
+  
