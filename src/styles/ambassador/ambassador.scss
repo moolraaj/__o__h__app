@@ -17,7 +17,7 @@
         border: 1px solid #ddd;
         padding: 8px;
         text-align: left;
-        font-size: 24px;
+    font-size: 17px;
         white-space: nowrap;
             &:last-child{
                 justify-content: center;
@@ -25,8 +25,14 @@
             }
       }
       th {
-        background-color: #f4f4f4;
+        background-color: $primary-color;
+        color: white;
+        font-weight: bold;
       }
+      tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+      
 
 
       .approve-btn,

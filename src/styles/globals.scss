@@ -15,6 +15,16 @@
 // ammdasder styling
 @use './ambassador/ambassador.scss' as *;
 
+// user styling
+@use './user/user.scss' as *;
+
+// slider styling
+@use './slider/add_slider.scss' as *;
+@use './slider/all_slider.scss' as *;
+@use './slider/edit_slider.scss' as *;
+
+
+
 *{
   margin: 0;
   padding: 0;
@@ -32,13 +42,6 @@ body {
 }
   
 
- 
- 
-
-
- 
-
- 
 
 .dashboard_main {
   display: grid;
@@ -85,40 +88,14 @@ body {
 }
 
 
-.p_o_inner p {
-  font-size: 24px;
-  font-weight: 600;
-  color: #808080;
-
-}
 
 
 
 
-.b_w_outer button {
-  padding: 8px 18px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 4px;
-  color: #808080;
-  font-weight: 500;
-  cursor: pointer;
-}
 
-.b_w_outer {
-  display: flex;
-  gap: 22px;
-  justify-content: space-between;
-}
 
-button.l_c_but {
-  background: #BAF1AB;
 
-}
 
-button.r_c_but {
-  background: #ff000026;
-}
 
 ul.ambass_list.u_lists {
   display: flex;

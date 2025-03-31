@@ -1,0 +1,148 @@
+@use '../variables' as *;
+/* Main container */
+.slider-main-outer {
+    font-family: 'Arial', sans-serif;
+    padding: 30px 20px;
+    margin: 0 auto;
+  }
+   
+  /* Heading and Add Slider Button */
+  .section-one-btn-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+   
+  .section-onr-heading {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+   
+  .add-slider-btn {
+    background-color: #0061F2;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: background-color 0.3s;
+  }
+   
+  .add-slider-btn:hover {
+    background-color: #004bbf;
+  }
+   
+  /* Slider Cards */
+  .all-slider-container {
+    display: grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap: 20px;
+  }
+   
+  .slider-card {
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+   
+  .slider-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  }
+   
+  .slider-images img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+  }
+   
+  .en-kn-container {
+    padding: 15px;
+  }
+   
+  .en-inner, .kn-inner {
+    margin-bottom: 15px;
+  }
+   
+  .en-inner p, .kn-inner p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 0.95rem;
+  }
+   
+  .en-inner b, .kn-inner b {
+    color: #333;
+  }
+   
+  .edit-delete-b-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f4f4f4;
+  }
+   
+  .edit-button, .delete-button {
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    transition: background-color 0.3s;
+    border: none;
+  }
+   
+  .edit-button {
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+  }
+   
+  .edit-button:hover {
+    background-color: #45a049;
+  }
+   
+  .delete-button {
+    background-color: #FF5722;
+    color: white;
+  }
+   
+  .delete-button:hover {
+    background-color: #f44336;
+  }
+  .b_w_outer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.b_w_outer {
+    display: flex;
+    justify-content: space-between;
+}
+
+button.r_c_but {
+    padding: 5px 10px;
+    color: white;
+    border: unset;
+    background-color: red;
+    &:hover{
+        background-color: rgb(226, 56, 56);
+        
+    }
+}
+
+button.l_c_but {
+    padding: 8px 10px;
+    background-color: green;
+    color: white;
+    border: unset;
+    &:hover{
+        background-color: rgb(7, 161, 48);
+        
+    }
+}
+
