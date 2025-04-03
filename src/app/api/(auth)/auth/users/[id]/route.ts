@@ -101,7 +101,7 @@ export async function PUT(
 
   if (
     updatedUser?.status === "pending" &&
-    (updatedUser?.role === "admin" || updatedUser?.role === "ambassador")
+    (updatedUser?.role === "admin" || updatedUser?.role === "dantasurakshaks")
   ) {
     const token = crypto.randomBytes(32).toString("hex");
     await VerificationToken.create({

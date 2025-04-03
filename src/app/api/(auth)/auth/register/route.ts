@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     const finalRole = role || 'user';
 
     let status = 'approved';
-    if (finalRole === 'admin' || finalRole === 'ambassador') {
+    if (finalRole === 'admin' || finalRole === 'dantasurakshaks') {
       status = 'pending';
     }
 

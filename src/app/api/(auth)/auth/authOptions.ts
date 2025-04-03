@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         let finalRole = user.role;
-        if ((user.role === "admin" || user.role === "ambassador") && user.status !== "approved") {
+        if ((user.role === "admin" || user.role === "dantasurakshaks") && user.status !== "approved") {
           finalRole = "user";
         }
 

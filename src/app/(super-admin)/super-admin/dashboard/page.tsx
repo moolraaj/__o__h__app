@@ -6,7 +6,7 @@ import { ShieldCheck, Users, UserCheck } from "lucide-react";
 export default function ManageUsers() {
   const { data: adminData, isLoading: adminLoading } = useGetUsersQuery({ page: 1, limit: 15, role: 'admin' });
   const { data: userData, isLoading: userLoading } = useGetUsersQuery({ page: 1, limit: 15, role: 'user' });
-  const { data: ambassadorData, isLoading: ambassadorLoading } = useGetUsersQuery({ page: 1, limit: 15, role: 'ambassador' });
+  const { data: ambassadorData, isLoading: ambassadorLoading } = useGetUsersQuery({ page: 1, limit: 15, role: 'dantasurakshaks' });
 
   if (adminLoading || userLoading || ambassadorLoading) return <p>Loading...</p>;
 
@@ -28,7 +28,7 @@ export default function ManageUsers() {
 
           <div className="ambassadors dash_holder">
             <UserCheck size={20} />
-            <h3>Ambassadors</h3>
+            <h3>dantasurakshaks</h3>
             <p>{ambassadorData?.roles?.ambassador ?? 0}</p>
           </div>
         </div>

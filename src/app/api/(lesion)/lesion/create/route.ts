@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
  
         const user = await User.findById(submittedBy);
-        if (!user || user.role !== 'ambassador') {
+        if (!user || user.role !== 'dantasurakshaks') {
             return NextResponse.json({ error: 'Please provide a valid Ambassador ID' }, { status: 404 });
         }
 
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         await newLesion.save();
 
  
-        if (user.role === 'ambassador') {
+        if (user.role === 'dantasurakshaks') {
     
             const admins = await User.find({ role: 'admin' });
 

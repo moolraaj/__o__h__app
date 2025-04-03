@@ -11,7 +11,7 @@ export default function ManageAmbassadors() {
   const { data: ambassadorData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
     page: 1,
     limit: 15,
-    role: 'ambassador'
+    role: 'dantasurakshaks'
   });
 
   const [actionLoading, setActionLoading] = useState(false);
@@ -21,7 +21,7 @@ export default function ManageAmbassadors() {
     const body = {
       status: action,
       role: action === "approved"
-        ? (currentRole === "admin" || currentRole === "ambassador" ? currentRole : "admin")
+        ? (currentRole === "admin" || currentRole === "dantasurakshaks" ? currentRole : "admin")
         : "user"
     };
 

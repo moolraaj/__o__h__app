@@ -1,4 +1,4 @@
-// models/User.ts
+ 
 import mongoose, { Schema, Document, Model, models } from 'mongoose';
 
 export interface IUser extends Document {
@@ -6,7 +6,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   phoneNumber: string;
-  role: 'user' | 'admin' | 'ambassador' | 'super-admin';
+  role: 'user' | 'admin' | 'dantasurakshaks' | 'super-admin';
   status: 'pending' | 'approved' | 'rejected';
   createdAt: Date;
   updatedAt: Date;
@@ -20,7 +20,7 @@ const userSchema = new Schema<IUser>(
     phoneNumber: { type: String},
     role: {
       type: String,
-      enum: ['user', 'admin', 'ambassador', 'super-admin'],
+      enum: ['user', 'admin', 'dantasurakshaks', 'super-admin'],
       default: 'user',
     },
     status: {
