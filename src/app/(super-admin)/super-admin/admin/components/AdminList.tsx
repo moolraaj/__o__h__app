@@ -117,7 +117,6 @@
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
 import { useState } from "react";
 import { CheckCircle, UserCheck, XCircle } from "lucide-react";
-import { Users } from "@/utils/Types";
 
  
 
