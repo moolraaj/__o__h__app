@@ -37,15 +37,15 @@ const UpdateSlider = ({ id }: Id) => {
       setBodyItems(
         sliderData.body && Array.isArray(sliderData.body)
           ? sliderData.body.map((item: SBody) => ({
-              text: item.text,
-              description: item.description,
-              image: item.image,
-            }))
+            text: item.text,
+            description: item.description,
+            image: item.image,
+          }))
           : []
       );
     }
   }, [data]);
-  
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,30 +137,33 @@ const UpdateSlider = ({ id }: Id) => {
           />
         )
       )}
-
-      <input
+<div className='all-editing-inputs'>
+        <input
         placeholder="Text EN"
-        value={text.en}
+        value={text?.en || ""}
         onChange={(e) => setText({ ...text, en: e.target.value })}
       />
+
       <input
         placeholder="Text KN"
-        value={text.kn}
+        value={text?.kn || ""}
         onChange={(e) => setText({ ...text, kn: e.target.value })}
       />
 
       <input
         placeholder="Desc EN"
-        value={description.en}
+        value={description?.en || ""}
         onChange={(e) => setDescription({ ...description, en: e.target.value })}
       />
+
       <input
         placeholder="Desc KN"
-        value={description.kn}
+        value={description?.kn || ""}
         onChange={(e) => setDescription({ ...description, kn: e.target.value })}
       />
+      </div>
 
-      <h3 className="font-semibold">Body Items</h3>
+
       {bodyItems.map((item, index) => (
         <div key={index} className="border p-3 bg-white rounded relative">
           <input

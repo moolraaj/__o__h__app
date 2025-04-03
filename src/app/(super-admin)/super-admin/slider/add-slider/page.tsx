@@ -74,57 +74,47 @@ const AddSlider = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-5 bg-gray-100 rounded">
-            <h2 className="text-xl font-bold">Add Slider</h2>
+        <form onSubmit={handleSubmit} className="form-container">
+            <h2 className="form-title">Add Slider</h2>
 
-            <input type="file" accept="image/*" onChange={(e) => setSliderImage(e.target.files?.[0] || null)} />
+            <label>
+                Upload Image:
+                <input type="file" accept="image/*" onChange={(e) => setSliderImage(e.target.files?.[0] || null)} className="file-input" />
+            </label>
+            {sliderImage && <img src={URL.createObjectURL(sliderImage)} alt="Preview" className="preview-image" />}
 
+            <div className="input-group">
+                <input placeholder="Text EN" value={text.en} onChange={(e) => setText({ ...text, en: e.target.value })} className="input-field" />
+                <input placeholder="Text KN" value={text.kn} onChange={(e) => setText({ ...text, kn: e.target.value })} className="input-field" />
+            </div>
 
-            {sliderImage && (
-                <img src={URL.createObjectURL(sliderImage)} alt="Body Preview" className="w-24 h-24 object-cover mt-2 rounded" />
-            )}
-
-            <input placeholder="Text EN" value={text.en} onChange={(e) => setText({ ...text, en: e.target.value })} />
-            <input placeholder="Text KN" value={text.kn} onChange={(e) => setText({ ...text, kn: e.target.value })} />
-
-            <input placeholder="Desc EN" value={description.en} onChange={(e) => setDescription({ ...description, en: e.target.value })} />
-            <input placeholder="Desc KN" value={description.kn} onChange={(e) => setDescription({ ...description, kn: e.target.value })} />
-
-            <h3 className="font-semibold">Body Items</h3>
+            <div className="input-group">
+                <input placeholder="Desc EN" value={description.en} onChange={(e) => setDescription({ ...description, en: e.target.value })} className="input-field" />
+                <input placeholder="Desc KN" value={description.kn} onChange={(e) => setDescription({ ...description, kn: e.target.value })} className="input-field" />
+            </div>
 
             {bodyItems.map((item, index) => (
-                <div key={index} className="border p-3 bg-white rounded relative">
-                    <input placeholder="Body Text EN" value={item.text.en} onChange={(e) => handleBodyChange(index, 'text', 'en', e.target.value)} />
-                    <input placeholder="Body Text KN" value={item.text.kn} onChange={(e) => handleBodyChange(index, 'text', 'kn', e.target.value)} />
-                    <input placeholder="Body Desc EN" value={item.description.en} onChange={(e) => handleBodyChange(index, 'description', 'en', e.target.value)} />
-                    <input placeholder="Body Desc KN" value={item.description.kn} onChange={(e) => handleBodyChange(index, 'description', 'kn', e.target.value)} />
-
-                    <input type="file" accept="image/*" onChange={(e) => handleImageChange(index, e.target.files?.[0] || null)} />
-                    {item.image && (
-                        <img src={URL.createObjectURL(item.image)} alt="Body Preview" className="w-24 h-24 object-cover mt-2 rounded" />
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={() => handleDeleteBody(index)}
-                        className="absolute top-2 right-2 text-red-600 font-bold"
-                    >
-                        ❌ Remove
-                    </button>
+                <div key={index} className="body-item">
+                    <div className="input-group">
+                        <input placeholder="Body Text EN" value={item.text.en} onChange={(e) => handleBodyChange(index, 'text', 'en', e.target.value)} className="input-field" />
+                        <input placeholder="Body Text KN" value={item.text.kn} onChange={(e) => handleBodyChange(index, 'text', 'kn', e.target.value)} className="input-field" />
+                    </div>
+                    <div className="input-group">
+                        <input placeholder="Body Desc EN" value={item.description.en} onChange={(e) => handleBodyChange(index, 'description', 'en', e.target.value)} className="input-field" />
+                        <input placeholder="Body Desc KN" value={item.description.kn} onChange={(e) => handleBodyChange(index, 'description', 'kn', e.target.value)} className="input-field" />
+                    </div>
+                    <input type="file" accept="image/*" onChange={(e) => handleImageChange(index, e.target.files?.[0] || null)} className="file-input" />
+                    {item.image && <img src={URL.createObjectURL(item.image)} alt="Preview" className="preview-image" />}
+                    <button type="button" onClick={() => handleDeleteBody(index)} className="remove-button">❌</button>
                 </div>
             ))}
 
-            <button
-                type="button"
-                onClick={() => setBodyItems([...bodyItems, { text: { en: '', kn: '' }, description: { en: '', kn: '' }, image: null }])}
-                className="bg-yellow-500 text-white p-2 rounded"
-            >
+            <button type="button" onClick={() => setBodyItems([...bodyItems, { text: { en: '', kn: '' }, description: { en: '', kn: '' }, image: null }])} className="add-button">
                 ➕ Add Body Item
             </button>
 
-            <button type="submit" className="bg-blue-500 text-white p-3 rounded">Submit</button>
+            <button type="submit" className="submit-button">Submit</button>
         </form>
     );
-};
-
+  }
 export default AddSlider;

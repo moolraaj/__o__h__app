@@ -27,21 +27,34 @@ export default function UserLists() {
             <UserCheck size={20} /> Usres 
           </h2>
 
-          <div className="ambass_wrapper">
-            {userData?.users.map((ele: Users) => (
-              <div key={ele._id} className="s_ambassa">
-                <ul className="ambass_list u_lists">
-                    <li>{ele.name}</li>
-                    <li>{ele.email}</li>
-                    <li>{ele.phoneNumber}</li>
-                    <li>{ele.role}</li>
-                </ul>
-              </div>
+          <div className="users-table-container">
+        <table className="users-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            {userData?.users.map((ele: Users, index: number) => (
+              <tr key={ele._id}>
+                <td>{index + 1}</td>
+                <td>{ele.name}</td>
+                <td>{ele.email}</td>
+                <td>{ele.phoneNumber}</td>
+                <td>{ele.role}</td>
+              </tr>
             ))}
-          </div>
-
-        </div>
+          </tbody>
+        </table>
       </div>
+    </div>
+    </div>
     </div>
   );
 }
+
+
