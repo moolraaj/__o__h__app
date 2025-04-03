@@ -135,7 +135,7 @@ export default function AdminLists() {
     const body = {
       status: action,
       role: action === "approved"
-        ? (currentRole === "admin" || currentRole === "ambassador" ? currentRole : "admin")
+        ? (currentRole === "admin" || currentRole === "dantasurakshaks" ? currentRole : "admin")
         : "user"
     };
 

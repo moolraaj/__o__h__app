@@ -189,7 +189,7 @@ export default function ManageAmbassadors() {
             </tr>
           </thead>
           <tbody>
-            {ambassadorData?.users.map((ele: Users, index: number) => (
+            {ambassadorData?.users.map((ele: Users) => (
               <tr key={ele._id}>
                 <td>{ele.name}</td>
                 <td>{ele.email}</td>
