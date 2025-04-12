@@ -1,59 +1,46 @@
- 
 import mongoose, { Schema, Document } from 'mongoose';
- 
 
- 
 const MultiLangSchema = new Schema({
   en: { type: String },
   kn: { type: String }
 }, { _id: false });
 
- 
-
- 
 const WhatIsDiseaseDescriptionRepeaterSchema = new Schema({
   what_is_disease_heading_repeat: { type: MultiLangSchema },
   what_is_disease_description_repeat: { type: MultiLangSchema }
 }, { _id: true });
 
- 
 const WhatIsDiseaseRepeatSchema = new Schema({
   what_is_disease_repeat_images: { type: [String] },
   what_is_disease_heading: { type: MultiLangSchema },
   what_is_disease_disease_repeat_icon: { type: String },
- 
-  what_is_disease_description_repeater: { type: [WhatIsDiseaseDescriptionRepeaterSchema] }
+  what_is_disease_disease_repeat_description: { type: MultiLangSchema },
+  what_is_disease_heading_description_repeater: { type: [WhatIsDiseaseDescriptionRepeaterSchema] }
 }, { _id: true });
 
- 
 const CauseRepeatSchema = new Schema({
   cause_repeat_title: { type: MultiLangSchema },
   cause_repeat_description: { type: MultiLangSchema },
   cause_repeat_icon: { type: String }
 }, { _id: true });
 
- 
 const SymptomsRepeatSchema = new Schema({
   symptoms_repeat_title: { type: MultiLangSchema },
   symptoms_repeat_description: { type: MultiLangSchema },
   symptoms_repeat_icon: { type: String }
 }, { _id: true });
 
- 
 const PreventionTipsRepeatSchema = new Schema({
   prevention_tips_repeat_title: { type: MultiLangSchema },
   prevention_tips_repeat_description: { type: MultiLangSchema },
   prevention_tips_repeat_icon: { type: String }
 }, { _id: true });
 
- 
 const TreatmentOptionRepeatSchema = new Schema({
   treatment_option_repeat_title: { type: MultiLangSchema },
   treatment_option_repeat_description: { type: MultiLangSchema },
   treatment_option_repeat_icon: { type: String }
 }, { _id: true });
-
- 
 
 const CauseSchema = new Schema({
   cause_title: { type: MultiLangSchema },
@@ -87,8 +74,6 @@ const TreatmentOptionSchema = new Schema({
   treatment_option_repeat: { type: [TreatmentOptionRepeatSchema] }
 }, { _id: false });
 
- 
-
 export interface IDisease extends Document {
   disease_main_title?: { en?: string; kn?: string };
   disease_main_image?: string;
@@ -103,7 +88,8 @@ export interface IDisease extends Document {
     what_is_disease_repeat_images?: string[];
     what_is_disease_heading?: { en?: string; kn?: string };
     what_is_disease_disease_repeat_icon?: string;
-    what_is_disease_description_repeater?: {
+    what_is_disease_disease_repeat_description?: { en?: string; kn?: string };
+    what_is_disease_heading_description_repeater?: {
       what_is_disease_heading_repeat?: { en?: string; kn?: string };
       what_is_disease_description_repeat?: { en?: string; kn?: string };
     }[];
@@ -160,7 +146,7 @@ export interface IDisease extends Document {
       treatment_option_repeat_icon?: string;
     }[];
   }[];
-
+  category:mongoose.Schema.Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -187,7 +173,12 @@ const DiseaseSchema = new Schema<IDisease>({
   prevention_tips: { type: [PreventionTipsSchema] },
 
   treatment_option_tab_title: { type: MultiLangSchema },
-  treatment_option: { type: [TreatmentOptionSchema] }
+  treatment_option: { type: [TreatmentOptionSchema] },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'categories',
+    required: true
+  },
 }, { timestamps: true });
 
 export default mongoose.models.diseases || mongoose.model<IDisease>('diseases', DiseaseSchema);

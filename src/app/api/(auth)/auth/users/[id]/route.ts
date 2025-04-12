@@ -124,7 +124,7 @@ export async function PUT(
       status: userObj.status,
     };
 
-    await sendApprovalEmail(user, token);
+    await sendApprovalEmail(user, 'register',token);
   }
 
   return NextResponse.json({ message: 'User updated successfully', user: updatedUser });

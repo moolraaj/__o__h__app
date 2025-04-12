@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
             what_is_disease_repeat_images: repeatItem.what_is_disease_repeat_images,
             what_is_disease_heading: { [lang]: repeatItem.what_is_disease_heading?.[lang] || '' },
             what_is_disease_disease_repeat_icon: repeatItem.what_is_disease_disease_repeat_icon,
+            what_is_disease_disease_repeat_description:{[lang]:repeatItem.what_is_disease_disease_repeat_description?.[lang] || ''},
             what_is_disease_description_repeater: repeatItem.what_is_disease_description_repeater?.map((descItem: WhatIsDiseaseDescriptionRepeater) => ({
               what_is_disease_heading_repeat: { [lang]: descItem.what_is_disease_heading_repeat?.[lang] || '' },
               what_is_disease_description_repeat: { [lang]: descItem.what_is_disease_description_repeat?.[lang] || '' },
@@ -83,6 +84,7 @@ export async function GET(request: NextRequest) {
               treatment_option_repeat_icon: repItem.treatment_option_repeat_icon,
             })),
           })),
+          category_ref:item.category_ref,
           createdAt: item.createdAt,
           updatedAt: item.updatedAt,
           __v: item.__v,

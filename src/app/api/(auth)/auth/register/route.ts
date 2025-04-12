@@ -1,29 +1,22 @@
-
 import { dbConnect } from '@/database/database';
 import User from '@/models/User';
-import VerificationToken from '@/models/VerificationToken';
+ 
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
-import { sendApprovalEmail } from '@/utils/Email';
 import { Users } from '@/utils/Types';
-
+import { sendApprovalEmail } from '@/utils/Email';
+import { createVerificationToken } from '@/utils/Constants';
 
 export async function POST(req: NextRequest) {
   try {
     const { name, email, password, phoneNumber, role } = await req.json();
-
-
     if (!name || !email || !password || !phoneNumber) {
       return NextResponse.json(
         { error: 'Name, email, password, and phone number are required.' },
         { status: 400 }
       );
     }
-
     await dbConnect();
-
-
     const existingUserByEmail = await User.findOne({ email });
     if (existingUserByEmail) {
       return NextResponse.json(
@@ -31,7 +24,6 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
-
     const existingUserByPhone = await User.findOne({ phoneNumber });
     if (existingUserByPhone) {
       return NextResponse.json(
@@ -41,14 +33,12 @@ export async function POST(req: NextRequest) {
     }
 
     const finalRole = role || 'user';
-
+   
     let status = 'approved';
     if (finalRole === 'admin' || finalRole === 'dantasurakshaks') {
       status = 'pending';
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = await User.create({
       name,
       email,
@@ -58,28 +48,23 @@ export async function POST(req: NextRequest) {
       status,
     });
 
+    
+    const newUserObj = newUser.toObject();
+    const userToSend: Users = {
+      ...newUserObj,
+      _id: String(newUserObj._id),
+      phoneNumber: Number(newUserObj.phoneNumber),
+    };
 
     if (status === 'pending') {
-      const token = crypto.randomBytes(32).toString('hex');
+ 
+       const tokenForRoleApproval = await createVerificationToken(newUser._id as string);
+      await sendApprovalEmail(userToSend, 'register', tokenForRoleApproval);
 
-      await VerificationToken.create({
-        userId: newUser._id,
-        token,
-        createdAt: new Date(),
-      });
-
-
-
-
-      const newUserObj = newUser.toObject();
-      const userToSend: Users = {
-        ...newUserObj,
-        _id: String(newUserObj._id),
-        phoneNumber: Number(newUserObj.phoneNumber),
-      };
-      await sendApprovalEmail(userToSend, token);
-
-
+       if (!newUser.isVerified) {
+        const tokenForEmailVerification = await createVerificationToken(newUser._id as string);
+        await sendApprovalEmail(userToSend, 'registerverificationcode', tokenForEmailVerification);
+      }
     }
 
     return NextResponse.json(
@@ -92,6 +77,7 @@ export async function POST(req: NextRequest) {
           phoneNumber: Number(newUser.phoneNumber),
           role: newUser.role,
           status: newUser.status,
+          isVerified:false
         },
       },
       { status: 201 }

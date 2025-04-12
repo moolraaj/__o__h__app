@@ -35,6 +35,12 @@ function Sidebar() {
               <Users size={18} /> Slider
             </Link>
           </li>
+
+          <li>
+            <Link href="/super-admin/disease" className="flex items-center gap-2">
+              <Users size={18} /> Disease
+            </Link>
+          </li>
          
         </ul>
       </div>

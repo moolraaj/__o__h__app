@@ -1,81 +1,59 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
-interface Lesion extends Document {
-  fullName: string;
+export interface ILesionRecord extends Document {
+  fullname: string;
   age: number;
   gender: string;
-  contactNumber: string;
+  contact_number: string;
   location: string;
   symptoms: string;
-  duration: string;
-  habits: string;
-  previousDentalTreatments: string;
-  submittedBy: mongoose.Schema.Types.ObjectId;
-  assignedToAdmins?: mongoose.Schema.Types.ObjectId[];
-  images: string[];
-  adminConfirmed: boolean;
+  disease_time: string;
+  existing_habits: string;
+  previous_dental_treatement: string;
+  submitted_by: mongoose.Types.ObjectId;
+  send_to: mongoose.Types.ObjectId[];
+  dental_images: string[];
+  status: string;
+  adminAction: boolean;
 
+  // admins fields only
+  lesion_type?: string;
+  diagnosis_notes?: string;
+  recomanded_actions?: string;
+  comments_or_notes?: string;
+  send_email_to_dantasurakshaks?:boolean
 }
 
-const lesionSchema = new Schema<Lesion>({
-  fullName: {
-    type: String,
-    required: [true, 'Full name is required'],
-    trim: true,
-  },
-  age: {
-    type: Number,
-    required: [true, 'Age is required'],
-  },
-  gender: {
-    type: String,
-    required: [true, 'Gender is required'],
-  },
-  contactNumber: {
-    type: String,
-    required: [true, 'Contact number is required'],
-  },
-  location: {
-    type: String,
-    required: [true, 'Location is required'],
-    trim: true,
-  },
-  symptoms: {
-    type: String,
-    required: [true, 'Symptoms are required'],
-    trim: true,
-  },
-  duration: {
-    type: String,
-  },
-  habits: {
-    type: String,
-  },
-  previousDentalTreatments: {
-    type: String,
-    required: [true, 'Previous dental treatments are required'],
-    trim: true,
-  },
-  submittedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
-    required: [true, 'sender  is required'],
-  },
-  assignedToAdmins: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
-    
-  }],
-  images: {
-    type: [String],
-    required: [true, 'Image URLs are required'],
-  },
-  adminConfirmed: {
-    type: Boolean,
-    default: false,
-  },
-});
+const lesionRecordSchema: Schema = new Schema(
+  {
+    fullname: { type: String, required: true },
+    age: { type: Number, required: true },
+    gender: { type: String, required: true },
+    contact_number: { type: String, required: true },
+    location: { type: String, required: true },
+    symptoms: { type: String, required: true },
+    disease_time: { type: String, required: true },
+    existing_habits: { type: String, required: true },
+    previous_dental_treatement: { type: String },
+    submitted_by: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
+    send_to: { type: [mongoose.Schema.Types.ObjectId], ref: 'users', required: true },
+    dental_images: { type: [String] },
+    status: { type: String, default: 'unsubmit' },
+    adminAction: { type: Boolean, default: false },
+  
 
-const LesionModel = mongoose.models.lesions || mongoose.model<Lesion>('lesions', lesionSchema);
 
-export default LesionModel;
+    // admin feedback fields only
+    lesion_type: { type: String, select: false },
+    diagnosis_notes: { type: String, select: false },
+    recomanded_actions: { type: String, select: false },
+    comments_or_notes: { type: String, select: false },
+    send_email_to_dantasurakshaks:{ type: Boolean, select: false,default: false,}
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const LesionModel: Model<ILesionRecord> =
+  mongoose.models.LesionRecord || mongoose.model<ILesionRecord>('LesionRecord', lesionRecordSchema);

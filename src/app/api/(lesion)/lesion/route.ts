@@ -1,28 +1,48 @@
-
-
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
-import LesionModel from '@/models/Lesion';
+ 
 import { ReusePaginationMethod } from '@/utils/Pagination';
+import { LesionModel } from '@/models/Lesion';
 
 export async function GET(req: NextRequest) {
-    try {
-        await dbConnect();
-        const {page,skip,limit}=ReusePaginationMethod(req)
-        const lesions = await LesionModel.find().populate('submittedBy', 'name _id').populate('assignedToAdmins', '_id name').skip(skip).limit(limit).exec();
-        const totalLesions=await LesionModel.countDocuments()
-        return NextResponse.json({
-            message: 'Lesions retrieved successfully!',
-            lesions,
-            totalLesions,
-            page,
-            limit
-        }, { status: 200 });
-    } catch (err) {
-        if(err instanceof Error){
+  try {
+   
+    await dbConnect();
 
-            return NextResponse.json({ error: 'An error occurred while retrieving lesions.' }, { status: 500 });
-        }
-        
+ 
+    const { page, skip, limit } = ReusePaginationMethod(req);
+
+ 
+    const lesions = await LesionModel.find()
+    
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+ 
+    const totalLesions = await LesionModel.countDocuments();
+
+    return NextResponse.json(
+      {
+        message: 'Lesions retrieved successfully!',
+        status:200,
+        lesions,
+        totalLesions,
+        page,
+        limit
+      },
+       
+    );
+  } catch (error) {
+    if(error instanceof Error){
+      return NextResponse.json(
+        {
+          message: 'Error retrieving lesions',
+          error: error.message
+        },
+        { status: 500 }
+      );
     }
+
+  }
 }

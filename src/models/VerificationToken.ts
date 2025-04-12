@@ -6,4 +6,4 @@ const VerificationTokenSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now, expires: 86400 },  
 });
 
-export default mongoose.models.VerificationToken || mongoose.model('VerificationToken', VerificationTokenSchema);
+export default mongoose.models.verificationtokens || mongoose.model('verificationtokens', VerificationTokenSchema);

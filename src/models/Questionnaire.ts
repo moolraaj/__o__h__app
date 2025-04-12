@@ -1,0 +1,53 @@
+
+ 
+import { QuestionnaireTypes } from '@/utils/Types';
+import mongoose, { Model } from 'mongoose';
+
+const QuestionnaireSchema = new mongoose.Schema({
+  demographics: { type: String },
+  name: { type: String, required: true },
+  age: { type: Number, required: true },
+  gender: { type: String, required: true },
+  bloodGroup: { type: String, required: true },
+  idCardAvailable: { type: String, required: true },
+  cardNumber: { type: String, required: true },
+  religion: { type: String, required: true },
+  religion_input: { type: String },
+  education: { type: String, required: true },
+  occupation: { type: String, required: true },
+  income: { type: Number, required: true },
+  phoneNumber: { type: String, required: true },
+  address: { type: String, required: true },
+  familyHistory: { type: String },
+  firstDegreeRelativeOralCancer: { type: String, required: true },
+  height: { type: Number, required: true },
+  diabetes: { type: String, required: true },
+  hypertension: { type: String, required: true },
+  dietHistory: { type: String, required: true },
+  fruitsConsumption: { type: String, required: true },
+  vegetableConsumption: { type: String, required: true },
+  habitHistory: { type: String },
+  tobaccoChewer: { type: String },
+  tobaccoType: { type: String },
+  discontinuedHabit: { type: String, required: true },
+  durationOfDiscontinuingHabit: { type: String, required: true },
+  otherConsumptionHistory: { type: String },
+  alcoholConsumption: { type: String, required: true },
+  smoking: { type: String, required: true },
+  oralCavityExamination: { type: String },
+  presenceOfLesion: { type: String, required: true },
+  reductionInMouthOpening: { type: String, required: true },
+  suddenWeightLoss: { type: String, required: true },
+  presenceOfSharpTeeth: { type: String, required: true },
+  presenceOfDecayedTeeth: { type: String, required: true },
+  presenceOfGumDisease: { type: [String], required: true },
+  presenceOfFluorosis: { type: String, required: true },
+  send_to: { type: [mongoose.Schema.Types.ObjectId], ref: 'users', required: true },
+  status: { type: String, default: 'unsubmit' },
+  adminAction: { type: Boolean, default: false },
+});
+const Questionnaire: Model<QuestionnaireTypes> =
+  (mongoose.models.Questionnaire as Model<QuestionnaireTypes>) ||
+  mongoose.model<QuestionnaireTypes>('Questionnaire', QuestionnaireSchema);
+
+export default Questionnaire;

@@ -1,135 +1,193 @@
+ 
+
+
+
+ 
+
+import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import { Users } from './Types';
+import { EmailData, LesionEmailData, RegisterEmailData, RegisterVerificationEmailData } from './Types';
 
 const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: process.env.GMAIL,
-        pass: process.env.GMAIL_PASS,
-    },
-    tls: {
-        rejectUnauthorized: false,
-    },
+  service: 'Gmail',
+  auth: {
+    user: process.env.GMAIL,
+    pass: process.env.GMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
-export const sendApprovalEmail = async (newUser: Users, token: string) => {
-    const approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify/${token}?action=approve`;
-    const rejectionLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify/${token}?action=reject`;
+export const sendApprovalEmail = async (
+  data: EmailData,
+  type: 'register' | 'lesion' | 'questionnaire' | 'adminlesionfeedback' | 'registerverificationcode',
+  token?: string,
+  recipients?: string[]
+) => {
+  let approvalLink = '';
+  let rejectionLink = '';
+  let subject = '';
+  let htmlContent = '';
 
-    const mailOptions = {
-        from: process.env.GMAIL,
-        to: process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL,
-        subject: 'Approve or Reject New Admin/Ambassador Registration',
-        html: `
- 
-<html>
-
-<head>
-
-    <style>
-        .wrapper {
-
-            padding: 32px;
-            color: #A73439;
-            border: 1px solid #80808036;
-            max-width: 550px;
-            width: 100%;
-        }
-
-        ul.table_content li {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #80808036;
-        }
-
-        .actions p a:nth-child(2) {
-            background: #e74c3c;
-            color: #fff;
-        }
-
-        .actions p a:nth-child(1) {
-            background: #2ecc71;
-            color: #fff;
-
-        }
-
-        ul.table_content li:nth-child(3) {
-            border: none;
-        }
-
-        .actions h5 {
-            margin: 0px 0px 6px;
-        }
-
-
-
-        .actions p a {
-            padding: 8px 18px;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 500;
-            border-radius: 2px;
+  if (type === 'register') {
+    if (token) {
+      approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify/${token}?action=approve`;
+      rejectionLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify/${token}?action=reject`;
     }
-
-        .wrapper h1 {
-            margin: 0px;
-        }
-
-
-        ul.table_content {
-            padding: 28px;
-            list-style: none;
-            background: #fff;
-            color: #121212;
-            border: 1px solid #80808036;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="wrapper">
-        <h1>Hi Super Admin,</h1>
-        <h3>A new user registered as <b>${newUser.role}</b>. Please review the details below:</h3>
-        <ul class="table_content">
-
-
-            <li>
-                <p>Name: </p>
-                <p>${newUser.name}</p>
-            </li>
-            <li>
-                <p>Email:</p>
-                <p>${newUser.email}</p>
-            </li>
-            <li>
-                <p>Phone:</p>
-                <p>${newUser.phoneNumber}</p>
-            </li>
-
-
-
-        </ul>
-        <div class="actions">
-
-            <h5>Please choose one of the following actions</h5>
+    subject = 'Approve or Reject New Admin/Ambassador Registration';
+    htmlContent = `
+      <html>
+        <head>
+          <style>
+            /* CSS styles for registration email */
+          </style>
+        </head>
+        <body>
+          <div class="wrapper">
+            <h1>Hi Super Admin,</h1>
+            <h3>A new user registered as <b>${(data as RegisterEmailData).role}</b>. Please review the details below:</h3>
+            <ul class="table_content">
+              <li><p>Name:</p><p>${(data as RegisterEmailData).name}</p></li>
+              <li><p>Email:</p><p>${(data as RegisterEmailData).email}</p></li>
+              <li><p>Phone:</p><p>${(data as RegisterEmailData).phoneNumber}</p></li>
+            </ul>
+            <div class="actions">
+              <h5>Please choose one of the following actions</h5>
+              <p>
+                ${token ? `<a href="${approvalLink}" style="background:#2ecc71; color: #fff;">Approve</a>
+                <a href="${rejectionLink}" style="background:#e74c3c; color: #fff; margin-left:30px;">Reject</a>` : ''}
+              </p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  } else if (type === 'registerverificationcode') {
+    if (token) {
+      approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register/verify/${token}?action=verify`;
+    }
+    subject = 'Verify Your Email Address';
+    htmlContent = `
+      <html>
+        <head>
+          <style>
+            /* CSS styles for email verification */
+          </style>
+        </head>
+        <body>
+          <div class="wrapper">
+            <h1>Email Verification</h1>
+            <p>Hello ${(data as RegisterVerificationEmailData).name},</p>
+            <p>Thank you for registering. Please verify your email address by clicking the link below:</p>
             <p>
-<a href="${approvalLink}" class="btn btn-approve" style="background:#2ecc71; color: #fff;">Approve</a>
-<a href="${rejectionLink}" class="btn btn-reject" style="background:#e74c3c; color: #fff; margin-left:30px;">Reject</a>
+              ${token ? `<a href="${approvalLink}" style="background:#2ecc71; color: #fff;">Verify</a>` : ''}
             </p>
-        </div>
-
-    </div>
-</body>
-
-</html>
-    `,
-    };
-
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Email sent successfully:', info.messageId);
-    } catch (error) {
-        console.error('❌ Error sending email:', error);
+          </div>
+        </body>
+      </html>
+    `;
+  } else if (type === 'lesion') {
+    if (token) {
+      approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/lesion/verify/${token}?action=approve`;
+      rejectionLink = `${process.env.NEXT_PUBLIC_API_URL}/api/lesion/verify/${token}?action=reject`;
     }
+    subject = 'New Lesion Record Submitted for Approval';
+    htmlContent = `
+      <html>
+        <head>
+          <style>
+            /* CSS styles for lesion email */
+          </style>
+        </head>
+        <body>
+          <div class="wrapper">
+            <h1>Lesion Approval Request</h1>
+            <p>A lesion record was submitted with the following details:</p>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+            <div class="actions">
+              <p>${token ? `<a href="${approvalLink}">Approve</a>` : ''}</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  } else if (type === 'questionnaire') {
+    if (token) {
+      approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/questionnaire/verify/${token}?action=approve`;
+      rejectionLink = `${process.env.NEXT_PUBLIC_API_URL}/api/questionnaire/verify/${token}?action=reject`;
+    }
+    subject = 'New Questionnaire Submitted for Approval';
+    htmlContent = `
+      <html>
+        <head>
+          <style>
+            .wrapper { padding: 32px; border: 1px solid #80808036; max-width: 550px; width: 100%; }
+            pre { background: #f4f4f4; padding: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="wrapper">
+            <h1>Questionnaire Approval Request</h1>
+            <p>A new questionnaire was submitted with the following details:</p>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+            <div class="actions">
+              <p>${token ? `<a href="${approvalLink}">Approve</a>` : ''}</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  } else if (type === 'adminlesionfeedback') {
+    subject = 'Your Lesion Record Has Received Admin Feedback';
+    htmlContent = `
+      <html>
+        <head>
+          <style>
+              /* CSS styles for admin lesion feedback */
+          </style>
+        </head>
+        <body>
+          <div class="wrapper">
+            <h1>Admin Feedback Received</h1>
+            <p>Your lesion record (ID: ${(data as LesionEmailData)._id}) has received new admin feedback.</p>
+            <p>Feedback Details:</p>
+            <ul>
+              <li><strong>Lesion Type:</strong> ${(data as LesionEmailData).lesion_type || 'N/A'}</li>
+              <li><strong>Diagnosis Notes:</strong> ${(data as LesionEmailData).diagnosis_notes || 'N/A'}</li>
+              <li><strong>Recommended Actions:</strong> ${(data as LesionEmailData).recomanded_actions || 'N/A'}</li>
+              <li><strong>Additional Comments:</strong> ${(data as LesionEmailData).comments_or_notes || 'N/A'}</li>
+            </ul>
+            <p>Please log in to your dashboard for full details.</p>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  const toEmails =
+    type === 'registerverificationcode'
+      ? (data as RegisterVerificationEmailData).email
+      : recipients && recipients.length > 0
+      ? type === 'lesion'
+        ? recipients.join(',')
+        : recipients[0]
+      : process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL;
+
+  const mailOptions = {
+    from: process.env.GMAIL,
+    to: toEmails,
+    subject,
+    html: htmlContent,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    return NextResponse.json({ status: 200, message: `Email sent successfully to ${info.messageId}` });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('❌ Error sending email:', error);
+    }
+    // You could return an error response here if desired
+  }
 };

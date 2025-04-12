@@ -40,6 +40,43 @@ body {
 ::-webkit-scrollbar{
   display: none;
 }
+
+
+
+// diseases css
+
+.disease-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.disease-card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.disease-image img {
+  width: 150px;
+  height: 150px;
+}
+
+.disease-actions {
+  display: flex;
+  gap: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
   
 
 

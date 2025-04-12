@@ -23,10 +23,11 @@ export async function GET(req: NextRequest) {
     const users = await User.find(query, {
       id: 1,
       name: 1,
-      emai: 1,
+      email: 1,
       phoneNumber: 1,
       role: 1,
-      status: 1
+      status: 1,
+      isVerified:1
     })
       .skip(skip)
       .limit(limit)
