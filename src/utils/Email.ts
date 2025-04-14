@@ -205,6 +205,8 @@ export const sendApprovalEmail = async (
 
   try {
     const info = await transporter.sendMail(mailOptions);
+    console.log("Mail sent successfully:", info);
+
     return NextResponse.json({ status: 200, message: `Email sent successfully to ${info.messageId}` });
   } catch (error) {
     if (error instanceof Error) {
