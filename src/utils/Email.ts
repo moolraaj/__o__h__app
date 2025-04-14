@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { EmailData, LesionEmailData, RegisterEmailData, RegisterVerificationEmailData } from './Types';
 
-let HOST = process.env.NEXT_PUBLIC_API_URL
+const HOST = process.env.NEXT_PUBLIC_API_URL
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
