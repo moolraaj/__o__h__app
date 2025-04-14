@@ -34,6 +34,7 @@
 
 body {
   font-family: $font-family;
+  background-color: #f6f9fb;
 }
 
  
@@ -44,11 +45,32 @@ body {
 
 
 // diseases css
+.section-header{
 
+  display: flex;
+  justify-content: space-between;
+  h2{
+    padding: 0px !important;
+    font-size: 28px;
+    font-weight: 500;
+    color: #6B39BD;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0px;
+  }
+  a.add-disease-btn {
+    padding: 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    background-color: red;
+    color: white;
+  }
+}
 .disease-list-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
+ 
 }
 
 .disease-card {
@@ -80,16 +102,10 @@ body {
   
 
 
-.dashboard_main {
-  display: grid;
-  grid-template-columns:15% 1fr;
-  gap: 20px;
-  height: 100vh;
-}
 
 
 .outer_wrapper {
-  padding: 20px 0px;
+  padding: 20px 20px;
 }
 
 .ambass_wrapper {

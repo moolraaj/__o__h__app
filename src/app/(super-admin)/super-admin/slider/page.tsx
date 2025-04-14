@@ -37,7 +37,9 @@ const SliderList = () => {
   <div className="section-one-btn-heading">
     <h2 className="section-onr-heading">All Sliders (Redux Query)</h2>
     <Link href="/super-admin/slider/add-slider" className="add-slider-btn">
-      ➕ Add New Slider
+      ➕ <span>
+      Add New Slider
+      </span>
     </Link>
   </div>
 

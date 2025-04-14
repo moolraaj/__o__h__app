@@ -45,7 +45,7 @@ export default function UserLists() {
                 <td>{ele.name}</td>
                 <td>{ele.email}</td>
                 <td>{ele.phoneNumber}</td>
-                <td>{ele.role}</td>
+                <td className={`role-cell ${ele.role}`}>{ele.role}</td>
               </tr>
             ))}
           </tbody>
