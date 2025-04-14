@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { EmailData, LesionEmailData, RegisterEmailData, RegisterVerificationEmailData } from './Types';
 
-let HOST="https://o-h-app.vercel.app"
+const HOST="https://o-h-app.vercel.app"
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
