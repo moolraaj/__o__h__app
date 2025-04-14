@@ -5,21 +5,44 @@ import { dbConnect } from '@/database/database';
 import mongoose from 'mongoose';
 import { parseValue } from '@/utils/Constants';
 import { QuestionnaireTypes } from '@/utils/Types';
- 
+
 
 await dbConnect();
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const id = (await params).id;
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const questionnaire = await Questionnaire.findById(id);
+    await dbConnect();
+    const { id } = await params;
+
+
+    const questionnaire = await Questionnaire.findById(id)
+      .select('+questionary_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
+      .lean();
+
     if (!questionnaire) {
       return NextResponse.json(
         { success: false, message: 'Questionnaire not found' },
         { status: 404 }
       );
     }
-    return NextResponse.json({ status: 200, success: true, data: questionnaire });
+
+
+    if (questionnaire.send_email_to_dantasurakshaks !== true) {
+      delete questionnaire.questionary_type;
+      delete questionnaire.diagnosis_notes;
+      delete questionnaire.recomanded_actions;
+      delete questionnaire.comments_or_notes;
+    }
+
+    return NextResponse.json({
+      status: 200,
+      success: true,
+      data: questionnaire
+    });
   } catch (err) {
     if (err instanceof Error) {
       return NextResponse.json(
@@ -27,9 +50,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         { status: 500 }
       );
     }
-
   }
 }
+
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id;
   try {
@@ -107,7 +130,8 @@ export async function PUT(
       'suddenWeightLoss',
       'presenceOfSharpTeeth',
       'presenceOfDecayedTeeth',
-      'presenceOfFluorosis'
+      'presenceOfFluorosis',
+      'submitted_by'
     ];
 
 
@@ -119,7 +143,7 @@ export async function PUT(
         }
       }
     }
-    
+
 
     if (formData.has('presenceOfGumDisease')) {
       const gumRawValue = formData.get('presenceOfGumDisease');

@@ -121,6 +121,7 @@ export async function PUT(
         : userObj.phoneNumber,
       password: userObj.password,
       role: userObj.role,
+      isVerified:userObj.isVerified,
       status: userObj.status,
     };
 

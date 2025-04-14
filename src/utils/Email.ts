@@ -1,12 +1,9 @@
- 
-
-
-
- 
 
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { EmailData, LesionEmailData, RegisterEmailData, RegisterVerificationEmailData } from './Types';
+
+const HOST = "https://o-h-app.vercel.app"
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -21,7 +18,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendApprovalEmail = async (
   data: EmailData,
-  type: 'register' | 'lesion' | 'questionnaire' | 'adminlesionfeedback' | 'registerverificationcode',
+  type: 'register' | 'lesion' | 'questionnaire' | 'adminlesionfeedback' | 'adminQuestionaryfeedback' | 'registerverificationcode',
   token?: string,
   recipients?: string[]
 ) => {
@@ -32,8 +29,8 @@ export const sendApprovalEmail = async (
 
   if (type === 'register') {
     if (token) {
-      approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify/${token}?action=approve`;
-      rejectionLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify/${token}?action=reject`;
+      approvalLink = `${HOST}/api/auth/verify/${token}?action=approve`;
+      rejectionLink = `${HOST}/api/auth/verify/${token}?action=reject`;
     }
     subject = 'Approve or Reject New Admin/Ambassador Registration';
     htmlContent = `
@@ -65,7 +62,7 @@ export const sendApprovalEmail = async (
     `;
   } else if (type === 'registerverificationcode') {
     if (token) {
-      approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register/verify/${token}?action=verify`;
+      approvalLink = `${HOST}/api/auth/register/verify/${token}?action=verify`;
     }
     subject = 'Verify Your Email Address';
     htmlContent = `
@@ -89,8 +86,8 @@ export const sendApprovalEmail = async (
     `;
   } else if (type === 'lesion') {
     if (token) {
-      approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/lesion/verify/${token}?action=approve`;
-      rejectionLink = `${process.env.NEXT_PUBLIC_API_URL}/api/lesion/verify/${token}?action=reject`;
+      approvalLink = `${HOST}/api/lesion/verify/${token}?action=approve`;
+      rejectionLink = `${HOST}/api/lesion/verify/${token}?action=reject`;
     }
     subject = 'New Lesion Record Submitted for Approval';
     htmlContent = `
@@ -114,8 +111,8 @@ export const sendApprovalEmail = async (
     `;
   } else if (type === 'questionnaire') {
     if (token) {
-      approvalLink = `${process.env.NEXT_PUBLIC_API_URL}/api/questionnaire/verify/${token}?action=approve`;
-      rejectionLink = `${process.env.NEXT_PUBLIC_API_URL}/api/questionnaire/verify/${token}?action=reject`;
+      approvalLink = `${HOST}/api/questionnaire/verify/${token}?action=approve`;
+      rejectionLink = `${HOST}/api/questionnaire/verify/${token}?action=reject`;
     }
     subject = 'New Questionnaire Submitted for Approval';
     htmlContent = `
@@ -163,16 +160,41 @@ export const sendApprovalEmail = async (
         </body>
       </html>
     `;
+  } else if (type === 'adminQuestionaryfeedback') {
+    subject = 'Your Questionary Record Has Received Admin Feedback';
+    htmlContent = `
+      <html>
+        <head>
+          <style>
+              /* CSS styles for admin lesion feedback */
+          </style>
+        </head>
+        <body>
+          <div class="wrapper">
+            <h1>Admin Feedback Received</h1>
+            <p>Your lesion record (ID: ${(data as LesionEmailData)._id}) has received new admin feedback.</p>
+            <p>Feedback Details:</p>
+            <ul>
+              <li><strong>Lesion Type:</strong> ${(data as LesionEmailData).questionary_type || 'N/A'}</li>
+              <li><strong>Diagnosis Notes:</strong> ${(data as LesionEmailData).diagnosis_notes || 'N/A'}</li>
+              <li><strong>Recommended Actions:</strong> ${(data as LesionEmailData).recomanded_actions || 'N/A'}</li>
+              <li><strong>Additional Comments:</strong> ${(data as LesionEmailData).comments_or_notes || 'N/A'}</li>
+            </ul>
+            <p>Please log in to your dashboard for full details.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
   }
 
   const toEmails =
-    type === 'registerverificationcode'
-      ? (data as RegisterVerificationEmailData).email
+    type === 'registerverificationcode' ? (data as RegisterVerificationEmailData).email
       : recipients && recipients.length > 0
-      ? type === 'lesion'
-        ? recipients.join(',')
-        : recipients[0]
-      : process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL;
+        ? type === 'lesion'
+          ? recipients.join(',')
+          : recipients
+        : process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL;
 
   const mailOptions = {
     from: process.env.GMAIL,
@@ -183,11 +205,13 @@ export const sendApprovalEmail = async (
 
   try {
     const info = await transporter.sendMail(mailOptions);
+    console.log("Mail sent successfully:", info);
+
     return NextResponse.json({ status: 200, message: `Email sent successfully to ${info.messageId}` });
   } catch (error) {
     if (error instanceof Error) {
       console.error('❌ Error sending email:', error);
     }
-    // You could return an error response here if desired
+
   }
 };
