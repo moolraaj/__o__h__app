@@ -48,7 +48,7 @@ const lesionRecordSchema: Schema = new Schema(
     diagnosis_notes: { type: String, select: false },
     recomanded_actions: { type: String, select: false },
     comments_or_notes: { type: String, select: false },
-    send_email_to_dantasurakshaks:{ type: Boolean, select: false,default: false,}
+    send_email_to_dantasurakshaks:{ type: Boolean, select: false,default: false}
   },
   {
     timestamps: true,

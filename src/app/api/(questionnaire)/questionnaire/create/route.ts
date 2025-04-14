@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
       suddenWeightLoss: formData.get('suddenWeightLoss')?.toString() || '',
       presenceOfSharpTeeth: formData.get('presenceOfSharpTeeth')?.toString() || '',
       presenceOfDecayedTeeth: formData.get('presenceOfDecayedTeeth')?.toString() || '',
-      presenceOfFluorosis: formData.get('presenceOfFluorosis')?.toString() || ''
+      presenceOfFluorosis: formData.get('presenceOfFluorosis')?.toString() || '',
+     submitted_by : formData.get('submitted_by')?.toString() || ''
     };
 
   
@@ -66,6 +67,8 @@ export async function POST(req: NextRequest) {
       }
     }
     data.send_to = send_to;
+
+   
 
  
     if (formData.has('presenceOfGumDisease')) {

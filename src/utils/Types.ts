@@ -1,95 +1,6 @@
  
 
 
-
-export type QuestionnaireFormValues = {
-  name: string;
-  age: number;
-  gender: 'male' | 'female';
-  bloodGroup: 'a+' | 'b+' | 'a-' | 'b-' | 'o+' | 'o-' | 'ab+' | 'ab-';
-  idCards: string[];
-  cardNumber: string;
-
-  religion: 'Hindu' | 'Muslim' | 'Christianity' | 'Others';
-  religion_input?: string;
-  education:
-    | 'Illiterate'
-    | 'Primary school certificate'
-    | 'Middle school certificate'
-    | 'High school certificate'
-    | 'Intermediate/ post high school diploma'
-    | 'Graduate/Post graduate'
-    | 'Profession/Honours';
-  occupation:
-    | 'Unemployed'
-    | 'Elementary occupation'
-    | 'Plant and machine operators and assemblers'
-    | 'Craft and related trade workers'
-    | 'Skilled agricultural and fishery workers'
-    | 'Skilled and shop and market sale workers'
-    | 'Clerks'
-    | 'Technicians and Associate professionals'
-    | 'Professionals'
-    | 'Legislators, senior officials and managers';
-  income:
-    | '<7,315'
-    | '7,316-21,913'
-    | '21,914-36,526'
-    | '36,527-45,588'
-    | '45,589-54,650'
-    | '54,651-59,251'
-    | '59,252-63,853'
-    | '63,854-68,454'
-    | '68,455-73,053'
-    | '73,054-1,09,579'
-    | '1,09,580-1,46,103'
-    | '>1,46,104';
-
-  phoneNumber: string;
-  address: string;
-
-  familyHistory?: string;
-  relativeOralCancer: 'yes' | 'no';
-  height: number;
-  diabetes: 'yes' | 'no';
-  hypertension: 'yes' | 'no';
-
-  dietHistory: 'Vegetarian' | 'Mixed';
-  fruitConsumption: '< 4 servings/week' | '> 4 servings/week';
-  vegetableConsumption: '< 4 servings/week' | '> 4 servings/week';
-
-  habitHistory?: string;
-  tobaccoChewer: 'yes' | 'no' | 'Discontinued habit';
-  tobaccoChewerType?: 'Unprocessed/ raw tobacco' | 'Gutkha' | 'Pan masala' | 'Areca nut only' | 'Betel quid (pan+areca nut+lime)';
-  
-  discontinuedHabit: 'yes' | 'no';
-  discontinuingDuration: '< 1 year' | '1-3 years' | '3-5 years';
-  otherConsumptionHistory?: string;
-  
-  alcoholConsumption: 'Yes' | 'no';
-  smoking: 'yes' | 'no';
-
-  oralCavityExamination?: string;
-  lesion: 'white patch' | 'red lesion' | 'tumour (> 2 cms)' | 'ulcer (persistent more than 2 weeks)' | 'Option 6';
-  reductionInMouthOpening: 'yes' | 'no';
-  suddenWeightLoss: 'yes' | 'no';
-  sharpTeeth: 'yes' | 'no';
-  decayedTeeth: 'yes' | 'no';
-  gumDisease: ('No' | 'Loose teeth' | 'Bleeding gums on brushing' | 'Bad breath')[];
-  fluorosis: 'yes' | 'no';
-};
-
-
-
-
-
-
-
-
-
-
-
-
 export type Language = { en: string; kn: string };
 
 export interface UserSearchQuery {
@@ -99,7 +10,6 @@ export interface UserSearchQuery {
   user: Users;
 }
 
-
 export interface Users {
   _id: string;
   name: string;
@@ -108,10 +18,9 @@ export interface Users {
   password?: string;
   role: "admin" | "user" | "dantasurakshaks" | "super-admin";
   status: string;
+  isVerified:boolean
 }
 
-
- 
 export interface PaginatedUsersResponse {
   users: Users[];
   total: number;
@@ -125,14 +34,11 @@ export interface PaginatedUsersResponse {
   };
 }
 
-
-
 export interface GetUsersQueryParams {
   page?: number;
   limit?: number;
   role?: "admin" | "user" | "dantasurakshaks" | "super-admin";
 }
-
 
 export interface SBody {
   image: string;
@@ -141,8 +47,6 @@ export interface SBody {
   _id?: string;
 }
 
-
- 
 export interface Slide {
   sliderImage: string;
   text: Language;
@@ -164,12 +68,10 @@ export interface GetSlidersQueryParams {
   lang?: string;
 }
 
-
 export interface DentalCaries {
   en: string; kn: string
 
 }
-
 
 export interface FaqsWrongFacts {
   en: string; kn: string
@@ -192,7 +94,6 @@ export interface Faqs {
   updatedAt: Date,
   __v: number
 }
-
 
 export interface CategoryType{
   _id: string,
@@ -220,14 +121,12 @@ export interface Lesion {
   adminAction?:boolean
 }
 
-
 export interface ConfirmationPageParams {
   recordType: string;       
   action: string;          
   id: string;                        
   redirectUrl?: string;    
 }
-
 
 export interface QuestionnaireTypes {
   demographics?: string;
@@ -269,24 +168,18 @@ export interface QuestionnaireTypes {
   presenceOfFluorosis?: string;
   presenceOfGumDisease?: string[];
   [key: string]: unknown;
+  questionary_type?: string;
+  diagnosis_notes?: string;
+  recomanded_actions?: string;
+  comments_or_notes?: string;
+  send_email_to_dantasurakshaks?:boolean
 }
-
-
-
- 
-
-
-
-
- 
-
  
 export interface WhatIsDiseaseDescriptionRepeater {
   what_is_disease_heading_repeat: Language;
   what_is_disease_description_repeat: Language;
 }
 
- 
 export interface WhatIsDiseaseRepeat {
   what_is_disease_repeat_images: File[]| null|string[];  
   what_is_disease_heading: Language;
@@ -295,14 +188,12 @@ export interface WhatIsDiseaseRepeat {
   what_is_disease_description_repeater: WhatIsDiseaseDescriptionRepeater[];
 }
 
- 
 export interface CauseRepeat {
   cause_repeat_title: Language;
   cause_repeat_description: Language;
   cause_repeat_icon: File |null|string;
 }
 
- 
 export interface Cause {
   cause_title: Language;
   cause_icon: File | null|string;
@@ -311,14 +202,12 @@ export interface Cause {
   cause_repeat: CauseRepeat[];
 }
 
- 
 export interface SymptomRepeat {
   symptoms_repeat_title: Language;
   symptoms_repeat_description: Language;
   symptoms_repeat_icon: File|null|string;
 }
 
- 
 export interface Symptom {
   symptoms_title: Language;
   symptoms_icon: File | null|string;
@@ -327,14 +216,12 @@ export interface Symptom {
   symptoms_repeat: SymptomRepeat[];
 }
 
- 
 export interface PreventionTipRepeat {
   prevention_tips_repeat_title: Language;
   prevention_tips_repeat_description: Language;
   prevention_tips_repeat_icon: File|null|string;
 }
 
- 
 export interface PreventionTip {
   prevention_tips_title: Language;
   prevention_tips_icon: File|null|string;
@@ -343,14 +230,12 @@ export interface PreventionTip {
   prevention_tips_repeat: PreventionTipRepeat[];
 }
 
- 
 export interface TreatmentOptionRepeat {
   treatment_option_repeat_title: Language;
   treatment_option_repeat_description: Language;
   treatment_option_repeat_icon: File|null|string;
 }
 
- 
 export interface TreatmentOption {
   treatment_option_title: Language;
   treatment_option_icon: File|null|string;
@@ -359,7 +244,6 @@ export interface TreatmentOption {
   treatment_option_repeat: TreatmentOptionRepeat[];
 }
 
- 
 export interface DiseaseTypes {
   _id: string;
   disease_main_title: Language;
@@ -383,11 +267,6 @@ export interface DiseaseTypes {
   updatedAt: string;
   __v: number;
 }
-
-
-// category
-
- 
 
 export interface MythOrFactItem {
   para: Language;
@@ -437,6 +316,7 @@ export interface LesionEmailData {
   diagnosis_notes?: string;
   recomanded_actions?: string;
   comments_or_notes?: string;
+  questionary_type?:string
 }
 
 export interface QuestionnaireEmailData {

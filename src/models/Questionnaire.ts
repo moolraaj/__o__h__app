@@ -1,5 +1,5 @@
 
- 
+
 import { QuestionnaireTypes } from '@/utils/Types';
 import mongoose, { Model } from 'mongoose';
 
@@ -43,8 +43,17 @@ const QuestionnaireSchema = new mongoose.Schema({
   presenceOfGumDisease: { type: [String], required: true },
   presenceOfFluorosis: { type: String, required: true },
   send_to: { type: [mongoose.Schema.Types.ObjectId], ref: 'users', required: true },
+  submitted_by: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
+  
   status: { type: String, default: 'unsubmit' },
   adminAction: { type: Boolean, default: false },
+
+  // admin feedback fields only
+  questionary_type: { type: String, select: false },
+  diagnosis_notes: { type: String, select: false },
+  recomanded_actions: { type: String, select: false },
+  comments_or_notes: { type: String, select: false },
+  send_email_to_dantasurakshaks: { type: Boolean, select: false, default: false }
 });
 const Questionnaire: Model<QuestionnaireTypes> =
   (mongoose.models.Questionnaire as Model<QuestionnaireTypes>) ||

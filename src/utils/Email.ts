@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendApprovalEmail = async (
   data: EmailData,
-  type: 'register' | 'lesion' | 'questionnaire' | 'adminlesionfeedback' | 'registerverificationcode',
+  type: 'register' | 'lesion' | 'questionnaire' | 'adminlesionfeedback' | 'registerverificationcode'|'adminQuestionaryfeedback',
   token?: string,
   recipients?: string[]
 ) => {
@@ -163,6 +163,32 @@ export const sendApprovalEmail = async (
         </body>
       </html>
     `;
+  }else if(type==='adminQuestionaryfeedback'){
+    subject = 'Your Questionary Record Has Received Admin Feedback';
+    htmlContent = `
+      <html>
+        <head>
+          <style>
+              /* CSS styles for admin lesion feedback */
+          </style>
+        </head>
+        <body>
+          <div class="wrapper">
+            <h1>Admin Feedback Received</h1>
+            <p>Your lesion record (ID: ${(data as LesionEmailData)._id}) has received new admin feedback.</p>
+            <p>Feedback Details:</p>
+            <ul>
+              <li><strong>Lesion Type:</strong> ${(data as LesionEmailData).questionary_type || 'N/A'}</li>
+              <li><strong>Diagnosis Notes:</strong> ${(data as LesionEmailData).diagnosis_notes || 'N/A'}</li>
+              <li><strong>Recommended Actions:</strong> ${(data as LesionEmailData).recomanded_actions || 'N/A'}</li>
+              <li><strong>Additional Comments:</strong> ${(data as LesionEmailData).comments_or_notes || 'N/A'}</li>
+            </ul>
+            <p>Please log in to your dashboard for full details.</p>
+          </div>
+        </body>
+      </html>
+    `;
+    
   }
 
   const toEmails =
