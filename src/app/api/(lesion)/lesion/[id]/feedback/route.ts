@@ -55,12 +55,14 @@ export async function PUT(
             return NextResponse.json({ message: 'Error updating lesion record' }, { status: 500 });
         }
         await updatedLesion.populate('submitted_by', 'email');
+       
         const submitterEmail = (updatedLesion.submitted_by as unknown as Users)?.email;
         if (submitterEmail) {
             await sendApprovalEmail(
                 updatedLesion.toObject() as unknown as LesionEmailData,
                 'adminlesionfeedback',
-                submitterEmail
+                undefined,
+                [submitterEmail]
             );
         }
 

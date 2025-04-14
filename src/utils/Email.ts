@@ -1,14 +1,9 @@
- 
-
-
-
- 
 
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { EmailData, LesionEmailData, RegisterEmailData, RegisterVerificationEmailData } from './Types';
 
-const HOST="https://o-h-app.vercel.app"
+let HOST = process.env.NEXT_PUBLIC_API_URL
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -23,7 +18,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendApprovalEmail = async (
   data: EmailData,
-  type: 'register' | 'lesion' | 'questionnaire' | 'adminlesionfeedback' | 'registerverificationcode'|'adminQuestionaryfeedback',
+  type: 'register' | 'lesion' | 'questionnaire' | 'adminlesionfeedback' | 'adminQuestionaryfeedback' | 'registerverificationcode',
   token?: string,
   recipients?: string[]
 ) => {
@@ -165,7 +160,7 @@ export const sendApprovalEmail = async (
         </body>
       </html>
     `;
-  }else if(type==='adminQuestionaryfeedback'){
+  } else if (type === 'adminQuestionaryfeedback') {
     subject = 'Your Questionary Record Has Received Admin Feedback';
     htmlContent = `
       <html>
@@ -190,17 +185,16 @@ export const sendApprovalEmail = async (
         </body>
       </html>
     `;
-    
+
   }
 
   const toEmails =
-    type === 'registerverificationcode'
-      ? (data as RegisterVerificationEmailData).email
+    type === 'registerverificationcode' ? (data as RegisterVerificationEmailData).email
       : recipients && recipients.length > 0
-      ? type === 'lesion'
-        ? recipients.join(',')
-        : recipients[0]
-      : process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL;
+        ? type === 'lesion'
+          ? recipients.join(',')
+          : recipients
+        : process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL;
 
   const mailOptions = {
     from: process.env.GMAIL,
@@ -216,5 +210,6 @@ export const sendApprovalEmail = async (
     if (error instanceof Error) {
       console.error('❌ Error sending email:', error);
     }
+
   }
 };

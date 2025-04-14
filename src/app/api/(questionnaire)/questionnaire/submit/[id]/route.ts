@@ -33,13 +33,16 @@ export async function PATCH(
     const adminUsers = await User.find({ _id: { $in: adminIds } });
 
      const verifiedAdminEmails = adminUsers
+      
+
       .filter(admin => {
+        
+        console.log(`Admin ${admin.email} | Role: ${admin.role} | isVerified: ${admin.isVerified}`);
         return (admin.role === "admin" || admin.role === "dantasurakshaks") && admin.isVerified === true;
       })
       .map(admin => admin.email);
-
-    console.log("Verified admin emails:", verifiedAdminEmails);
-
+      
+  
      if (verifiedAdminEmails.length > 0) {
       await sendApprovalEmail(questionnaireData, "questionnaire", token, verifiedAdminEmails);
       console.log("Approval email sent to:", verifiedAdminEmails);

@@ -67,10 +67,7 @@ export async function POST(req: NextRequest) {
       }
     }
     data.send_to = send_to;
-
-   
-
- 
+    
     if (formData.has('presenceOfGumDisease')) {
       const gumValue = formData.get('presenceOfGumDisease');
       if (gumValue) {

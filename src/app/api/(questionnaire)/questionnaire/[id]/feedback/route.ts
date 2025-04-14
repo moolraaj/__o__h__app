@@ -4,40 +4,39 @@ import { sendApprovalEmail } from '@/utils/Email';
 import { LesionEmailData, Users } from '@/utils/Types';
 import Questionnaire from '@/models/Questionnaire';
 
-
-
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     await dbConnect();
-    const id = (await params).id;
-    
+    const  id = (await params).id;
+
+ 
+
     try {
         const existingQuestionnaire = await Questionnaire.findById(id);
         if (!existingQuestionnaire) {
-            return NextResponse.json({ message: 'Lesion record not found' }, { status: 404 });
+            return NextResponse.json({ message: 'Questionnaire record not found' }, { status: 404 });
         }
-       
         if (existingQuestionnaire.status !== 'submit') {
             return NextResponse.json(
-                { status: 400, message: 'Feedback can only be created when the lesion status is submit' }
+                { status: 400, message: 'Feedback can only be created when the questionnaire status is submit' }
             );
         }
         if (existingQuestionnaire.send_email_to_dantasurakshaks === true) {
             return NextResponse.json(
-                { status: 400, message: "Feedback has already been sent to dantasurakshaks. " },
+                { status: 400, message: "Feedback has already been sent to dantasurakshaks." },
                 { status: 400 }
             );
         }
+
         const formData = await request.formData();
         const questionary_type = formData.get('questionary_type');
         const diagnosis_notes = formData.get('diagnosis_notes');
         const recomanded_actions = formData.get('recomanded_actions');
         const comments_or_notes = formData.get('comments_or_notes');
 
-
-        const updatedLesion = await Questionnaire.findByIdAndUpdate(
+        const updatedQuestionary = await Questionnaire.findByIdAndUpdate(
             id,
             {
                 questionary_type,
@@ -53,28 +52,36 @@ export async function PUT(
         )
             .select('+questionary_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks');
 
-        if (!updatedLesion) {
-            return NextResponse.json({ message: 'Error updating lesion record' }, { status: 500 });
+        if (!updatedQuestionary) {
+            return NextResponse.json({ message: 'Error updating questionnaire record' }, { status: 500 });
         }
-        await updatedLesion.populate('submitted_by', 'email');
-        const submitterEmail = (updatedLesion.submitted_by as unknown as Users)?.email;
+
+        await updatedQuestionary.populate('submitted_by', 'email');
+        
+        const submitterEmail = (updatedQuestionary.submitted_by as unknown as Users)?.email;
+      
         if (submitterEmail) {
+            
             await sendApprovalEmail(
-                updatedLesion.toObject() as unknown as LesionEmailData,
+                updatedQuestionary.toObject() as unknown as LesionEmailData,
                 'adminQuestionaryfeedback',
-                submitterEmail
-            );
+                undefined,
+                [submitterEmail]
+              );
+              
+
         }
 
         return NextResponse.json({
-            message: `Admin replied successfully to lesion id ${id}`,
+            message: `Admin replied successfully to questionnaire id ${id}`,
             status: 200,
-            updatedLesion,
+            updatedQuestionary,
         });
     } catch (error) {
+        console.error("Error while processing PUT:", error);
         if (error instanceof Error) {
-            return NextResponse.json({ message: 'Error updating lesion record', error }, { status: 500 });
+            return NextResponse.json({ message: 'Error updating questionnaire record', error: error.message }, { status: 500 });
         }
-
+        return NextResponse.json({ message: 'Unknown error' }, { status: 500 });
     }
 }
