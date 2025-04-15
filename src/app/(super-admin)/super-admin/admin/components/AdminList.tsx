@@ -5,7 +5,7 @@
 // import { UserCheck } from "lucide-react";
 // import { Users } from "@/utils/Types";
 
- 
+
 
 // export default function AdminLists() {
 //   const { data: adminData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
@@ -118,7 +118,7 @@ import { useGetUsersQuery } from "@/(store)/services/user/userApi";
 import { useState } from "react";
 import { CheckCircle, UserCheck, XCircle } from "lucide-react";
 
- 
+
 
 export default function AdminLists() {
   const { data: adminData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
@@ -151,7 +151,7 @@ export default function AdminLists() {
         alert(data.error || "Failed to update user.");
       }
     } catch (err) {
-      if(err instanceof Error){
+      if (err instanceof Error) {
 
         alert(err.message);
       }
@@ -169,48 +169,50 @@ export default function AdminLists() {
           <h2 className="flex items-center gap-2 text-lg font-bold">
             <UserCheck size={20} /> Admins
           </h2>
+          <div className="admin-table-outer" style={{ overflowX: "auto" }}>
+            <table className="admin_table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adminData?.users.map((ele) => (
+                  <tr key={ele._id}>
+                    <td>{ele.name}</td>
+                    <td>{ele.email}</td>
+                    <td>{ele.phoneNumber}</td>
+                    <td className={`role-cell ${ele.role}`}>{ele.role}</td>
+                    <td className={`status-cell ${ele.status}`}>{ele.status}</td>
 
-           <table className="admin_table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {adminData?.users.map((ele) => (
-            <tr key={ele._id}>
-              <td>{ele.name}</td>
-              <td>{ele.email}</td>
-              <td>{ele.phoneNumber}</td>
-              <td>{ele.role}</td>
-              <td>{ele.status}</td>
-              <td>
-                <div className="aprove-reject-buttons">
-                <button
-                  disabled={actionLoading || ele.status !== 'pending'}
-                  onClick={() => updateUser(ele._id, 'approved', ele.role)}
-                  className={`approve_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
-                >
-                  <CheckCircle size={18} />
-                </button> 
-                <button
-                  disabled={actionLoading || ele.status !== 'pending'}
-                  onClick={() => updateUser(ele._id, 'rejected', ele.role)}
-                  className={`reject_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
-                >
-                   <XCircle size={18} />
-                </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    <td>
+                      <div className="aprove-reject-buttons">
+                        <button
+                          disabled={actionLoading || ele.status !== 'pending'}
+                          onClick={() => updateUser(ele._id, 'approved', ele.role)}
+                          className={`approve_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
+                        >
+                          <CheckCircle size={18} />
+                        </button>
+                        <button
+                          disabled={actionLoading || ele.status !== 'pending'}
+                          onClick={() => updateUser(ele._id, 'rejected', ele.role)}
+                          className={`reject_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
+                        >
+                          <XCircle size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
         </div>
       </div>

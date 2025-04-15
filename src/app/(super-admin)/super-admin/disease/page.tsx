@@ -36,7 +36,7 @@ const DiseaseList = () => {
     <div className="disease-main-container">
       <div className="section-header">
         <h2>All Diseases (Redux Query)</h2>
-        <Link href="/super-admin/disease/add-disease" className="add-disease-btn">
+        <Link href="/super-admin/disease/add-disease" className="add-slider-btn">
           ➕ Add New Disease
         </Link>
       </div>

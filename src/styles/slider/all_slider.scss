@@ -15,23 +15,28 @@
   }
    
   .section-onr-heading {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #333;
+    font-size: 28px; 
+    font-weight: 500;
+    color: $primary-color;
     text-transform: uppercase;
     letter-spacing: 1px;
+    padding: 0px;
+    
   }
    
   .add-slider-btn {
-    background-color: #0061F2;
+    background-color: $primary-color;
     color: white;
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 1rem;
     text-decoration: none;
     transition: background-color 0.3s;
+    display: flex;
+    gap: 8px;
+    align-items: center;
   }
-   
+
   .add-slider-btn:hover {
     background-color: #004bbf;
   }
@@ -39,16 +44,17 @@
   /* Slider Cards */
   .all-slider-container {
     display: grid;
-    grid-template-columns:1fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
   }
    
   .slider-card {
-    background-color: #fff;
+    background-color: $white;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s, box-shadow 0.3s;
+    
   }
    
   .slider-card:hover {
@@ -145,4 +151,39 @@ button.l_c_but {
         
     }
 }
+@media (max-width:1024px) {
+  .add-slider-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
 
+}
+
+
+
+
+}
+@media (max-width:768px) {
+  .all-slider-container {
+    grid-template-columns:  1fr;
+  }
+  .section-onr-heading {
+    font-size: 19px;
+}
+.add-slider-btn {
+  padding: 8px 10px;
+
+}
+
+
+
+
+
+}
+
+
+@media (max-width:768px) {
+  .section-one-btn-heading {
+    gap: 10px;
+    flex-direction:column;
+  }
+}
