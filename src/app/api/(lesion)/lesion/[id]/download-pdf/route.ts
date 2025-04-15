@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
- 
+
 import { generatePDFBase64 } from '@/utils/Constants';
 import { LesionModel } from '@/models/Lesion';
 
@@ -28,7 +28,9 @@ export async function GET(
             );
         }
 
-        const pdfBase64 = await generatePDFBase64(questionnaire.toObject());
+        const pdfBase64 = await generatePDFBase64(
+            questionnaire.toObject() as unknown as Record<string, unknown>
+        );
         return NextResponse.json({ status: 200, message: 'PDF generated successfully', result: pdfBase64, });
     } catch (error) {
         console.error("Error generating PDF:", error);
