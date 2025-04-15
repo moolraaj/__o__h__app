@@ -15,8 +15,6 @@ export const uploadPhotoToCloudinary = async (photo: Blob) => {
     photo.arrayBuffer()
       .then((buffer) => {
         const bufferObj = Buffer.from(buffer);  
-
-        
         cloudinary.uploader.upload_stream(
           { folder: CLOUD_APP_NAME }, 
           (error, result) => {
@@ -31,8 +29,9 @@ export const uploadPhotoToCloudinary = async (photo: Blob) => {
         ).end(bufferObj);  
       })
       .catch((error) => {
-        console.error('Error converting photo to buffer:', error);  
-        reject(new Error('Error converting photo to buffer'));
+        if(error instanceof Error){
+          reject(new Error('Error converting photo to buffer'));
+        }
       });
   });
 };
