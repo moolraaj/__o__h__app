@@ -355,9 +355,10 @@ export interface FaqTypes {
 export interface TextSlide {
   [lang: string]: string;
 }
-export interface  TextSlideType {
+
+export interface TextSlideType {
   _id: string;
-  slider_text: TextSlide[];
+  slider_text: TextSlide;
   createdAt?: Date;
   updatedAt?: Date;
 }

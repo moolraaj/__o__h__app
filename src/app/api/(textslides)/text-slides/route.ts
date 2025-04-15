@@ -1,12 +1,8 @@
-
 import { NextRequest, NextResponse } from 'next/server';
-
 import TextSlider from '@/models/TextSlider';
 import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { dbConnect } from '@/database/database';
-import { TextSlide } from '@/utils/Types';
-
 
 export async function GET(request: NextRequest) {
     try {
@@ -15,14 +11,11 @@ export async function GET(request: NextRequest) {
         const textSliders = await TextSlider.find().lean();
         const totalResults = await TextSlider.countDocuments();
 
-
         const localizedData = textSliders.map((doc) => {
             if (lang === EN || lang === KN) {
                 return {
                     _id: doc._id,
-                    slider_text: doc.slider_text?.map((entry: TextSlide) => ({
-                        [lang]: entry[lang] || '',
-                    })),
+                    slider_text: { [lang]: doc.slider_text?.[lang] || '' },
                     createdAt: doc.createdAt,
                     updatedAt: doc.updatedAt,
                 };
@@ -46,7 +39,3 @@ export async function GET(request: NextRequest) {
         }
     }
 }
-
-
-
-

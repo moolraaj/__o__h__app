@@ -6,7 +6,7 @@ import TextSlider from '@/models/TextSlider';
 import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { dbConnect } from '@/database/database';
-import { TextSlide, TextSlideType } from '@/utils/Types';
+import { TextSlideType } from '@/utils/Types';
 
 export async function GET(
     request: NextRequest,
@@ -36,9 +36,7 @@ export async function GET(
         if (lang === EN || lang === KN) {
             localizedTextSlider = {
                 _id: textSlider._id,
-                slider_text: textSlider.slider_text?.map((entry: TextSlide) => ({
-                    [lang]: entry[lang] || '',
-                })),
+                slider_text: { [lang]: textSlider.slider_text?.[lang] || '' },
                 createdAt: textSlider.createdAt,
                 updatedAt: textSlider.updatedAt,
             };
@@ -47,8 +45,7 @@ export async function GET(
     } catch (error) {
         if (error instanceof Error) {
             return NextResponse.json(
-                { status: 500, success: false, message: error.message || 'Failed to fetch text slider' },
-
+                { status: 500, success: false, message: error.message || 'Failed to fetch text slider' }
             );
         }
     }
@@ -111,21 +108,26 @@ export async function PUT(
             );
         }
         const formData = await req.formData();
-        const updateRepeaterField = (fieldName: string) => {
+        const updateField = (fieldName: string) => {
             const fieldJson = formData.get(fieldName)?.toString();
             if (fieldJson) {
                 try {
-                    const parsedArray = JSON.parse(fieldJson);
-                    if (!Array.isArray(parsedArray))
-                        throw new Error(`${fieldName} must be an array`);
-
-                    textSlider[fieldName] = parsedArray;
+                    const parsedObj = JSON.parse(fieldJson);
+                    if (
+                        typeof parsedObj !== 'object' ||
+                        Array.isArray(parsedObj) ||
+                        parsedObj === null
+                    ) {
+                        throw new Error(`${fieldName} must be an object`);
+                    }
+               
+                    textSlider[fieldName] = parsedObj;
                 } catch (err) {
                     throw new Error(`Invalid ${err} - ${fieldName} JSON`);
                 }
             }
         };
-        updateRepeaterField('slider_text');
+        updateField('slider_text');
         await textSlider.save();
         return NextResponse.json({
             success: true,
@@ -141,3 +143,4 @@ export async function PUT(
         }
     }
 }
+
