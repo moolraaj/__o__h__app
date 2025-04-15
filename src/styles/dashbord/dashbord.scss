@@ -256,7 +256,6 @@
                             height: 30px;
                             width: 30px;
                     }
-                    .inner_dash_holder{
                         gap: 6px;
                         h1{
                             font-size: 26px;
@@ -267,10 +266,8 @@
 
                         }
                     }
-            } 
         } 
-    }
-
+    } 
 }
 }
 
@@ -308,16 +305,10 @@
 
                 .dash_holder{
                     
-                    svg{
-                        
-                    }
+                    /* Removed empty svg ruleset */
                     .inner_dash_holder{
                        
-                        h1{
-                        }
-                        h3{
-                          
-                        }
+                        /* Removed empty h3 ruleset */
                     }
             } 
         } 
