@@ -2,11 +2,11 @@
 import { useEffect, useState } from 'react';
 import Header from '../header/Header';
 import Sidebar from '../sidebar/Sidebar';
-// import { usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
  
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  // const pathname = usePathname();
+  const pathname = usePathname();
 
   const [isToggle, setIsToggle] = useState<boolean>(false); // mobile sidebar toggle state
   const [isMobile, setIsMobile] = useState<boolean>(false); // check if the device is mobile
