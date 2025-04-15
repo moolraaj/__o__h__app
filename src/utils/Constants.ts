@@ -3,6 +3,11 @@ import VerificationToken from "@/models/VerificationToken";
 import crypto from 'crypto';
 import { ConfirmationPageParams } from "./Types";
 
+import PDFDocument from 'pdfkit';
+import { PassThrough } from 'stream';
+import path from 'path';
+import fs from 'fs';
+
 export const PAGE_PER_PAGE_LIMIT = 10
 export const LESION_CREATE = "lesion-created"
 
@@ -72,3 +77,52 @@ export function renderConfirmationPage({
     </body>
   </html>`;
 }
+
+
+export const generatePDFBase64 = async (data: Record<string, unknown>): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ autoFirstPage: false });
+      const fontPath = path.join(
+        process.cwd(),
+        'public',
+        'fonts',
+        'rubik',
+        'rubik.ttf'
+      );
+
+      if (!fs.existsSync(fontPath)) {
+        throw new Error(`Font file not found at: ${fontPath}`);
+      }
+
+      doc.registerFont('Rubik', fontPath);
+      doc.addPage();
+      doc.font('Rubik');
+
+      const chunks: Buffer[] = [];
+      const stream = new PassThrough();
+      doc.pipe(stream);
+      doc.fontSize(16).text('Questionnaire Data', { underline: true });
+      doc.moveDown();
+
+      for (const [key, value] of Object.entries(data)) {
+        doc.fontSize(12).text(`${key}: ${value}`);
+        doc.moveDown(0.5);
+      }
+      doc.end();
+      stream.on('data', (chunk) => chunks.push(chunk));
+      stream.on('end', () => {
+        const pdfBuffer = Buffer.concat(chunks);
+        resolve(pdfBuffer.toString('base64'));
+      });
+      stream.on('error', reject);
+    } catch (error) {
+      console.error('Error in PDF generation:', error);
+      reject(error);
+    }
+  });
+};
+
+
+
+

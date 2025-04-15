@@ -1,4 +1,4 @@
- 
+
 
 
 export type Language = { en: string; kn: string };
@@ -18,7 +18,7 @@ export interface Users {
   password?: string;
   role: "admin" | "user" | "dantasurakshaks" | "super-admin";
   status: string;
-  isVerified:boolean
+  isVerified: boolean
 }
 
 export interface PaginatedUsersResponse {
@@ -30,7 +30,7 @@ export interface PaginatedUsersResponse {
     admin: number;
     user: number;
     ambassador: number;
-    [key: string]: number;  
+    [key: string]: number;
   };
 }
 
@@ -95,7 +95,7 @@ export interface Faqs {
   __v: number
 }
 
-export interface CategoryType{
+export interface CategoryType {
   _id: string,
   categoryImage: string,
   title: Language,
@@ -104,7 +104,7 @@ export interface CategoryType{
 }
 
 export interface Lesion {
-  _id:string;
+  _id: string;
   fullname?: string;
   age?: number;
   gender?: string;
@@ -117,15 +117,15 @@ export interface Lesion {
   submitted_by?: string;
   send_to?: string[];
   dental_images?: string[];
-  status?:string,
-  adminAction?:boolean
+  status?: string,
+  adminAction?: boolean
 }
 
 export interface ConfirmationPageParams {
-  recordType: string;       
-  action: string;          
-  id: string;                        
-  redirectUrl?: string;    
+  recordType: string;
+  action: string;
+  id: string;
+  redirectUrl?: string;
 }
 
 export interface QuestionnaireTypes {
@@ -172,31 +172,31 @@ export interface QuestionnaireTypes {
   diagnosis_notes?: string;
   recomanded_actions?: string;
   comments_or_notes?: string;
-  send_email_to_dantasurakshaks?:boolean
+  send_email_to_dantasurakshaks?: boolean
 }
- 
+
 export interface WhatIsDiseaseDescriptionRepeater {
   what_is_disease_heading_repeat: Language;
   what_is_disease_description_repeat: Language;
 }
 
 export interface WhatIsDiseaseRepeat {
-  what_is_disease_repeat_images: File[]| null|string[];  
+  what_is_disease_repeat_images: File[] | null | string[];
   what_is_disease_heading: Language;
-  what_is_disease_disease_repeat_icon: File|null|string;
-  what_is_disease_disease_repeat_description:Language;
+  what_is_disease_disease_repeat_icon: File | null | string;
+  what_is_disease_disease_repeat_description: Language;
   what_is_disease_description_repeater: WhatIsDiseaseDescriptionRepeater[];
 }
 
 export interface CauseRepeat {
   cause_repeat_title: Language;
   cause_repeat_description: Language;
-  cause_repeat_icon: File |null|string;
+  cause_repeat_icon: File | null | string;
 }
 
 export interface Cause {
   cause_title: Language;
-  cause_icon: File | null|string;
+  cause_icon: File | null | string;
   cause_para: Language;
   cause_brief: Language;
   cause_repeat: CauseRepeat[];
@@ -205,12 +205,12 @@ export interface Cause {
 export interface SymptomRepeat {
   symptoms_repeat_title: Language;
   symptoms_repeat_description: Language;
-  symptoms_repeat_icon: File|null|string;
+  symptoms_repeat_icon: File | null | string;
 }
 
 export interface Symptom {
   symptoms_title: Language;
-  symptoms_icon: File | null|string;
+  symptoms_icon: File | null | string;
   symptoms_para: Language;
   symptoms_brief: Language;
   symptoms_repeat: SymptomRepeat[];
@@ -219,12 +219,12 @@ export interface Symptom {
 export interface PreventionTipRepeat {
   prevention_tips_repeat_title: Language;
   prevention_tips_repeat_description: Language;
-  prevention_tips_repeat_icon: File|null|string;
+  prevention_tips_repeat_icon: File | null | string;
 }
 
 export interface PreventionTip {
   prevention_tips_title: Language;
-  prevention_tips_icon: File|null|string;
+  prevention_tips_icon: File | null | string;
   prevention_tips_para: Language;
   prevention_tips_brief: Language;
   prevention_tips_repeat: PreventionTipRepeat[];
@@ -233,12 +233,12 @@ export interface PreventionTip {
 export interface TreatmentOptionRepeat {
   treatment_option_repeat_title: Language;
   treatment_option_repeat_description: Language;
-  treatment_option_repeat_icon: File|null|string;
+  treatment_option_repeat_icon: File | null | string;
 }
 
 export interface TreatmentOption {
   treatment_option_title: Language;
-  treatment_option_icon: File|null|string;
+  treatment_option_icon: File | null | string;
   treatment_option_para: Language;
   treatment_option_brief: Language;
   treatment_option_repeat: TreatmentOptionRepeat[];
@@ -262,7 +262,7 @@ export interface DiseaseTypes {
   prevention_tips: PreventionTip[];
   treatment_option_tab_title: Language;
   treatment_option: TreatmentOption[];
-  category:string
+  category: string
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -280,22 +280,22 @@ export interface CategoryDiseaseTypes {
   disease_slug: Language;
 }
 export interface FeatureSchema {
-  _id:string
-  categoryImage:string
+  _id: string
+  categoryImage: string
   feature_main_title: Language;
   feature_slug: Language;
-  feature_main_image?: string;  
+  feature_main_image?: string;
   feature_inner_title: Language;
   feature_inner_description: Language;
-  feature_inner_image?: string;  
+  feature_inner_image?: string;
   feature_myth_facts_title: Language;
   feature_myth_facts_description: Language;
   feature_myths: MythOrFactItem[];
   feature_facts: MythOrFactItem[];
   diseases: CategoryDiseaseTypes[]
-  createdAt:Date;
-  updatedAt:Date;
-  __v:number
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number
 }
 
 export interface RegisterEmailData {
@@ -316,7 +316,7 @@ export interface LesionEmailData {
   diagnosis_notes?: string;
   recomanded_actions?: string;
   comments_or_notes?: string;
-  questionary_type?:string
+  questionary_type?: string
 }
 
 export interface QuestionnaireEmailData {
@@ -328,7 +328,112 @@ export type EmailData =
   | RegisterVerificationEmailData
   | LesionEmailData
   | QuestionnaireEmailData;
- 
+
+
+
+
+// FaqTypes
+export interface FaqsQuestion {
+  question: { en: string; kn: string };
+  answer: { en: string; kn: string };
+}
+export interface FaqTypes {
+  _id: string;
+  dental_caries_title: Language;
+  dental_caries: FaqsQuestion[];
+  gum_diseases_title: Language;
+  gum_disease: FaqsQuestion[];
+  edentulism_title: Language;
+  edentulism: FaqsQuestion[];
+  oral_cancer_title: Language;
+  oral_cancer: FaqsQuestion[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// TextSlide
+export interface TextSlide {
+  [lang: string]: string;
+}
+export interface  TextSlideType {
+  _id: string;
+  slider_text: TextSlide[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+
+// habit health
+
+export interface HabitHealthRepeaterItem {
+  habit_health_suggesion_para: Language;
+  habit_health_suggesion_icon: string;
+}
+
+export interface BadHabitsRepeaterItem {
+  bad_habits_repeater_heading: Language;
+  bad_habits_repeater_description: Language;
+  bad_habits_repeater_icon: string;
+}
+export interface ImproveHabitsRepeaterItem {
+  improve_habits_repeater_heading: Language;
+  improve_habits_repeater_description: Language;
+  improve_habits_repeater_icon: string;
+}
+export interface IHabitHealthTypes {
+  _id: string;
+  habits_health_main_title: Language;
+  habits_health_main_image: string;
+  habits_health_heading: Language;
+  habits_health_para: Language;
+  habits_health_icon: string;
+  habit_health_inner_title: Language;
+  habit_health_inner_repeater: HabitHealthRepeaterItem[];
+  bad_habits_health_title: Language;
+  bad_habits_health_para: Language;
+  bad_habits_health_icon: string;
+  bad_habits_health_repeater: BadHabitsRepeaterItem[];
+  improve_health_habits_title: Language;
+  improve_health_habits_description: Language;
+  improve_health_habits_icon: string;
+  improve_habits_health_repeater: ImproveHabitsRepeaterItem[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+
+// dental emergency repeater
+
+export interface DentalEmerDescriptionRepeater {
+  denatl_emer_tab_heading: Language;
+  denatl_emer_tab_paragraph: Language;
+}
+
+export interface DentalEmerRepeater {
+  dental_emer_tab_title: Language;
+  denatl_emer_description_repeater: DentalEmerDescriptionRepeater[];
+}
+export interface DentalEmergencyTypes {
+  _id: string;
+  dental_emergency_title: Language;
+  dental_emergency_image: string;
+  dental_emergency_heading: Language;
+  dental_emergency_para: Language;
+  dental_emergency_icon: string;
+  dental_emergency_inner_title: Language;
+  dental_emergency_inner_para: Language;
+  dental_emergency_inner_icon: string;
+  dental_emer_title: Language;
+  dental_emer_sub_title: Language;
+  dental_emer_repeater: DentalEmerRepeater[];
+  createdAt: Date;  
+  updatedAt: Date;  
+  __v: number;
+}
+
+
+
+
 
 
 
