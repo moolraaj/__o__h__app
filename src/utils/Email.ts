@@ -3,8 +3,8 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { EmailData, LesionEmailData, RegisterEmailData, RegisterVerificationEmailData } from './Types';
 
-const HOST = "https://o-h-app.vercel.app"
-// const HOST = "http://localhost:3000"
+// const HOST = "https://o-h-app.vercel.app"
+const HOST = "http://localhost:3000"
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',

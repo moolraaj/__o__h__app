@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
+ 
 export interface ICategory extends Document {
   feature_main_title: { en: string; kn: string };
   feature_slug: { en: string; kn: string };
@@ -70,14 +70,19 @@ const CategorySchema = new Schema<ICategory>(
   { timestamps: true }
 );
 
+ 
+
 CategorySchema.virtual('diseases', {
-  ref: 'diseases',
+  ref: 'diseases',  
   localField: '_id',
   foreignField: 'category',
+  justOne: false   
 });
 
+
  
-CategorySchema.set('toJSON', { virtuals: true });
+CategorySchema.set('toObject', { virtuals: true });
+
 
 export default mongoose.models.categories ||
   mongoose.model<ICategory>('categories', CategorySchema);

@@ -37,8 +37,8 @@ export async function GET(
     await user.save();
     await VerificationToken.deleteOne({ token });
     return NextResponse.json(
-      { message: 'Email verified successfully.' },
-      { status: 200 }
+      {status: 200, message: 'Email verified successfully.' },
+     
     );
   } catch (error) {
     console.error(error);

@@ -12,7 +12,15 @@ export async function GET(request: NextRequest) {
     const lang = getLanguage(request);
     const { page, skip, limit } = ReusePaginationMethod(request);
 
-    const categories = await Category.find().populate('diseases').limit(limit).skip(skip).lean();
+    const categories = await Category.find()
+      .populate('diseases')
+      .limit(limit)
+      .skip(skip)
+      .lean({ virtuals: true });
+
+
+
+  
 
 
     const totalResults = await Category.countDocuments();
@@ -102,8 +110,8 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     if (err instanceof Error) {
       return NextResponse.json(
-        { success: false, message: 'Failed to fetch categories' },
-        { status: 500 }
+        { status: 500, success: false, message: 'Failed to fetch categories' },
+
       );
     }
   }

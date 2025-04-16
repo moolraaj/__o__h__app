@@ -57,14 +57,9 @@ export async function POST(req: NextRequest) {
     };
 
     if (status === 'pending') {
- 
+
        const tokenForRoleApproval = await createVerificationToken(newUser._id as string);
       await sendApprovalEmail(userToSend, 'register', tokenForRoleApproval);
-
-       if (!newUser.isVerified) {
-        const tokenForEmailVerification = await createVerificationToken(newUser._id as string);
-        await sendApprovalEmail(userToSend, 'registerverificationcode', tokenForEmailVerification);
-      }
     }
 
     return NextResponse.json(
