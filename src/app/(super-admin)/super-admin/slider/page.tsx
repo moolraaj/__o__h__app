@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useDeleteSliderMutation, useGetSlidersQuery } from '@/(store)/services/slider/sliderApi';
 import ReusableModal from '@/(common)/Model';
 import { Slide } from '@/utils/Types';
+import { FaEdit, FaPlus, FaTrash, FaTree } from 'react-icons/fa';
 
 const SliderList = () => {
   const { data: sliders, isLoading, refetch } = useGetSlidersQuery({ page: 1, limit: 100 });
@@ -37,7 +38,8 @@ const SliderList = () => {
   <div className="section-one-btn-heading">
     <h2 className="section-onr-heading">All Sliders (Redux Query)</h2>
     <Link href="/super-admin/slider/add-slider" className="add-slider-btn">
-      ➕ <span>
+    <span className="iconsss">
+    <FaPlus/> 
       Add New Slider
       </span>
     </Link>
@@ -68,7 +70,9 @@ const SliderList = () => {
 
           <div className="edit-delete-b-container">
             <Link href={`/super-admin/slider/update-slider/${slider._id}`} className="edit-button">
-              ✏️ Edit
+            <span className="iconsss">
+            <FaEdit/> Edit
+            </span>
             </Link>
             <button
               onClick={() => {
@@ -77,7 +81,9 @@ const SliderList = () => {
               }}
               className="delete-button"
             >
-              🗑 Delete
+                <span className="iconsss">
+              <FaTrash/>Delete
+              </span>
             </button>
           </div>
         </div>

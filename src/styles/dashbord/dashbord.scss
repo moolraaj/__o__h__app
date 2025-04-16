@@ -95,12 +95,57 @@
 
 }
 
+
+.show_l li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    svg {
+        transition: color 0.2s ease;
+    }
+
+    h1 {
+        transition: color 0.2s ease;
+    }
+
+    // 🔵 Hover Style
+    &:hover {
+        background-color: #116aef6e; // light blue background
+    }
+
+    // 🟣 Active Style
+    &.active-sidebar-link {
+        background-color: #116aef6e;
+        color: white;
+
+        svg {
+            color: white;
+        }
+
+        h1 {
+            font-weight: bold;
+            color: white;
+        }
+    }
+}
+
+
+
+
+
+
+
+
 .dashboard_main {
     display: flex;
 
     .side_bar_inner {
         height: 100vh;
         padding: 20px 0px;
+
         .sidebar-close-button {
             position: absolute;
             right: 16px;
@@ -113,7 +158,16 @@
             color: $white;
         }
 
+
+        .sidebar-logo {
+            h1 {
+            color: red;
+            font-size: 20px;
+            padding: 0px 0px 0px 10px;
+        }
+
     }
+}
 
     .sidebar {
         max-width: 250px;
@@ -144,7 +198,7 @@
         padding: 10px 20px;
         transition: background-color 0.3s ease, color 0.3s ease;
         gap: 10px;
-        flex-wrap: wrap;
+        margin-top: 5px;
 
         span {
             background-color: #e9f2ff;
@@ -244,31 +298,35 @@
 @media (max-width: 768px) {
     .dashboard_content {
 
-        .dash_container{
+        .dash_container {
             padding: 25px 25px 0px 25px;
             background-image: url(../../images/hero-bg-mobile.png);
-            .dash_wrapper{
 
-                .dash_holder{
-                    
-                    svg{
+            .dash_wrapper {
+
+                .dash_holder {
+
+                    svg {
                         padding: 10px;
-                            height: 30px;
-                            width: 30px;
+                        height: 30px;
+                        width: 30px;
                     }
-                        gap: 6px;
-                        h1{
-                            font-size: 26px;
-                        }
-                        h3{
-                            color: $white;
-                            font-weight: $font-weight-semi-bold;
 
-                        }
+                    gap: 6px;
+
+                    h1 {
+                        font-size: 26px;
                     }
-        } 
-    } 
-}
+
+                    h3 {
+                        color: $white;
+                        font-weight: $font-weight-semi-bold;
+
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -277,44 +335,38 @@
 @media (max-width: 600px) {
     .dashboard_content {
 
-        .dash_container{
+        .dash_container {
             padding: 20px 20px 0px 20px;
-            
-            .dash_wrapper{
+
+            .dash_wrapper {
                 gap: 10px;
             }
-            .dash_outer{
-                .dash_inner{
-                    .dash_h-d{
+
+            .dash_outer {
+                .dash_inner {
+                    .dash_h-d {
                         gap: 15px;
-                        .dash-inner-wraper-h1{
-                            h1{
+
+                        .dash-inner-wraper-h1 {
+                            h1 {
                                 font-size: 20px;
                             }
-                            .dash-inner-wraper-p{
-                                    p{
-                                        font-size: 17px;
-                                    }
 
-                            } 
+                            .dash-inner-wraper-p {
+                                p {
+                                    font-size: 17px;
+                                }
+
+                            }
                         }
                     }
                 }
             }
-            .dash_wrapper{
 
-                .dash_holder{
-                    
-                    /* Removed empty svg ruleset */
-                    .inner_dash_holder{
-                       
-                        /* Removed empty h3 ruleset */
-                    }
-            } 
-        } 
+            
+        }
+
     }
-
-}
 
 
 }
@@ -345,6 +397,7 @@
 
                     a {
                         gap: 10px;
+                        padding: 5px;
                     }
                 }
             }
@@ -357,5 +410,22 @@
         .show-sidebar {
             transform: translateY(50vh);
         }
+
+
+        .show_l {
+            li {
+                a {
+                    span {
+
+                        padding: 8px;
+                    }
+                    h1 {font-size: 14.2px;}
+                }
+
+            }
+
+            
+            }
+
     }
 }

@@ -113,7 +113,7 @@
   }
    
   .delete-button {
-    background-color: #FF5722;
+    background-color: $danger-color;
     color: white;
   }
    
@@ -171,7 +171,7 @@ button.l_c_but {
 }
 .add-slider-btn {
   padding: 8px 10px;
-
+  width: fit-content;
 }
 
 
