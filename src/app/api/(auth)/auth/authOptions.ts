@@ -1,92 +1,168 @@
-import { NextAuthOptions } from "next-auth";
+// import type { NextAuthOptions } from "next-auth";
+// import CredentialsProvider from "next-auth/providers/credentials";
+// import { validateCredentials } from "@/utils/validateCredentials";
+
+// export const authOptions: NextAuthOptions = {
+//   session: { strategy: "jwt" },
+
+//   providers: [
+
+//     CredentialsProvider({
+//       id: "credentials",
+//       name: "Phone Login",
+//       credentials: {
+//         phoneNumber: { label: "Phone number", type: "text" },
+//         password: { label: "Password", type: "password" }
+//       },
+//       async authorize(creds) {
+//         if (!creds?.phoneNumber || !creds.password) return null;
+
+//         const user = await validateCredentials(creds.phoneNumber, creds.password);
+//         if (!user) return null;
+
+//         return {
+//           id: String(user._id),
+//           name: user.name,
+//           role: user.role,
+//           phoneNumber: user.phoneNumber,
+//           email: user.email
+//         };
+//       }
+//     }),
+
+
+//     CredentialsProvider({
+//       id: "superadmin",
+//       credentials: {
+//         email: { label: "E‑mail", type: "text" },
+//         password: { label: "Password", type: "password" }
+//       },
+//       async authorize(creds) {
+
+//         if (!creds?.email || !creds.password) return null;
+
+//         if (creds.email !== "superadmin@gmail.com") return null;
+
+//         const user = await validateCredentials(creds.email, creds.password);
+//         if (!user || user.role !== "super-admin") return null;
+
+//         return {
+//           id: String(user._id),
+//           name: user.name,
+//           role: "super-admin",
+//           email: user.email
+//         };
+//       }
+//     })
+
+//   ],
+
+//   callbacks: {
+//     async jwt({ token, user }) {
+//       if (user) Object.assign(token, user);
+//       return token;
+//     },
+//     async session({ session, token }) {
+//       session.user = token as any;
+//       (session as any).accessToken = token;
+//       return session;
+//     }
+//   },
+
+//   pages: { signIn: "/auth/login" },
+//   debug: process.env.NODE_ENV === "development"
+// };
+
+
+
+import type { NextAuthOptions, User } from "next-auth";
+import type { JWT } from "next-auth/jwt";
+import type { Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { dbConnect } from "@/database/database";
-import User from "@/models/User";
-import bcrypt from "bcryptjs";
+import { validateCredentials } from "@/utils/validateCredentials";
+
+ 
+interface CustomUser extends User {
+  id: string;
+  name?: string;
+  role: string;
+  phoneNumber?: string;
+  email?: string;
+}
+
+ 
+interface CustomSession extends Session {
+  user: CustomUser;
+  accessToken: JWT;
+}
 
 export const authOptions: NextAuthOptions = {
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
+  
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      id: "credentials",
+      name: "Phone Login",
       credentials: {
-        email: {
-          label: "Email",
-          type: "text",
-          placeholder: "john@example.com",
-        },
-        phoneNumber: {
-          label: "Phone Number",
-          type: "text",
-          placeholder: "1234567890",
-        },
-        password: { label: "Password", type: "password" },
+        phoneNumber: { label: "Phone number", type: "text" },
+        password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
-        if ((!credentials?.phoneNumber && !credentials?.email) || !credentials?.password) {
-          throw new Error("Missing credentials");
-        }
-
-        await dbConnect();
-
-        let user = null;
-        if (credentials.phoneNumber) {
-          user = await User.findOne({ phoneNumber: credentials.phoneNumber });
-        } else if (credentials.email) {
-          user = await User.findOne({ email: credentials.email });
-        }
-
-        if (!user) {
-          throw new Error("No user found with provided credentials");
-        }
-
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isPasswordValid) {
-          throw new Error("Invalid password");
-        }
-
-        let finalRole = user.role;
-        if ((user.role === "admin" || user.role === "dantasurakshaks") && user.status !== "approved") {
-          finalRole = "user";
-        }
-
+      async authorize(creds) {
+        if (!creds?.phoneNumber || !creds.password) return null;
+        
+        const user = await validateCredentials(creds.phoneNumber, creds.password);
+        if (!user) return null;
+        
         return {
           id: String(user._id),
           name: user.name,
-          email: user.email,
+          role: user.role,
           phoneNumber: user.phoneNumber,
-          role: finalRole,
+          email: user.email
         };
-
-
-      },
+      }
     }),
+    
+    CredentialsProvider({
+      id: "superadmin",
+      credentials: {
+        email: { label: "E‑mail", type: "text" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(creds) {
+        if (!creds?.email || !creds.password) return null;
+        
+        if (creds.email !== "superadmin@gmail.com") return null;
+        
+        const user = await validateCredentials(creds.email, creds.password);
+        if (!user || user.role !== "super-admin") return null;
+        
+        return {
+          id: String(user._id),
+          name: user.name,
+          role: "super-admin",
+          email: user.email
+        };
+      }
+    })
   ],
+  
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.phoneNumber = user.phoneNumber;
-        token.name = user.name;
-        token.role = user.role;
-        console.log("JWT Callback =>", token);
+      
+        Object.assign(token, user as CustomUser);
       }
       return token;
     },
     async session({ session, token }) {
-      session.user = {
-        id: token.id as string,
-        name: token.name as string,
-        email: token.email as string,
-        phoneNumber: token.phoneNumber as string,
-        role: token.role as string,
-      };
-      return session;
-    },
+    
+      (session.user as CustomUser) = token as CustomUser;
+      (session as CustomSession).accessToken = token;
+      return session as CustomSession;
+    }
   },
-  debug: process.env.NODE_ENV === "development",
+  
+  pages: { signIn: "/auth/login" },
+  debug: process.env.NODE_ENV === "development"
 };
-
-

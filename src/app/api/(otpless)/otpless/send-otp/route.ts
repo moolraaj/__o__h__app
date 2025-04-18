@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
         const clientSecret = process.env.NEXT_PUBLIC_OTPLESS_C_SEC;
         if (!otplessUrl || !clientId || !clientSecret) {
             return NextResponse.json(
-                { error: 'Missing environment configuration' },
-                { status: 500 }
+                {status: 500, error: 'Missing environment configuration' },
+                 
             );
         }
 
@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error('Error sending OTP:', error);
         return NextResponse.json(
-            { error: 'Internal server issue' },
-            { status: 500 }
+            {status: 500, error: 'Internal server issue' },
+            
         );
     }
 }

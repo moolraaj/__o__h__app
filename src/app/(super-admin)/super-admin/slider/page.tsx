@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useDeleteSliderMutation, useGetSlidersQuery } from '@/(store)/services/slider/sliderApi';
 import ReusableModal from '@/(common)/Model';
 import { Slide } from '@/utils/Types';
-import { FaEdit, FaPlus, FaTrash, FaTree } from 'react-icons/fa';
+import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 
 const SliderList = () => {
   const { data: sliders, isLoading, refetch } = useGetSlidersQuery({ page: 1, limit: 100 });

@@ -15,7 +15,7 @@ export default function SuperAdminLogin() {
     setError(null);
 
 
-    const result = await signIn("credentials", {
+    const result = await signIn("superadmin", {
       redirect: false,
       email,
       password,

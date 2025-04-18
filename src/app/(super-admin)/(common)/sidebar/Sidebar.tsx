@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react"; // 👈 Import useState and useEffect
-import { LayoutDashboard, ShieldCheck, UserCheck, Users, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { LayoutDashboard, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { FaTimes } from "react-icons/fa";
 
 interface SidebarProps {
@@ -23,33 +23,33 @@ const links = [
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu }) => {
   const pathname = usePathname();
-  const [isClient, setIsClient] = useState(false); // 👈 State to check if component is mounted on client
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Set the flag to true once the component is mounted on the client
+
     setIsClient(true);
   }, []);
 
   if (!isClient) {
-    return null; // Skip rendering the sidebar during SSR
+    return null;
   }
 
   return (
     <div className="side_bar_inner relative">
       {isMobile && (
-      <div className="sidebar_header">
-        <span
-          onClick={openMenu}
-          className="sidebar-close-button"
-          aria-label="Close Sidebar"
-        >
-          <FaTimes size={20} />
-        </span>
-      {/* Logo Section */}
-      <div className="sidebar-logo p-4 flex justify-center items-center">
-        <h1>Logo</h1>
-      </div>
-      </div>
+        <div className="sidebar_header">
+          <span
+            onClick={openMenu}
+            className="sidebar-close-button"
+            aria-label="Close Sidebar"
+          >
+            <FaTimes size={20} />
+          </span>
+
+          <div className="sidebar-logo p-4 flex justify-center items-center">
+            <h1>Logo</h1>
+          </div>
+        </div>
       )}
 
 
@@ -57,14 +57,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu
       <div className="sidebar_wrapper mt-10">
         <ul className="show_l">
           {links.map(({ href, label, icon: Icon }) => {
-            const isActive = pathname.startsWith(href); // Check if active
+            const isActive = pathname.startsWith(href);
             return (
               <li key={href}>
                 <Link
                   href={href}
-                  className={`flex items-center gap-2 p-2 rounded transition-colors ${
-                    isActive ? "active-sidebar-link" : "hover:bg-gray-100"
-                  }`}
+                  className={`flex items-center gap-2 p-2 rounded transition-colors ${isActive ? "active-sidebar-link" : "hover:bg-gray-100"
+                    }`}
                 >
                   <span><Icon size={20} /></span>
                   {(isMobile || isSidebarExpanded) && <h1>{label}</h1>}

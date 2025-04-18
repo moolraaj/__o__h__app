@@ -2,9 +2,9 @@ import { dbConnect } from '@/database/database';
 import User from '@/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 import { sendApprovalEmail } from '@/utils/Email';
-import { createVerificationToken } from '@/utils/Constants';
+import { createVerificationToken, VERIFIABLE_ROLES } from '@/utils/Constants';
 
-const VERIFIABLE_ROLES = ['admin', 'dantasurakshaks'];
+
 
 export async function POST(
   req: NextRequest,
