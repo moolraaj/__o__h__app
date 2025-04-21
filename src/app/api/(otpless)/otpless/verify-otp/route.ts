@@ -22,13 +22,13 @@ export async function POST(request: NextRequest) {
             body: JSON.stringify({ requestId, otp }),
         });
         const result = await response.json();
-        console.log(result)
+        
         return NextResponse.json(result);
     } catch (error) {
         console.error("Error verifying OTP:", error);
         return NextResponse.json(
-            { error: "Internal server issue" },
-            { status: 500 }
+            {status: 500, error: "Internal server issue" },
+            
         );
     }
 }

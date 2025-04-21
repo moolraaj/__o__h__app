@@ -121,15 +121,16 @@ const links = [
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu }) => {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
+  const userName = "John Doe"; // 👈 Define a userName variable
 
   useEffect(() => {
+
     setIsClient(true);
   }, []);
 
-  if (!isClient) return null;
-
-  const userName = "Amit Maahal";
-  const firstLetter = userName.charAt(0).toUpperCase();
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div className="side_bar_inner relative">
@@ -142,6 +143,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu
           >
             <FaTimes size={20} />
           </span>
+
+          <div className="sidebar-logo p-4 flex justify-center items-center">
+            <h1>Logo</h1>
+          </div>
         </div>
       )}
 
@@ -168,9 +173,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu
               <li key={href}>
                 <Link
                   href={href}
-                  className={`flex items-center gap-2 p-2 rounded transition-colors ${
-                    isActive ? "active-sidebar-link" : "hover:bg-gray-100"
-                  }`}
+                  className={`flex items-center gap-2 p-2 rounded transition-colors ${isActive ? "active-sidebar-link" : "hover:bg-gray-100"
+                    }`}
                 >
                   <span><Icon size={20} /></span>
                   {(isMobile || isSidebarExpanded) && <h1>{label}</h1>}

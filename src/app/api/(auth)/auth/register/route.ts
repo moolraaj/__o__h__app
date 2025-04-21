@@ -12,23 +12,23 @@ export async function POST(req: NextRequest) {
     const { name, email, password, phoneNumber, role } = await req.json();
     if (!name || !email || !password || !phoneNumber) {
       return NextResponse.json(
-        { error: 'Name, email, password, and phone number are required.' },
-        { status: 400 }
+        {status: 400, error: 'All fields are required' },
+        
       );
     }
     await dbConnect();
     const existingUserByEmail = await User.findOne({ email });
     if (existingUserByEmail) {
       return NextResponse.json(
-        { error: 'User with this email already exists.' },
-        { status: 409 }
+        { status: 409 ,error: 'User with this email already exists.' },
+        
       );
     }
     const existingUserByPhone = await User.findOne({ phoneNumber });
     if (existingUserByPhone) {
       return NextResponse.json(
-        { error: 'User with this phone number already exists.' },
-        { status: 409 }
+        { status: 409,error: 'User with this phone number already exists.' },
+     
       );
     }
 
