@@ -71,13 +71,13 @@
 //             )}
 //           </div>
 //         )}
-//         {isMobile && (
-//           <button className="togle-button" onClick={openMenu}>
-//             <span className="menu_icon" >
-//               ☰
-//             </span>
-//           </button>
-//         )}
+        // {isMobile && (
+        //   <button className="togle-button" onClick={openMenu}>
+        //     <span className="menu_icon" >
+        //       ☰
+        //     </span>
+        //   </button>
+        // )}
 //       </div>
 
 //       <ReusableModal
@@ -117,7 +117,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ReusableModal from "@/(common)/Model";
 import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { FaBars } from "react-icons/fa";
+import { FaBars, FaSearch } from "react-icons/fa";
 
 interface HeaderProps {
   handleToggleSidebar: () => void;
@@ -158,9 +158,17 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
             <span className="menu_icon">
               <FaBars size={20} />
             </span>
+            
           </button>
         )}
 
+<div className="right-section">
+          <div className="search-box">
+            <span className="search-icon">
+            <input  type="text" placeholder="Search" />
+            </span>
+          </div>
+         
         <div className="user-info" ref={dropdownRef}>
           <div className="user-icon" onClick={() => setDropdownOpen((prev) => !prev)}>
             {firstLetter}
@@ -181,14 +189,15 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
           )}
         </div>
 
-        {isMobile && (
-          
-            <span className="menu_icon togle-button" onClick={openMenu}>
-              <FaBars size={20} />
-            </span>
-          
-        )}
+        
       </div>
+      {isMobile && (
+          
+          <span className="menu_icon togle-button" onClick={openMenu}>
+            <FaBars size={20} />
+          </span>
+        
+      )}
 
       <ReusableModal
         isOpen={showLogoutModal}
@@ -196,6 +205,7 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
         onConfirm={handleLogout}
         onCancel={() => setShowLogoutModal(false)}
       />
+    </div>
     </div>
   );
 };

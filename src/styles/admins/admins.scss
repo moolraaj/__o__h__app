@@ -2,11 +2,14 @@
 
 .ambassa_wrapper {
     .font-bold {
+      background-color: white;
+    border-radius: 5px;
         display: flex;
         align-items: center;
         color: $primary-color;
         font-size: 28px;
         font-weight: $font-weight-medium;
+        box-shadow: $box-shadow;
     }
 
     .lucide {

@@ -1,7 +1,7 @@
 @use '../variables' as *;
 
 .dashboard_content {
-    // padding: 20px;
+    padding: 20px;
     flex: 1;
 
     .disease-main-container {
@@ -17,7 +17,7 @@
         background-position: right;
         min-height: 270px;
         max-height: 100%;
-        // border-radius: 10px;
+        border-radius: 10px;
         box-shadow: $box-shadow;
 
 
@@ -82,8 +82,10 @@
             background-color: rgb(146, 215, 97);
         }
 
-        .ambassadors svg {
+        .ambassadors {
+           svg{
             background-color: #FEA95F;
+           }
         }
 
         .dash_h-d {
@@ -113,23 +115,33 @@
 
     // 🔵 Hover Style
     &:hover {
-        background-color: #116aef6e; // light blue background
+        background-color: $secondary-color !important; // light blue background
+
+        h1 {
+            color: $primary-color !important;
+        }
     }
 
     // 🟣 Active Style
     &.active-sidebar-link {
-        background-color: #116aef6e;
+        background-color: $secondary-color !important;
         color: white;
+        border-right: 2px solid $primary-color !important;
 
         svg {
-            color: white;
+            color: $primary-color !important;
         }
 
         h1 {
             font-weight: bold;
-            color: white;
+            color: $primary-color !important;
         }
+        span{
+            background-color: $white !important;
+        }
+        
     }
+
 }
 
 
@@ -145,6 +157,30 @@
     .side_bar_inner {
         height: 100vh;
         padding: 20px 0px;
+        white-space: nowrap;
+
+        .sidebar-user-profile-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            padding: 0px 20px 20px ;
+            border-bottom: 1px solid #f1f1f1;
+            .sidebar-user-name{
+                p{
+                    color:#9b9b9b ;
+                    font-size: 15px;
+                }
+
+            }
+
+            img {
+                width: 55px;
+                border-radius: 100%;
+                box-shadow: 0 5px 5px rgba(0, 0, 0, .2);
+                border: 1px solid #fff;
+            
+            }
+        }
 
         .sidebar-close-button {
             position: absolute;
@@ -161,23 +197,25 @@
 
         .sidebar-logo {
             h1 {
-            color: red;
-            font-size: 20px;
-            padding: 0px 0px 0px 10px;
-        }
+                color: $danger-color;
+                font-size: 20px;
+                padding: 0px 0px 0px 10px;
+            }
 
+        }
     }
-}
 
     .sidebar {
-        max-width: 250px;
-        transition: width .3s ease-in-out;
-        overflow: hidden;
-        box-shadow: $box-shadow;
-        background-color: $white;
-        height: 100vh;
-
-    }
+       
+            max-width: 250px;
+            transition: width 0.3s ease-in-out;
+            overflow: hidden;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            height: 100vh;
+            position: fixed;
+            top: 60px;
+        }
 
     .sidebar_wrapper {
         display: flex;
@@ -230,12 +268,16 @@
         background-color: $primary-color;
 
         svg {
-            color: $white !important;
-            background-color: darken($primary-color, 8%);
+            color: $primary-color !important;
+
         }
 
         h1 {
-            color: $white !important;
+            color: $primary-color !important;
+        }
+
+        span {
+            background-color: $white;
         }
     }
 
@@ -248,8 +290,9 @@
         }
 
         h1 {
-            color: $white;
+            color: $primary-color;
         }
+
     }
 }
 
@@ -363,7 +406,7 @@
                 }
             }
 
-            
+
         }
 
     }
@@ -373,6 +416,13 @@
 
 @media (max-width: 468px) {
     .dashboard_main {
+        margin: 0 auto;
+         .disease-main-container{
+            padding: 0px;
+         }
+        .slider-main-outer {         
+       padding: 0px 0px;
+        }
         .sidebar {
             max-width: 100%;
             width: 100% !important;
@@ -419,13 +469,16 @@
 
                         padding: 8px;
                     }
-                    h1 {font-size: 14.2px;}
+
+                    h1 {
+                        font-size: 14.2px;
+                    }
                 }
 
             }
 
-            
-            }
+
+        }
 
     }
 }

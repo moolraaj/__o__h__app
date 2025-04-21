@@ -269,7 +269,7 @@ export async function PUT(
           let imageUrls: string[] = [];
           if (Array.isArray(item.what_is_disease_repeat_images)) {
             imageUrls = item.what_is_disease_repeat_images
-              .map((img) => (typeof img === 'string' && img.trim() !== '') ? img : '')
+              .map((img) => (typeof img === 'string' && img.trim() !== '') ?  : '')
               .filter(url => url !== '');
           }
 

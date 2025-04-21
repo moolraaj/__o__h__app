@@ -63,13 +63,33 @@
       background: $primary-color;
       padding: 10px 20px;
       box-shadow: 0 2px 5px rgba(40, 90, 185, 0.1);
-      position: relative;
+      position: sticky;
       z-index: 10;
+      top: 0px;
 
       .header_wrapper {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+
+        .right-section {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          .search-box{
+
+            input {
+              padding: 5px;
+              border-radius: 5px;
+              border: 2px solid white;
+          }
+          }
+
+
+      }
+
+
        button.togle-icon {
     background-color: #ffffff00;
     border: unset;
@@ -82,10 +102,11 @@
           font-size: 28px;
       }
       span.menu_icon {
-        color: white;
-        background-color: unset;
-    }
+          color: $primary-color;
+          background-color: white;
+          padding: 0px 5px;
       }
+    }
 
       .user-info {
         display: flex;
@@ -110,7 +131,7 @@
 
         &:hover {
           background-color: lighten($primary-color, 30%);
-          color: $white;
+          color: $primary-color;
         }
       }
 
