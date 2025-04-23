@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useCreateDiseaseMutation } from '@/(store)/services/disease/diseaseApi';
 import { Cause, CauseRepeat, PreventionTip, PreventionTipRepeat, Symptom, SymptomRepeat,   TreatmentOption,   TreatmentOptionRepeat, WhatIsDiseaseDescriptionRepeater, WhatIsDiseaseRepeat } from '@/utils/Types';
+import { FaPlus } from 'react-icons/fa';
 
 const AddDisease = () => {
   const [createDisease] = useCreateDiseaseMutation();
@@ -531,7 +532,7 @@ const AddDisease = () => {
 
   return (
     <form onSubmit={handleSubmit} className="form-container">
-      <h2 className="form-title">Add Disease</h2>
+      <h2 className="form-title"><FaPlus/> Add Disease</h2>
      
       <div>
         <label>Main Title (EN):</label>
@@ -614,7 +615,12 @@ const AddDisease = () => {
 
       {/* ---------------- What Is Disease Section ---------------- */}
       <hr />
+      <div className="button-container">
       <h3>{whatIsDiseaseTabTitle.en}</h3>
+      <button type="button" onClick={addWhatIsDiseaseRepeat}>
+      <FaPlus/> Add What Is Disease Item
+      </button>
+      </div>
       {whatIsDiseaseRepeats.map((item, index) => (
         <div key={index} className="repeater">
           <label>What Is Disease Heading (EN):</label>
@@ -701,21 +707,29 @@ const AddDisease = () => {
               </button>
             </div>
           ))}
+          <div className="disease-button-container">
           <button type="button" onClick={() => addWhatIsDiseaseDescriptionRepeat(index)}>
             Add Description Repeat
           </button>
           <button type="button" onClick={() => removeWhatIsDiseaseRepeat(index)}>
             Remove What Is Disease Item
           </button>
+          </div>
         </div>
       ))}
-      <button type="button" onClick={addWhatIsDiseaseRepeat}>
-        Add What Is Disease Item
-      </button>
+      
+
+
 
       {/* ---------------- Common Cause Section ---------------- */}
       <hr />
+      <div className="button-container">
       <h3>{commonCauseTabTitle.en}</h3>
+      <button type="button" onClick={addCommonCause}>
+      <FaPlus/> Add Common Cause
+      </button>
+      </div>
+
       {commonCauses.map((item, index) => (
         <div key={index} className="repeater">
           <label>Cause Title (EN):</label>
@@ -825,13 +839,14 @@ const AddDisease = () => {
           </button>
         </div>
       ))}
-      <button type="button" onClick={addCommonCause}>
-        Add Common Cause
-      </button>
+      
 
       {/* ---------------- Symptoms Section ---------------- */}
       <hr />
+      <div className="button-container">
       <h3>{symptomsTabTitle.en}</h3>
+      <button type="button" onClick={addSymptom}><FaPlus/> Add Symptom</button>
+      </div>
       {symptoms.map((item, index) => (
         <div key={index} className="repeater">
           <label>Symptoms Title (EN):</label>
@@ -931,11 +946,15 @@ const AddDisease = () => {
           </button>
         </div>
       ))}
-      <button type="button" onClick={addSymptom}>Add Symptom</button>
+      
+
 
       {/* ---------------- Prevention Tips Section ---------------- */}
       <hr />
+      <div className="button-container">
       <h3>{preventionTipsTabTitle.en}</h3>
+      <button type="button" onClick={addPreventionTip}><FaPlus/> Add Prevention Tip</button>
+      </div>
       {preventionTips.map((item, index) => (
         <div key={index} className="repeater">
           <label>Prevention Tips Title (EN):</label>
@@ -1035,11 +1054,14 @@ const AddDisease = () => {
           </button>
         </div>
       ))}
-      <button type="button" onClick={addPreventionTip}>Add Prevention Tip</button>
+      
 
       {/* ---------------- Treatment Options Section ---------------- */}
       <hr />
+      <div className="button-container">
       <h3>{treatmentOptionTabTitle.en}</h3>
+      <button type="submit" className="disease-form-submit-button"> Submit Disease</button>
+      </div>
       {treatmentOptions.map((item, index) => (
         <div key={index} className="repeater">
           <label>Treatment Option Title (EN):</label>
@@ -1139,10 +1161,11 @@ const AddDisease = () => {
           </button>
         </div>
       ))}
-      <button type="button" onClick={addTreatmentOption}>Add Treatment Option</button>
+      <button type="button" onClick={addTreatmentOption}><FaPlus/> Add Treatment Option</button>
 
       <hr />
-      <button type="submit" className="submit-button">Submit Disease</button>
+      
+
     </form>
   );
 };

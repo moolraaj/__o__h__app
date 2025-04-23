@@ -1,0 +1,228 @@
+@use '../variables' as *;
+
+.form-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 25px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif;
+  .button-container {
+    display: flex;
+    justify-content: space-between !important;
+    align-items: center;
+    button{
+        display: flex;
+          align-items: center;
+          gap: 5px;
+              padding: 8px 16px;
+              border-radius: 68px;
+              font-size: 15px;
+              background-color: $primary-color;
+              color: $white;
+              border: unset;
+              svg {
+                color: $white;
+            }
+    }
+}
+
+
+
+
+.disease-button-container {
+    display: flex;
+    justify-content: right;
+    gap: 15px;
+}
+
+
+
+
+
+  // Form Title
+  .form-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-size: 22px;
+    color: #007bff;
+    font-weight: 600;
+  }
+
+  hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+
+    
+  }
+
+  label {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #555;
+    display: block;
+    transition: 0.3s;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #fff;
+    box-sizing: border-box;
+    outline: none;
+
+    &:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+    }
+
+    &::placeholder {
+      color: #aaa;
+    }
+  }
+
+  // File input styling
+  input[type="file"] {
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    outline: none;
+  }
+
+  // Textarea
+  textarea {
+    min-height: 140px;
+    resize: vertical;
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .repeater {
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    .nested-repeater {
+      padding-left: 20px;
+      margin-top: 15px;
+      border-left: 4px solid #007bff;
+      margin-bottom: 20px;
+
+      label {
+        font-size: 14px;
+        color: #555;
+        font-weight: 500;
+      }
+
+      input[type="text"] {
+        margin-bottom: 12px;
+      }
+
+      button {
+        background-color: #e74c3c;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 14px;
+        
+
+        &:hover {
+          background-color: #c0392b;
+        }
+      }
+    }
+
+    button {
+      width: auto;
+      background-color: #007bff;
+      color: white;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 20px;
+      font-weight: 500;
+      
+      
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+
+  // Responsive Design for smaller screens
+  @media (max-width: 768px) {
+    padding: 15px;
+
+    .form-title {
+      font-size: 26px;
+    }
+
+    h3 {
+      font-size: 20px;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    button {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .repeater {
+      padding: 15px;
+    }
+
+    .nested-repeater {
+      padding-left: 15px;
+    }
+  }
+}
+
+// Focus Effects
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+// Add subtle hover effect for buttons
+button {
+  transition: background-color 0.3s ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}

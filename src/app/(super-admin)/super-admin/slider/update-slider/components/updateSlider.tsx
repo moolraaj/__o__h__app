@@ -113,8 +113,8 @@ const UpdateSlider = ({ id }: Id) => {
   if (isLoading || !data) return <div>Loading...</div>;
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-5 bg-gray-100 rounded">
-      <h2 className="text-xl font-bold">Update Slider</h2>
+    <form onSubmit={handleSubmit} className="edit-slider-outer">
+      <h2 className="edit-slider-heading">Update Slider</h2>
 
 
       <input
