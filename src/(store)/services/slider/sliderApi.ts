@@ -1,11 +1,12 @@
 import { GetSlidersQueryParams, Slide, SliderResponse } from "@/utils/Types";
-import { sliderSlice } from "./apiSlider";
+ 
+import { rootApi } from "../apiSlice";
 
  
 
  
 
-export const sliderApi = sliderSlice.injectEndpoints({
+export const sliderApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
     getSliders: builder.query<SliderResponse, GetSlidersQueryParams>({
       query: ({ page = 1, limit = 10,  lang }) => ({

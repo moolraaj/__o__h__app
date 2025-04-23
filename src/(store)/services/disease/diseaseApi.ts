@@ -1,7 +1,8 @@
 import { DiseaseTypes} from "@/utils/Types";
-import { diseaseSlice } from "./apiDisease";
  
-export const diseaseApi = diseaseSlice.injectEndpoints({
+import { rootApi } from "../apiSlice";
+ 
+export const diseaseApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
     getDiseases: builder.query({
       query: ({ page = 1, limit = 10,  lang }) => ({

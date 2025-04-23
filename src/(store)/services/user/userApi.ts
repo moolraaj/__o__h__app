@@ -1,7 +1,8 @@
 import { GetUsersQueryParams, PaginatedUsersResponse } from '@/utils/Types';
-import { apiSlice } from './apiSlice';
+ 
+import { rootApi } from '../apiSlice';
 
-export const userApi = apiSlice.injectEndpoints({
+export const userApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
     getUsers: builder.query<PaginatedUsersResponse, GetUsersQueryParams>({
       query: ({ page = 1, limit = 10, role }) => {
