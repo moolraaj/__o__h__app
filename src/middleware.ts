@@ -11,42 +11,42 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
 
-  if (pathname.startsWith('/api')) {
-    if (publicApi.some((p) => pathname.startsWith(p))) {
-      return NextResponse.next();
-    }
+  // if (pathname.startsWith('/api')) {
+  //   if (publicApi.some((p) => pathname.startsWith(p))) {
+  //     return NextResponse.next();
+  //   }
 
 
-    const raw = req.headers.get('authorization')?.split(' ')[1];
-    if (!raw) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  //   const raw = req.headers.get('authorization')?.split(' ')[1];
+  //   if (!raw) {
+  //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  //   }
 
-    try {
-      await jwtVerify(raw, secret);
-      return NextResponse.next();
-    } catch {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-  }
-
-
-  const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  //   try {
+  //     await jwtVerify(raw, secret);
+  //     return NextResponse.next();
+  //   } catch {
+  //     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  //   }
+  // }
 
 
-  if (pathname === '/' && session) {
-    return NextResponse.redirect(new URL('/super-admin/dashboard', req.url));
-  }
+  // const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
 
-  if (pathname.startsWith('/super-admin') && !session) {
-    return NextResponse.redirect(new URL('/auth/login', req.url));
-  }
+  // if (pathname === '/' && session) {
+  //   return NextResponse.redirect(new URL('/super-admin/dashboard', req.url));
+  // }
 
 
-  if (pathname.startsWith('/auth/login') && session) {
-    return NextResponse.redirect(new URL('/super-admin/dashboard', req.url));
-  }
+  // if (pathname.startsWith('/super-admin') && !session) {
+  //   return NextResponse.redirect(new URL('/auth/login', req.url));
+  // }
+
+
+  // if (pathname.startsWith('/auth/login') && session) {
+  //   return NextResponse.redirect(new URL('/super-admin/dashboard', req.url));
+  // }
 
   return NextResponse.next();
 }

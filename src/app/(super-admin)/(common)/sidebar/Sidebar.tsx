@@ -115,7 +115,7 @@ const links = [
   { href: "/super-admin/ambassador", label: "Ambassadors", icon: UserCheck },
   { href: "/super-admin/user", label: "Users", icon: Users },
   { href: "/super-admin/slider", label: "Slider", icon: Users },
-  { href: "/super-admin/disease", label: "Disease", icon: Users },
+  { href: "/super-admin/disease", label: "Diseases", icon: Users },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu }) => {
@@ -150,31 +150,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu
         </div>
       )}
 
-      
+
 
       <div className="sidebar-user-profile-container">
-        <div className="sidebar-user-icon"> 
+        <div className="sidebar-user-icon">
           {/* {firstLetter} */}
-          <img src="https://randomuser.me/api/portraits/men/41.jpg
- " alt="img"/>
+          <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="img" />
         </div>
         <div className="sidebar-user-name">
 
-        {(isMobile || isSidebarExpanded) && <span>{userName}</span>}
-        <p>  Spark Web</p>
+          {(isMobile || isSidebarExpanded) &&
+            <>
+              <h2>{userName}</h2>
+              <p>Dept Admin</p>
+            </>
+          }
         </div>
       </div>
 
       <div className="sidebar_wrapper mt-6">
-        <ul className="show_l">
+        <ul className="sidebar_links">
           {links.map(({ href, label, icon: Icon }) => {
             const isActive = pathname.startsWith(href);
             return (
-              <li key={href}>
+              <li key={href} className={`sidebar-link ${isActive ? "active" : ""
+                }`}>
                 <Link
                   href={href}
-                  className={`flex items-center gap-2 p-2 rounded transition-colors ${isActive ? "active-sidebar-link" : "hover:bg-gray-100"
-                    }`}
                 >
                   <span><Icon size={20} /></span>
                   {(isMobile || isSidebarExpanded) && <h1>{label}</h1>}

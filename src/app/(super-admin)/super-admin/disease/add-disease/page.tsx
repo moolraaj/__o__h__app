@@ -1,18 +1,18 @@
- 
+
 "use client";
 
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useCreateDiseaseMutation } from '@/(store)/services/disease/diseaseApi';
-import { Cause, CauseRepeat, PreventionTip, PreventionTipRepeat, Symptom, SymptomRepeat,   TreatmentOption,   TreatmentOptionRepeat, WhatIsDiseaseDescriptionRepeater, WhatIsDiseaseRepeat } from '@/utils/Types';
+import { Cause, CauseRepeat, PreventionTip, PreventionTipRepeat, Symptom, SymptomRepeat, TreatmentOption, TreatmentOptionRepeat, WhatIsDiseaseDescriptionRepeater, WhatIsDiseaseRepeat } from '@/utils/Types';
 import { FaPlus } from 'react-icons/fa';
 
 const AddDisease = () => {
   const [createDisease] = useCreateDiseaseMutation();
   const router = useRouter();
 
- 
+
   const [diseaseMainTitle, setDiseaseMainTitle] = useState({ en: '', kn: '' });
   const [diseaseMainImage, setDiseaseMainImage] = useState<File | null>(null);
   const [diseaseSlug, setDiseaseSlug] = useState({ en: '', kn: '' });
@@ -26,7 +26,7 @@ const AddDisease = () => {
   const addWhatIsDiseaseCalled = useRef(false);
 
   const addWhatIsDiseaseRepeat = () => {
- 
+
     if (addWhatIsDiseaseCalled.current) return;
     addWhatIsDiseaseCalled.current = true;
     setWhatIsDiseaseRepeats(prev => [
@@ -81,7 +81,7 @@ const AddDisease = () => {
     });
   };
 
- 
+
   const addWhatIsDiseaseDescriptionRepeat = (itemIndex: number) => {
     setWhatIsDiseaseRepeats(prev => {
       const newArr = [...prev];
@@ -96,7 +96,7 @@ const AddDisease = () => {
   const removeWhatIsDiseaseDescriptionRepeat = (itemIndex: number, repeatIndex: number) => {
     setWhatIsDiseaseRepeats(prev => {
       const newArr = [...prev];
-      newArr[itemIndex].what_is_disease_description_repeater = newArr[itemIndex].what_is_disease_description_repeater.filter((item, i:number) => i !== repeatIndex);
+      newArr[itemIndex].what_is_disease_description_repeater = newArr[itemIndex].what_is_disease_description_repeater.filter((item, i: number) => i !== repeatIndex);
       return newArr;
     });
   };
@@ -172,7 +172,7 @@ const AddDisease = () => {
   const removeCommonCauseRepeat = (causeIndex: number, repeatIndex: number) => {
     setCommonCauses(prev => {
       const newArr = [...prev];
-      newArr[causeIndex].cause_repeat = newArr[causeIndex].cause_repeat.filter((item, i:number) => i !== repeatIndex);
+      newArr[causeIndex].cause_repeat = newArr[causeIndex].cause_repeat.filter((item, i: number) => i !== repeatIndex);
       return newArr;
     });
   };
@@ -256,7 +256,7 @@ const AddDisease = () => {
   const removeSymptomRepeat = (symptomIndex: number, repeatIndex: number) => {
     setSymptoms(prev => {
       const newArr = [...prev];
-      newArr[symptomIndex].symptoms_repeat = newArr[symptomIndex].symptoms_repeat.filter((item, i:number) => i !== repeatIndex);
+      newArr[symptomIndex].symptoms_repeat = newArr[symptomIndex].symptoms_repeat.filter((item, i: number) => i !== repeatIndex);
       return newArr;
     });
   };
@@ -340,7 +340,7 @@ const AddDisease = () => {
   const removePreventionTipRepeat = (tipIndex: number, repeatIndex: number) => {
     setPreventionTips(prev => {
       const newArr = [...prev];
-      newArr[tipIndex].prevention_tips_repeat = newArr[tipIndex].prevention_tips_repeat.filter((_, i:number) => i !== repeatIndex);
+      newArr[tipIndex].prevention_tips_repeat = newArr[tipIndex].prevention_tips_repeat.filter((_, i: number) => i !== repeatIndex);
       return newArr;
     });
   };
@@ -424,7 +424,7 @@ const AddDisease = () => {
   const removeTreatmentOptionRepeat = (optionIndex: number, repeatIndex: number) => {
     setTreatmentOptions(prev => {
       const newArr = [...prev];
-      newArr[optionIndex].treatment_option_repeat = newArr[optionIndex].treatment_option_repeat.filter((_, i:number) => i !== repeatIndex);
+      newArr[optionIndex].treatment_option_repeat = newArr[optionIndex].treatment_option_repeat.filter((_, i: number) => i !== repeatIndex);
       return newArr;
     });
   };
@@ -451,7 +451,7 @@ const AddDisease = () => {
     });
   };
 
- 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
@@ -524,7 +524,7 @@ const AddDisease = () => {
         router.push('/super-admin/disease');
       }
     } catch (error) {
-      if(error instanceof Error){
+      if (error instanceof Error) {
         toast.error('Failed to create disease');
       }
     }
@@ -532,94 +532,106 @@ const AddDisease = () => {
 
   return (
     <form onSubmit={handleSubmit} className="form-container">
-      <h2 className="form-title"><FaPlus/> Add Disease</h2>
-     
-      <div>
-        <label>Main Title (EN):</label>
-        <input
-          type="text"
-          placeholder="en"
-          value={diseaseMainTitle.en}
-          onChange={(e) => setDiseaseMainTitle({ ...diseaseMainTitle, en: e.target.value })}
-        />
-        <label>Main Title (KN):</label>
-        <input
-          type="text"
-          placeholder="kn"
-          value={diseaseMainTitle.kn}
-          onChange={(e) => setDiseaseMainTitle({ ...diseaseMainTitle, kn: e.target.value })}
-        />
-      </div>
-      <div>
-        <label>Upload Main Image:</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setDiseaseMainImage(e.target.files?.[0] || null)}
-        />
-      </div>
-      <div>
-        <label>Disease Slug (EN):</label>
-        <input
-          type="text"
-          placeholder="en"
-          value={diseaseSlug.en}
-          onChange={(e) => setDiseaseSlug({ ...diseaseSlug, en: e.target.value })}
-        />
-        <label>Disease Slug (KN):</label>
-        <input
-          type="text"
-          placeholder="kn"
-          value={diseaseSlug.kn}
-          onChange={(e) => setDiseaseSlug({ ...diseaseSlug, kn: e.target.value })}
-        />
-      </div>
-      <div>
-        <label>Disease Title (EN):</label>
-        <input
-          type="text"
-          placeholder="en"
-          value={diseaseTitle.en}
-          onChange={(e) => setDiseaseTitle({ ...diseaseTitle, en: e.target.value })}
-        />
-        <label>Disease Title (KN):</label>
-        <input
-          type="text"
-          placeholder="kn"
-          value={diseaseTitle.kn}
-          onChange={(e) => setDiseaseTitle({ ...diseaseTitle, kn: e.target.value })}
-        />
-      </div>
-      <div>
-        <label>Disease Description (EN):</label>
-        <textarea
-          placeholder="en"
-          value={diseaseDescription.en}
-          onChange={(e) => setDiseaseDescription({ ...diseaseDescription, en: e.target.value })}
-        />
-        <label>Disease Description (KN):</label>
-        <textarea
-          placeholder="kn"
-          value={diseaseDescription.kn}
-          onChange={(e) => setDiseaseDescription({ ...diseaseDescription, kn: e.target.value })}
-        />
-      </div>
-      <div>
-        <label>Upload Disease Icon:</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setDiseaseIcon(e.target.files?.[0] || null)}
-        />
-      </div>
 
+      <div className="add-disease-grid">
+        <div className='disease-fields-grid'>
+          <label>Main Title (EN):</label>
+          <input
+            type="text"
+            placeholder="en"
+            value={diseaseMainTitle.en}
+            onChange={(e) => setDiseaseMainTitle({ ...diseaseMainTitle, en: e.target.value })}
+          />
+        </div>
+        <div className='disease-fields-grid'>
+          <label>Main Title (KN):</label>
+          <input
+            type="text"
+            placeholder="kn"
+            value={diseaseMainTitle.kn}
+            onChange={(e) => setDiseaseMainTitle({ ...diseaseMainTitle, kn: e.target.value })}
+          />
+        </div>
+
+        <div className='disease-fields-grid'>
+          <label>Disease Slug (EN):</label>
+          <input
+            type="text"
+            placeholder="en"
+            value={diseaseSlug.en}
+            onChange={(e) => setDiseaseSlug({ ...diseaseSlug, en: e.target.value })}
+          />
+        </div>
+        <div className='disease-fields-grid'>
+          <label>Disease Slug (KN):</label>
+          <input
+            type="text"
+            placeholder="kn"
+            value={diseaseSlug.kn}
+            onChange={(e) => setDiseaseSlug({ ...diseaseSlug, kn: e.target.value })}
+          />
+        </div>
+
+        <div className='disease-fields-grid'>
+          <label>Disease Title (EN):</label>
+          <input
+            type="text"
+            placeholder="en"
+            value={diseaseTitle.en}
+            onChange={(e) => setDiseaseTitle({ ...diseaseTitle, en: e.target.value })}
+          />
+        </div>
+        <div className='disease-fields-grid'>
+          <label>Disease Title (KN):</label>
+          <input
+            type="text"
+            placeholder="kn"
+            value={diseaseTitle.kn}
+            onChange={(e) => setDiseaseTitle({ ...diseaseTitle, kn: e.target.value })}
+          />
+        </div>
+        <div className='disease-fields-grid'>
+          <label>Disease Description (EN):</label>
+          <textarea
+            placeholder="en"
+            value={diseaseDescription.en}
+            onChange={(e) => setDiseaseDescription({ ...diseaseDescription, en: e.target.value })}
+          />
+        </div>
+        <div className='disease-fields-grid'>
+          <label>Disease Description (KN):</label>
+          <textarea
+            placeholder="kn"
+            value={diseaseDescription.kn}
+            onChange={(e) => setDiseaseDescription({ ...diseaseDescription, kn: e.target.value })}
+          />
+        </div>
+        <div>
+          <label>Upload Main Image:</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setDiseaseMainImage(e.target.files?.[0] || null)}
+          />
+        </div>
+
+
+        <div>
+          <label>Upload Disease Icon:</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setDiseaseIcon(e.target.files?.[0] || null)}
+          />
+        </div>
+      </div>
       {/* ---------------- What Is Disease Section ---------------- */}
       <hr />
       <div className="button-container">
-      <h3>{whatIsDiseaseTabTitle.en}</h3>
-      <button type="button" onClick={addWhatIsDiseaseRepeat}>
-      <FaPlus/> Add What Is Disease Item
-      </button>
+        <h3>{whatIsDiseaseTabTitle.en}</h3>
+        <button type="button" onClick={addWhatIsDiseaseRepeat}>
+          <FaPlus /> Add What Is Disease Item
+        </button>
       </div>
       {whatIsDiseaseRepeats.map((item, index) => (
         <div key={index} className="repeater">
@@ -664,7 +676,7 @@ const AddDisease = () => {
             value={item.what_is_disease_disease_repeat_description?.kn || ''}
             onChange={(e) => handleWhatIsDiseaseRepeatDescriptionChange(index, 'kn', e.target.value)}
           />
-          {item.what_is_disease_description_repeater.map((rep:WhatIsDiseaseDescriptionRepeater, repIndex:number) => (
+          {item.what_is_disease_description_repeater.map((rep: WhatIsDiseaseDescriptionRepeater, repIndex: number) => (
             <div key={repIndex} className="nested-repeater">
               <label>Description Repeat Heading (EN):</label>
               <input
@@ -708,26 +720,26 @@ const AddDisease = () => {
             </div>
           ))}
           <div className="disease-button-container">
-          <button type="button" onClick={() => addWhatIsDiseaseDescriptionRepeat(index)}>
-            Add Description Repeat
-          </button>
-          <button type="button" onClick={() => removeWhatIsDiseaseRepeat(index)}>
-            Remove What Is Disease Item
-          </button>
+            <button type="button" onClick={() => addWhatIsDiseaseDescriptionRepeat(index)}>
+              Add Description Repeat
+            </button>
+            <button type="button" onClick={() => removeWhatIsDiseaseRepeat(index)}>
+              Remove What Is Disease Item
+            </button>
           </div>
         </div>
       ))}
-      
+
 
 
 
       {/* ---------------- Common Cause Section ---------------- */}
       <hr />
       <div className="button-container">
-      <h3>{commonCauseTabTitle.en}</h3>
-      <button type="button" onClick={addCommonCause}>
-      <FaPlus/> Add Common Cause
-      </button>
+        <h3>{commonCauseTabTitle.en}</h3>
+        <button type="button" onClick={addCommonCause}>
+          <FaPlus /> Add Common Cause
+        </button>
       </div>
 
       {commonCauses.map((item, index) => (
@@ -780,7 +792,7 @@ const AddDisease = () => {
             accept="image/*"
             onChange={(e) => handleCommonCauseIconChange(index, e.target.files?.[0] || null)}
           />
-          {item.cause_repeat.map((rep:CauseRepeat, repIndex:number) => (
+          {item.cause_repeat.map((rep: CauseRepeat, repIndex: number) => (
             <div key={repIndex} className="nested-repeater">
               <label>Cause Repeat Title (EN):</label>
               <input
@@ -839,13 +851,13 @@ const AddDisease = () => {
           </button>
         </div>
       ))}
-      
+
 
       {/* ---------------- Symptoms Section ---------------- */}
       <hr />
       <div className="button-container">
-      <h3>{symptomsTabTitle.en}</h3>
-      <button type="button" onClick={addSymptom}><FaPlus/> Add Symptom</button>
+        <h3>{symptomsTabTitle.en}</h3>
+        <button type="button" onClick={addSymptom}><FaPlus /> Add Symptom</button>
       </div>
       {symptoms.map((item, index) => (
         <div key={index} className="repeater">
@@ -897,7 +909,7 @@ const AddDisease = () => {
             accept="image/*"
             onChange={(e) => handleSymptomsIconChange(index, e.target.files?.[0] || null)}
           />
-          {item.symptoms_repeat.map((rep:SymptomRepeat, repIndex:number) => (
+          {item.symptoms_repeat.map((rep: SymptomRepeat, repIndex: number) => (
             <div key={repIndex} className="nested-repeater">
               <label>Symptoms Repeat Title (EN):</label>
               <input
@@ -946,14 +958,14 @@ const AddDisease = () => {
           </button>
         </div>
       ))}
-      
+
 
 
       {/* ---------------- Prevention Tips Section ---------------- */}
       <hr />
       <div className="button-container">
-      <h3>{preventionTipsTabTitle.en}</h3>
-      <button type="button" onClick={addPreventionTip}><FaPlus/> Add Prevention Tip</button>
+        <h3>{preventionTipsTabTitle.en}</h3>
+        <button type="button" onClick={addPreventionTip}><FaPlus /> Add Prevention Tip</button>
       </div>
       {preventionTips.map((item, index) => (
         <div key={index} className="repeater">
@@ -1005,7 +1017,7 @@ const AddDisease = () => {
             accept="image/*"
             onChange={(e) => handlePreventionTipsIconChange(index, e.target.files?.[0] || null)}
           />
-          {item.prevention_tips_repeat.map((rep:PreventionTipRepeat, repIndex:number) => (
+          {item.prevention_tips_repeat.map((rep: PreventionTipRepeat, repIndex: number) => (
             <div key={repIndex} className="nested-repeater">
               <label>Prevention Tip Repeat Title (EN):</label>
               <input
@@ -1054,13 +1066,13 @@ const AddDisease = () => {
           </button>
         </div>
       ))}
-      
+
 
       {/* ---------------- Treatment Options Section ---------------- */}
       <hr />
       <div className="button-container">
-      <h3>{treatmentOptionTabTitle.en}</h3>
-      <button type="submit" className="disease-form-submit-button"> Submit Disease</button>
+        <h3>{treatmentOptionTabTitle.en}</h3>
+        <button type="submit" className="disease-form-submit-button"> Submit Disease</button>
       </div>
       {treatmentOptions.map((item, index) => (
         <div key={index} className="repeater">
@@ -1112,7 +1124,7 @@ const AddDisease = () => {
             accept="image/*"
             onChange={(e) => handleTreatmentOptionIconChange(index, e.target.files?.[0] || null)}
           />
-          {item.treatment_option_repeat.map((rep:TreatmentOptionRepeat, repIndex:number) => (
+          {item.treatment_option_repeat.map((rep: TreatmentOptionRepeat, repIndex: number) => (
             <div key={repIndex} className="nested-repeater">
               <label>Treatment Option Repeat Title (EN):</label>
               <input
@@ -1161,10 +1173,10 @@ const AddDisease = () => {
           </button>
         </div>
       ))}
-      <button type="button" onClick={addTreatmentOption}><FaPlus/> Add Treatment Option</button>
+      <button type="button" onClick={addTreatmentOption}><FaPlus /> Add Treatment Option</button>
 
       <hr />
-      
+
 
     </form>
   );

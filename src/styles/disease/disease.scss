@@ -1,41 +1,80 @@
 @use '../variables' as *;
 
 .form-container {
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 25px;
-  background: #f9f9f9;
+  width: 100%;
+  margin: auto;
+  padding: 0;
+  background: none;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   font-family: 'Roboto', sans-serif;
+
+  .add-disease-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    .disease-fields-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+
+      label {
+        font-size: 15px;
+        font-weight: 500;
+        color: #555;
+      }
+
+      input[type="text"],
+      textarea {
+        padding: 12px 10px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+        background-color: #fff;
+        box-sizing: border-box;
+        outline: none;
+        margin: 0;
+
+        &:focus {
+          border-color: #007bff;
+          box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+        }
+      }
+    }
+  }
+
   .button-container {
     display: flex;
     justify-content: space-between !important;
     align-items: center;
-    button{
-        display: flex;
-          align-items: center;
-          gap: 5px;
-              padding: 8px 16px;
-              border-radius: 68px;
-              font-size: 15px;
-              background-color: $primary-color;
-              color: $white;
-              border: unset;
-              svg {
-                color: $white;
-            }
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      border-radius: 68px;
+      font-size: 15px;
+      background-color: $primary-color;
+      color: $white;
+      border: unset;
+
+      svg {
+        color: $white;
+      }
     }
-}
+  }
 
 
 
 
-.disease-button-container {
+  .disease-button-container {
     display: flex;
     justify-content: right;
     gap: 15px;
-}
+  }
 
 
 
@@ -61,7 +100,7 @@
     border: none;
     border-top: 1px solid #ddd;
 
-    
+
   }
 
   label {
@@ -147,7 +186,7 @@
         cursor: pointer;
         transition: 0.3s;
         font-size: 14px;
-        
+
 
         &:hover {
           background-color: #c0392b;
@@ -167,8 +206,8 @@
       transition: 0.3s;
       margin-top: 20px;
       font-weight: 500;
-      
-      
+
+
 
       &:hover {
         background-color: #0056b3;

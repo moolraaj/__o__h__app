@@ -34,19 +34,19 @@
 //       document.removeEventListener("mousedown", handleClickOutside);
 //     };
 //   }, []);
-  
+
 
 //   return (
 //     <div className="header_inner">
 //       <div className="header_wrapper">
-        
-        
+
+
 //           {!isMobile && <button className="togle-icon" onClick={handleToggleSidebar}>
 //           <span className="menu_icon" >
 //             ☰
 //           </span>
 //         </button> }
-        
+
 //         {session && (
 //           <div className="user-info" ref={dropdownRef}>
 //             <div
@@ -71,13 +71,13 @@
 //             )}
 //           </div>
 //         )}
-        // {isMobile && (
-        //   <button className="togle-button" onClick={openMenu}>
-        //     <span className="menu_icon" >
-        //       ☰
-        //     </span>
-        //   </button>
-        // )}
+// {isMobile && (
+//   <button className="togle-button" onClick={openMenu}>
+//     <span className="menu_icon" >
+//       ☰
+//     </span>
+//   </button>
+// )}
 //       </div>
 
 //       <ReusableModal
@@ -117,7 +117,8 @@ import React, { useState, useEffect, useRef } from "react";
 import ReusableModal from "@/(common)/Model";
 import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { FaBars, FaSearch } from "react-icons/fa";
+import { FaBars, FaSearch, FaTooth } from "react-icons/fa";
+import Link from "next/link";
 
 interface HeaderProps {
   handleToggleSidebar: () => void;
@@ -154,58 +155,64 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
     <div className="header_inner">
       <div className="header_wrapper">
         {!isMobile && (
-          <button className="togle-icon" onClick={handleToggleSidebar}>
-            <span className="menu_icon">
-              <FaBars size={20} />
+          <div className="toggle-logo-section">
+            <span className="togle-icon" onClick={handleToggleSidebar}>
+              <FaBars size={20} color="#116aef" />
             </span>
-            
-          </button>
+            <Link href={`/super-admin/dashboard`} className="logo-wrapper">
+              <span className="logo">
+                <FaTooth size={22} color="#116aef" />
+              </span>
+              <span className="logo-text">
+                Oral Health
+              </span>
+            </Link>
+          </div>
         )}
 
-<div className="right-section">
+        <div className="right-section">
           <div className="search-box">
-            <span className="search-icon">
-            <input  type="text" placeholder="Search" />
-            </span>
-          </div>
-         
-        <div className="user-info" ref={dropdownRef}>
-          <div className="user-icon" onClick={() => setDropdownOpen((prev) => !prev)}>
-            {firstLetter}
+            <FaSearch size={18} color="#116aef" />
+            <input type="text" placeholder="Search" />
           </div>
 
-          {dropdownOpen && (
-            <div className="dropdown-menu">
-              <span
-                onClick={() => {
-                  setShowLogoutModal(true);
-                  setDropdownOpen(false);
-                }}
-                className="logout-button"
-              >
-                <LogOut size={18} /> Logout
-              </span>
+          <div className="user-info" ref={dropdownRef}>
+            <div className="user-icon" onClick={() => setDropdownOpen((prev) => !prev)}>
+              {firstLetter}
             </div>
-          )}
-        </div>
 
-        
-      </div>
-      {isMobile && (
-          
+            {dropdownOpen && (
+              <div className="dropdown-menu">
+                <span
+                  onClick={() => {
+                    setShowLogoutModal(true);
+                    setDropdownOpen(false);
+                  }}
+                  className="logout-button"
+                >
+                  <LogOut size={18} /> Logout
+                </span>
+              </div>
+            )}
+          </div>
+
+
+        </div>
+        {isMobile && (
+
           <span className="menu_icon togle-button" onClick={openMenu}>
             <FaBars size={20} />
           </span>
-        
-      )}
 
-      <ReusableModal
-        isOpen={showLogoutModal}
-        message="Are you sure you want to logout?"
-        onConfirm={handleLogout}
-        onCancel={() => setShowLogoutModal(false)}
-      />
-    </div>
+        )}
+
+        <ReusableModal
+          isOpen={showLogoutModal}
+          message="Are you sure you want to logout?"
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogoutModal(false)}
+        />
+      </div>
     </div>
   );
 };
