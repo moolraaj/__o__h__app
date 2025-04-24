@@ -118,7 +118,17 @@ export interface Lesion {
   send_to?: string[];
   dental_images?: string[];
   status?: string,
-  adminAction?: boolean
+  adminAction?: boolean,
+  createdAt:Date
+}
+
+
+export interface LesionResponse {
+  status: string;
+  lesions: Lesion[];
+  page?: number;
+  limit?: number;
+  total?: number;
 }
 
 export interface ConfirmationPageParams {

@@ -1,16 +1,27 @@
+
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
 const secret = process.env.NEXTAUTH_SECRET!
 
+const publicApi = [
+  '/api/auth',
+  '/api/otpless',
+  '/api/lesion/verify',
+  '/api/questionnaire/verify',
+]
 
-const publicApi = ['/api/auth', '/api/otpless']
+ 
+const feedbackPath = /^\/api\/(?:lesion|questionnaire)\/[^\/]+\/feedback$/
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   if (pathname.startsWith('/api')) {
-    if (publicApi.some(p => pathname.startsWith(p))) {
+    if (
+      publicApi.some(p => pathname.startsWith(p)) ||
+      feedbackPath.test(pathname)
+    ) {
       return NextResponse.next()
     }
 
@@ -21,7 +32,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-
+  // …your existing front-end redirects…
   const session = await getToken({ req, secret })
   if (pathname === '/' && session) {
     return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
@@ -41,6 +52,9 @@ export const config = {
     '/',
     '/auth/login',
     '/super-admin/:path*',
-    '/api/:path*'
+    '/api/:path*',
+    '/api/lesion/verify',
+    '/api/questionnaire/verify',
+    
   ],
 }

@@ -7,6 +7,8 @@ import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
 import path from 'path';
 import fs from 'fs';
+import LesionVerificationTokens from "@/models/LesionVerificationTokens";
+import QuestionnaireVerificationTokens from "@/models/QuestionnaireVerificationTokens";
 
 export const PAGE_PER_PAGE_LIMIT = 10
 export const LESION_CREATE = "lesion-created"
@@ -37,6 +39,8 @@ export async function getAdminsEmails(adminIds: string[]): Promise<string[]> {
 }
 
 
+// random verification tokens
+
 export const createVerificationToken = async (userId: string): Promise<string> => {
     const token = crypto.randomBytes(32).toString('hex');
     await VerificationToken.create({
@@ -46,6 +50,29 @@ export const createVerificationToken = async (userId: string): Promise<string> =
     });
     return token;
 };
+
+
+ 
+// lessions
+export async function createLesionVerificationToken(
+  lesionId: string,
+  adminId: string
+): Promise<string> {
+  const token = crypto.randomBytes(32).toString('hex');
+  await LesionVerificationTokens.create({ lesionId, adminId, token });
+  return token;
+}
+
+// questionaries
+export async function createQuestionnaireVerificationToken(
+  questionnaireId: string,
+  adminId: string
+): Promise<string> {
+  const token = crypto.randomBytes(32).toString('hex');
+  await QuestionnaireVerificationTokens.create({ questionnaireId, adminId, token });
+  return token;
+}
+
 
 
 

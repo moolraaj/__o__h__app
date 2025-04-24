@@ -1,3 +1,4 @@
+// app/api/lesion/route.ts  (or wherever your GET-all lives)
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
 import { ReusePaginationMethod } from '@/utils/Pagination';
@@ -8,20 +9,19 @@ export async function GET(req: NextRequest) {
     await dbConnect();
     const { page, skip, limit } = ReusePaginationMethod(req);
 
-   
     const lesions = await LesionModel.find()
+     
       .select('+lesion_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
+   
+      .populate('assignTo', 'name phoneNumber')
       .skip(skip)
       .limit(limit)
-      .lean();  
+      .lean();
 
     const totalLesions = await LesionModel.countDocuments();
 
-   
-    const filteredLesions = lesions.map((lesion) => {
-   
+    const filteredLesions = lesions.map(lesion => {
       if (lesion.send_email_to_dantasurakshaks !== true) {
-     
         delete lesion.lesion_type;
         delete lesion.diagnosis_notes;
         delete lesion.recomanded_actions;

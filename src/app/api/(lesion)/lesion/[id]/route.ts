@@ -6,6 +6,7 @@ import { LesionModel } from '@/models/Lesion';
 import { Lesion } from '@/utils/Types';
 
 
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -13,8 +14,11 @@ export async function GET(
   try {
     await dbConnect();
     const id = (await params).id;
+
     const lesion = await LesionModel.findById(id)
       .select('+lesion_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
+
+      .populate('assignTo', 'name phoneNumber')
       .lean();
 
     if (!lesion) {
@@ -23,12 +27,14 @@ export async function GET(
         { status: 404 }
       );
     }
+
     if (lesion.send_email_to_dantasurakshaks !== true) {
       delete lesion.lesion_type;
       delete lesion.diagnosis_notes;
       delete lesion.recomanded_actions;
       delete lesion.comments_or_notes;
     }
+
     return NextResponse.json({
       status: 200,
       message: 'Lesion retrieved successfully',

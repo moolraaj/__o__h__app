@@ -47,8 +47,13 @@ const QuestionnaireSchema = new mongoose.Schema({
   
   status: { type: String, default: 'unsubmit' },
   adminAction: { type: Boolean, default: false },
+  assignTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+        default: null,
+      },
 
-  // admin feedback fields only
+ 
   questionary_type: { type: String, select: false },
   diagnosis_notes: { type: String, select: false },
   recomanded_actions: { type: String, select: false },

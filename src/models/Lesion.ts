@@ -15,6 +15,7 @@ export interface ILesionRecord extends Document {
   dental_images: string[];
   status: string;
   adminAction: boolean;
+  assignTo?: mongoose.Types.ObjectId;  
 
   // admins fields only
   lesion_type?: string;
@@ -40,10 +41,15 @@ const lesionRecordSchema: Schema = new Schema(
     dental_images: { type: [String] },
     status: { type: String, default: 'unsubmit' },
     adminAction: { type: Boolean, default: false },
+    assignTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
+      default: null,
+    },
   
 
 
-    // admin feedback fields only
+   
     lesion_type: { type: String, select: false },
     diagnosis_notes: { type: String, select: false },
     recomanded_actions: { type: String, select: false },

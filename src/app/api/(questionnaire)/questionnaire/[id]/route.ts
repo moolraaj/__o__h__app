@@ -18,9 +18,9 @@ export async function GET(
     await dbConnect();
     const { id } = await params;
 
-
     const questionnaire = await Questionnaire.findById(id)
       .select('+questionary_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
+      .populate('assignTo', 'name phoneNumber')     
       .lean();
 
     if (!questionnaire) {
@@ -29,7 +29,6 @@ export async function GET(
         { status: 404 }
       );
     }
-
 
     if (questionnaire.send_email_to_dantasurakshaks !== true) {
       delete questionnaire.questionary_type;
@@ -41,7 +40,7 @@ export async function GET(
     return NextResponse.json({
       status: 200,
       success: true,
-      data: questionnaire
+      data: questionnaire,
     });
   } catch (err) {
     if (err instanceof Error) {

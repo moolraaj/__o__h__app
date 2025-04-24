@@ -1,10 +1,12 @@
-import { dbConnect } from "@/database/database";
-import { LesionModel } from "@/models/Lesion";
-import User from "@/models/User";
-import { createVerificationToken } from "@/utils/Constants";
-import { sendApprovalEmail } from "@/utils/Email";
-import { LesionEmailData } from "@/utils/Types";
-import { NextResponse } from "next/server";
+
+import { NextResponse } from 'next/server';
+import { dbConnect } from '@/database/database';
+import { LesionModel } from '@/models/Lesion';
+import User from '@/models/User';
+ 
+import { sendApprovalEmail } from '@/utils/Email';
+import { LesionEmailData } from '@/utils/Types';
+import { createLesionVerificationToken } from '@/utils/Constants';
 
 export async function PATCH(
   request: Request,
@@ -23,37 +25,49 @@ export async function PATCH(
         message: "The lesion has already been submitted and cannot be sent again."
       });
     }
+
+ 
     lesion.status = 'submit';
     await lesion.save();
-    const token = await createVerificationToken(String(lesion._id));
+
+   
     const lesionData = lesion.toObject();
     lesionData._id = String(lesionData._id);
-    const adminIds = lesion.send_to;
+
+ 
+    const adminIds   = lesion.send_to;
     const adminUsers = await User.find({ _id: { $in: adminIds } });
-    const verifiedAdminEmails = adminUsers
-      .filter(admin => {
-        
-        console.log(`Admin ${admin.email} | Role: ${admin.role} | isVerified: ${admin.isVerified}`);
-        return (admin.role === "admin" || admin.role === "dantasurakshaks") && admin.isVerified === true;
-      })
-      .map(admin => admin.email);
-  
-    if (verifiedAdminEmails.length > 0) {
-      await sendApprovalEmail(
-        lesionData as unknown as LesionEmailData,
-        "lesion",
-        token,
-        verifiedAdminEmails
-      );
-      console.log("Approval email sent.");
-    } else {
-      console.log("No verified admin found. Email not sent.");
+
+   
+    for (const admin of adminUsers) {
+      if (
+        (admin.role === "admin" || admin.role === "dantasurakshaks")
+        && admin.isVerified
+      ) {
+        const token = await createLesionVerificationToken(
+          String(lesion._id),
+          String(admin._id)
+        );
+        try {
+          await sendApprovalEmail(
+            lesionData as unknown as LesionEmailData,
+            "lesion",
+            token,
+            [admin.email]
+          );
+          console.log(`Approval email sent to ${admin.email}`);
+        } catch (mailErr) {
+          console.error(`Failed to send to ${admin.email}:`, mailErr);
+        }
+      }
     }
+
     return NextResponse.json({
       status: 200,
       message: 'Lesion submitted for approval successfully.'
     });
   } catch (error) {
+    
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message, status: 500 });
     }
