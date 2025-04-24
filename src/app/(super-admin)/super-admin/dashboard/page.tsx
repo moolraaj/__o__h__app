@@ -17,7 +17,7 @@ export default function ManageUsers() {
     <div className="dash_inner">
     <div className="dash_h-d">
     <div className="dash-inner-wraper-h1">
-          <h1>Dr. Patrick Kim</h1>
+          <h1>MS Ramaiah University</h1>
           </div>
     <div className="dash-inner-wraper-p">
 

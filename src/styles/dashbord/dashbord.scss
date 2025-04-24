@@ -1,8 +1,60 @@
 @use '../variables' as *;
 
+
+.breadcrumb-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    background-color: #f7f9fc;
+    border-bottom: 1px solid #ddd;
+    font-family: sans-serif;
+    font-size: 14px;
+    color: #555;
+    position: sticky;
+    top: 0;
+
+
+    .breadcrumb-link {
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    .breadcrumb-link:hover {
+        text-decoration: underline;
+    }
+
+    .home-link {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #007bff;
+    }
+
+    .home-icon {
+        font-size: 16px;
+    }
+
+    .breadcrumb-separator {
+        color: #aaa;
+    }
+
+    .breadcrumb-link.active {
+        color: #222;
+        font-weight: bold;
+    }
+}
+
+
 .dashboard_content {
-    padding: 20px;
     flex: 1;
+    overflow: hidden;
+
+    .content-container {
+        padding: 20px;
+        height: 100vh;
+        overflow: auto;
+    }
 
     .disease-main-container {
         font-family: "Arial", sans-serif;
@@ -83,9 +135,9 @@
         }
 
         .ambassadors {
-           svg{
-            background-color: #FEA95F;
-           }
+            svg {
+                background-color: #FEA95F;
+            }
         }
 
         .dash_h-d {
@@ -97,77 +149,34 @@
 
 }
 
-
-.show_l li a {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    transition: background-color 0.2s ease, color 0.2s ease;
-
-    svg {
-        transition: color 0.2s ease;
-    }
-
-    h1 {
-        transition: color 0.2s ease;
-    }
-
-    // 🔵 Hover Style
-    &:hover {
-        background-color: $secondary-color !important; // light blue background
-
-        h1 {
-            color: $primary-color !important;
-        }
-    }
-
-    // 🟣 Active Style
-    &.active-sidebar-link {
-        background-color: $secondary-color !important;
-        color: white;
-        border-right: 2px solid $primary-color !important;
-
-        svg {
-            color: $primary-color !important;
-        }
-
-        h1 {
-            font-weight: bold;
-            color: $primary-color !important;
-        }
-        span{
-            background-color: $white !important;
-        }
-        
-    }
-
-}
-
-
-
-
-
-
-
-
 .dashboard_main {
     display: flex;
+    overflow: hidden;
 
     .side_bar_inner {
         height: 100vh;
-        padding: 20px 0px;
         white-space: nowrap;
 
         .sidebar-user-profile-container {
             display: flex;
             gap: 20px;
             align-items: center;
-            padding: 0px 20px 20px ;
+            padding: 20px;
             border-bottom: 1px solid #f1f1f1;
-            .sidebar-user-name{
-                p{
-                    color:#9b9b9b ;
+
+            .sidebar-user-name {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+
+                h2 {
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: #272727;
+                }
+
+                p {
+                    color: #9b9b9b;
                     font-size: 15px;
                 }
 
@@ -178,7 +187,8 @@
                 border-radius: 100%;
                 box-shadow: 0 5px 5px rgba(0, 0, 0, .2);
                 border: 1px solid #fff;
-            
+                cursor: pointer;
+
             }
         }
 
@@ -206,91 +216,88 @@
     }
 
     .sidebar {
-       
-            max-width: 250px;
-            transition: width 0.3s ease-in-out;
-            overflow: hidden;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
-            height: 100vh;
-            position: fixed;
-            top: 60px;
-        }
+
+        max-width: 250px;
+        transition: width 0.3s ease-in-out;
+        overflow: hidden;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+        height: 100vh;
+        top: 60px;
+    }
 
     .sidebar_wrapper {
         display: flex;
         flex-direction: column;
     }
 
-    .show_l {
-        list-style-type: none;
+    .sidebar_links {
         padding: 0;
         margin: 0;
-    }
 
+        .sidebar-link {
 
-    .show_l li a {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        padding: 10px 20px;
-        transition: background-color 0.3s ease, color 0.3s ease;
-        gap: 10px;
-        margin-top: 5px;
+            a {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                padding: 10px 20px;
+                transition: background-color 0.3s ease, color 0.3s ease;
+                gap: 10px;
 
-        span {
-            background-color: #e9f2ff;
-            border-radius: 6px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-        }
+                span {
+                    background-color: #e9f2ff;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 10px;
+                }
 
-        svg {
+                svg {
+                    color: $dark-color;
+                    transition: color 0.3s ease, background-color 0.3s ease;
+                }
 
-            color: $dark-color;
+                h1 {
+                    font-size: 19.2px;
+                    font-weight: 500;
+                    color: $dark-color;
+                    text-shadow: none;
+                    transition: color 0.3s ease;
+                }
+            }
 
-            transition: color 0.3s ease, background-color 0.3s ease;
-        }
+            &:hover,
+            &.active {
+                background-color: #e9f2ff;
+                border-right: 2px solid $primary-color;
+            }
 
-        h1 {
-            font-size: 19.2px;
-            font-weight: 500;
-            color: $dark-color;
-            text-shadow: none;
-            transition: color 0.3s ease;
-        }
-    }
+            &:hover {
+                span {
+                    background-color: $white;
+                }
 
-    .show_l li a:hover {
-        background-color: $primary-color;
+                svg {
+                    color: $primary-color;
+                }
+            }
 
-        svg {
-            color: $primary-color !important;
+            &.active {
+                span {
+                    background-color: $primary-color;
+                    color: $white;
+                }
 
-        }
+                svg {
+                    color: $white;
+                }
 
-        h1 {
-            color: $primary-color !important;
-        }
-
-        span {
-            background-color: $white;
-        }
-    }
-
-    .show_l li a.active {
-        background-color: #3c4a66;
-
-        svg {
-            color: $white;
-            background-color: lighten($primary-color, 5%);
-        }
-
-        h1 {
-            color: $primary-color;
+                h1 {
+                    color: $primary-color;
+                }
+            }
         }
 
     }
@@ -417,12 +424,15 @@
 @media (max-width: 468px) {
     .dashboard_main {
         margin: 0 auto;
-         .disease-main-container{
+
+        .disease-main-container {
             padding: 0px;
-         }
-        .slider-main-outer {         
-       padding: 0px 0px;
         }
+
+        .slider-main-outer {
+            padding: 0px 0px;
+        }
+
         .sidebar {
             max-width: 100%;
             width: 100% !important;
