@@ -267,11 +267,13 @@ export async function PUT(
         what_is_disease_repeat.map(async (item: WhatIsDiseaseRepeat, index: number) => {
 
           let imageUrls: string[] = [];
+
           if (Array.isArray(item.what_is_disease_repeat_images)) {
             imageUrls = item.what_is_disease_repeat_images
-              .map((img) => (typeof img === 'string' && img.trim() !== '') ?  : '')
-              .filter(url => url !== '');
+              .filter((img): img is string => typeof img === 'string' && img.trim() !== '')
+              .map(img => img.trim());
           }
+          
 
           if (imageUrls.length === 0) {
             const files = formData.getAll(`what_is_disease_repeat_images${index}`) as File[];
