@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
         name: userToSend.name,
         role: userToSend.role,
       })
+      console.log(token)
 
       return NextResponse.json(
         {
