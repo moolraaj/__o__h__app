@@ -90,7 +90,6 @@ export async function POST(req: NextRequest) {
         {
           message: 'Registration successful',
           user: baseUser,
-          token,
         },
         { status: 201 }
       )

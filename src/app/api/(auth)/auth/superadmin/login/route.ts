@@ -7,7 +7,6 @@ export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
 
-
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required." },
@@ -15,26 +14,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-
-    if (email !== "superadmin@gmail.com") {
-      return NextResponse.json(
-        { error: "Invalid super-admin credentials." },
-        { status: 401 }
-      );
-    }
-
     await dbConnect();
 
-
-    const user = await User.findOne({ email });
+     
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return NextResponse.json(
-        { error: "No super-admin found with that email." },
-        { status: 409 }
+        { error: "No user found with that email." },
+        { status: 404 }
       );
     }
 
-
+  
     if (user.role !== "super-admin") {
       return NextResponse.json(
         { error: "Not a super-admin account." },
@@ -42,15 +33,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    
+    const valid = await bcrypt.compare(password, user.password!);
+    if (!valid) {
       return NextResponse.json(
         { error: "Invalid password." },
         { status: 401 }
       );
     }
-
 
     return NextResponse.json(
       {
@@ -66,9 +56,10 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (err) {
-    if (err instanceof Error) {
-      return NextResponse.json({ error: "Server error." }, { status: 500 });
-
-    }
+    console.error("Super-admin login error:", err);
+    return NextResponse.json(
+      { error: "Server error." },
+      { status: 500 }
+    );
   }
 }
