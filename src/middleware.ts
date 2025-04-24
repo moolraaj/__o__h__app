@@ -1,4 +1,4 @@
-
+ 
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
@@ -32,9 +32,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // …your existing front-end redirects…
+ 
   const session = await getToken({ req, secret })
   if (pathname === '/' && session) {
+    return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
+  }
+  if (pathname === '/super-admin' && session) {
     return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
   }
   if (pathname.startsWith('/super-admin') && !session) {

@@ -22,7 +22,7 @@
 //       }
 //     }
 //   };
- 
+
 
 //   const confirmDelete = () => {
 //     if (selectedDiseaseId) {
@@ -96,14 +96,17 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useGetDiseasesQuery, useDeleteDiseaseMutation } from "@/(store)/services/disease/diseaseApi";
 import ReusableModal from "@/(common)/Model";
 import { DiseaseTypes } from "@/utils/Types";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
+import { useBreadcrumb } from "@/provider/BreadcrumbContext";
+import Loader from "@/(common)/Loader";
 
 const DiseaseList = () => {
+  const { setRightContent } = useBreadcrumb();
   const { data: diseasesData, isLoading, refetch } = useGetDiseasesQuery({ page: 1, limit: 15, lang: "en" });
   const [deleteDisease] = useDeleteDiseaseMutation();
   const [showModal, setShowModal] = useState(false);
@@ -120,6 +123,19 @@ const DiseaseList = () => {
     }
   };
 
+  useEffect(() => {
+    setRightContent(
+      <Link href="/super-admin/disease/add-disease" className="add-slider-btn">
+        <span className="iconsss">
+          <FaPlus /> Add New Disease
+        </span>
+      </Link>
+    );
+
+    // Optional: Cleanup when leaving
+    return () => setRightContent(null);
+  }, [setRightContent]);
+
   const confirmDelete = () => {
     if (selectedDiseaseId) {
       handleDelete(selectedDiseaseId);
@@ -130,18 +146,8 @@ const DiseaseList = () => {
 
   return (
     <div className="disease-main-container">
-      <div className="section-header">
-        <h2>All Diseases (Redux Query)</h2>
-        <Link href="/super-admin/disease/add-disease" className="add-slider-btn">
-        <span className="iconsss">
-        
-        <FaPlus/> Add New Disease
-        </span>
-        </Link>
-      </div>
-
       {isLoading ? (
-        <p>Loading diseases...</p>
+        <Loader />
       ) : diseasesData?.result?.length === 0 ? (
         <p>No diseases found.</p>
       ) : (
@@ -157,9 +163,9 @@ const DiseaseList = () => {
               </div>
               <div className="disease-actions">
                 <Link href={`/super-admin/disease/update-disease/${disease._id}`} className="edit-button">
-                <span className="iconsss">
-                  <FaEdit/> Edit
-                 </span>
+                  <span className="iconsss">
+                    <FaEdit /> Edit
+                  </span>
                 </Link>
                 <button
                   onClick={() => {
@@ -169,7 +175,7 @@ const DiseaseList = () => {
                   className="delete-button"
                 >
                   <span className="iconsss">
-                  <FaTrash/> Delete
+                    <FaTrash /> Delete
                   </span>
                 </button>
               </div>

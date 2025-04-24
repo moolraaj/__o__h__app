@@ -115,8 +115,11 @@
 "use client";
 
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle, UserCheck, XCircle } from "lucide-react";
+import { useBreadcrumb } from "@/provider/BreadcrumbContext";
+import { FaUserShield } from "react-icons/fa";
+import Loader from "@/(common)/Loader";
 
 
 
@@ -126,6 +129,19 @@ export default function AdminLists() {
     limit: 15,
     role: 'admin'
   });
+  const { setRightContent } = useBreadcrumb();
+  useEffect(() => {
+    if (!adminData) return;
+
+    setRightContent(
+      <div className="total-users-wrapper">
+        <i><FaUserShield size={18} color="#56235E" /></i>
+        <span className="user-count">{adminData.total} Admins</span>
+      </div>
+    );
+
+    return () => setRightContent(null);
+  }, [adminData, setRightContent]);
 
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -160,15 +176,12 @@ export default function AdminLists() {
     }
   };
 
-  if (ambassadorLoading) return <p>Loading...</p>;
+  if (ambassadorLoading) return <Loader/>;
 
   return (
     <div className="ambassa_outer outer_wrapper">
       <div className="ambassa_inner">
         <div className="ambassa_wrapper">
-          <h2 className="flex items-center gap-2 text-lg font-bold">
-            <UserCheck size={20} /> Admins
-          </h2>
           <div className="admin-table-outer" style={{ overflowX: "auto" }}>
             <table className="admin_table">
               <thead>

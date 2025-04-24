@@ -1,6 +1,7 @@
 
 "use client";
 
+import Loader from "@/(common)/Loader";
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
 import { ShieldCheck, Users, UserCheck } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -36,7 +37,7 @@ export default function ManageUsers() {
   const { data: userData, isLoading: userLoading } = useGetUsersQuery({ page: 1, limit: 15, role: 'user' });
   const { data: ambassadorData, isLoading: ambassadorLoading } = useGetUsersQuery({ page: 1, limit: 15, role: 'dantasurakshaks' });
 
-  if (adminLoading || userLoading || ambassadorLoading) return <p>Loading...</p>;
+  if (adminLoading || userLoading || ambassadorLoading) return <Loader/>;
 
   return (
     <div className="dash_container">

@@ -5,7 +5,7 @@
 // import { UserCheck } from "lucide-react";
 // import { Users } from "@/utils/Types";
 
- 
+
 
 // export default function ManageAmbassadors() {
 //   const { data: ambassadorData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
@@ -120,11 +120,14 @@
 "use client";
 
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle, UserCheck, XCircle } from "lucide-react";
 import { Users } from "@/utils/Types";
+import { useBreadcrumb } from "@/provider/BreadcrumbContext";
+import { FaUserTie } from "react-icons/fa";
+import Loader from "@/(common)/Loader";
 
- 
+
 
 export default function ManageAmbassadors() {
   const { data: ambassadorData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
@@ -132,6 +135,19 @@ export default function ManageAmbassadors() {
     limit: 15,
     role: 'dantasurakshaks'
   });
+  const { setRightContent } = useBreadcrumb();
+  useEffect(() => {
+    if (!ambassadorData) return;
+
+    setRightContent(
+      <div className="total-users-wrapper">
+        <i><FaUserTie size={18} color="#56235E" /></i>
+        <span className="user-count">{ambassadorData.total} Ambassadors</span>
+      </div>
+    );
+
+    return () => setRightContent(null);
+  }, [ambassadorData, setRightContent]);
 
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -157,7 +173,7 @@ export default function ManageAmbassadors() {
         alert(data.error || "Failed to update user.");
       }
     } catch (err) {
-      if(err instanceof Error){
+      if (err instanceof Error) {
 
         alert(err.message);
       }
@@ -166,62 +182,58 @@ export default function ManageAmbassadors() {
     }
   };
 
-  if (ambassadorLoading) return <p>Loading...</p>;
+  if (ambassadorLoading) return <Loader/>;
 
   return (
     <div className="ambassa_outer outer_wrapper">
       <div className="ambassa_inner">
         <div className="ambassa_wrapper">
-          <h2 className="flex items-center gap-2 text-lg font-bold">
-            <UserCheck size={20} /> Ambassadors
-          </h2>
+          <div className="table-container">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ambassadorData?.users.map((ele: Users) => (
+                  <tr key={ele._id}>
+                    <td>{ele.name}</td>
+                    <td>{ele.email}</td>
+                    <td>{ele.phoneNumber}</td>
+                    <td>{ele.role}</td>
+                    <td>{ele.status}</td>
+                    <td>
+                      <div className="aprove-reject-buttons">
+                        <button
+                          disabled={actionLoading || ele.status !== 'pending'}
+                          onClick={() => updateUser(ele._id, 'approved', ele.role)}
+                          className={`approve-btn ${ele.status === 'approved' ? 'disabled' : ''}`}
+                        >
+                          <CheckCircle size={18} />
+                        </button>
+                        <button
+                          disabled={actionLoading || ele.status !== 'pending'}
+                          onClick={() => updateUser(ele._id, 'rejected', ele.role)}
+                          className={`reject-btn ${ele.status === 'rejected' ? 'disabled' : ''}`}
+                        >
+                          <XCircle size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-           <div className="table-container">
-        <table className="custom-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ambassadorData?.users.map((ele: Users) => (
-              <tr key={ele._id}>
-                <td>{ele.name}</td>
-                <td>{ele.email}</td>
-                <td>{ele.phoneNumber}</td>
-                <td>{ele.role}</td>
-                <td>{ele.status}</td>
-                <td>
-                <div className="aprove-reject-buttons">
-                  <button
-                    disabled={actionLoading || ele.status !== 'pending'}
-                    onClick={() => updateUser(ele._id, 'approved', ele.role)}
-                    className={`approve-btn ${ele.status === 'approved' ? 'disabled' : ''}`}
-                  >
-                 <CheckCircle size={18}/>
-                  </button>
-                  <button
-                    disabled={actionLoading || ele.status !== 'pending'}
-                    onClick={() => updateUser(ele._id, 'rejected', ele.role)}
-                    className={`reject-btn ${ele.status === 'rejected' ? 'disabled' : ''}`}
-                  >
-                    <XCircle size={18} />
-                  </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }
