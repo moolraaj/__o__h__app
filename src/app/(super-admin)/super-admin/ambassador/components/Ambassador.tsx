@@ -121,7 +121,6 @@
 
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
 import { useEffect, useState } from "react";
-import { CheckCircle, UserCheck, XCircle } from "lucide-react";
 import { Users } from "@/utils/Types";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import { FaUserTie } from "react-icons/fa";
@@ -140,9 +139,9 @@ export default function ManageAmbassadors() {
     if (!ambassadorData) return;
 
     setRightContent(
-      <div className="total-users-wrapper">
+      <div className="total-count-wrapper">
         <i><FaUserTie size={18} color="#56235E" /></i>
-        <span className="user-count">{ambassadorData.total} Ambassadors</span>
+        <span className="total-count">{ambassadorData.total} Ambassadors</span>
       </div>
     );
 
@@ -215,14 +214,14 @@ export default function ManageAmbassadors() {
                           onClick={() => updateUser(ele._id, 'approved', ele.role)}
                           className={`approve-btn ${ele.status === 'approved' ? 'disabled' : ''}`}
                         >
-                          <CheckCircle size={18} />
+                          Approved
                         </button>
                         <button
                           disabled={actionLoading || ele.status !== 'pending'}
                           onClick={() => updateUser(ele._id, 'rejected', ele.role)}
                           className={`reject-btn ${ele.status === 'rejected' ? 'disabled' : ''}`}
                         >
-                          <XCircle size={18} />
+                          Rejected
                         </button>
                       </div>
                     </td>

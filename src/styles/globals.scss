@@ -22,6 +22,9 @@
 // user styling
 @use './user/user.scss' as *;
 
+// lessons styling
+@use './lessons/lessons.scss' as *;
+
 // slider styling
 @use './slider/add_slider.scss' as *;
 @use './slider/all_slider.scss' as *;

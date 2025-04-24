@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import Link from "next/link";
@@ -75,7 +73,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu
       </div> */}
 
 
-      <div className="sidebar-logo-container">
+      <div className={`sidebar-logo-container ${isSidebarExpanded ? "expanded" : "collapsed"}`}>
         <Link href={`/super-admin/dashboard`} className="sidebar-logo-inner">
           <Image src={sidebarLogo.src} alt="datasuraksha-logo" width={300} height={300} className="danta-logo" />
         </Link>

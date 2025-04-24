@@ -1,6 +1,6 @@
 @use '../variables' as *;
 
-.total-users-wrapper {
+.total-count-wrapper {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -9,7 +9,7 @@
     border-radius: 999px;
     color: #56235E;
 
-    .user-count {
+    .total-count {
         font-size: 15px;
         font-weight: 600;
         color: #56235E;
@@ -222,6 +222,7 @@
         // }
 
         .sidebar-logo-container {
+            height: 200px;
             position: relative;
             width: 100%;
             display: flex;
@@ -284,6 +285,19 @@
                 transform: scaleX(0);
                 transform-origin: center;
                 animation: growFromCenter 0.8s ease-out forwards;
+            }
+        }
+
+        .sidebar-logo-container.collapsed {
+            .sidebar-logo-inner {
+                max-width: 50px;
+                height: 50px;
+                animation-delay: 0.1s;
+            }
+
+            &::after {
+                left: 0;
+                width: 100%;
             }
         }
 
@@ -450,7 +464,6 @@
 
         .dash_container {
             padding: 25px 25px 0px 25px;
-            background-image: url(../../images/hero-bg-mobile.png);
 
             .dash_wrapper {
 
@@ -522,44 +535,46 @@
 }
 
 @media (max-width: 468px) {
+    .dashboard_container {
+        .sidebar {
+            max-width: 100%;
+            width: 100% !important;
+            height: 50vh;
+            position: fixed;
+            bottom: 0;
+            border-radius: 20px 20px 0 0;
+            box-shadow: $box-shadow;
 
-    .sidebar {
-        max-width: 100%;
-        width: 100% !important;
-        height: 50vh;
-        position: fixed;
-        bottom: 0;
-        border-radius: 20px 20px 0 0;
-        box-shadow: $box-shadow;
+            ul {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                padding: 20px 10px 200px 10px;
+                overflow: auto;
+                height: auto;
+                min-height: 0vh;
+                max-height: 50vh;
 
-        ul {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            padding: 20px 10px 200px 10px;
-            overflow: auto;
-            height: auto;
-            min-height: 0vh;
-            max-height: 50vh;
+                li {
+                    padding: 15px 10px;
+                    box-shadow: $box-shadow;
 
-            li {
-                padding: 15px 10px;
-                box-shadow: $box-shadow;
-
-                a {
-                    gap: 10px;
-                    padding: 5px;
+                    a {
+                        gap: 10px;
+                        padding: 5px;
+                    }
                 }
             }
         }
+
+        .hide-sidebar {
+            transform: translateY(100vh);
+        }
+
+        .show-sidebar {
+            transform: translateY(50vh);
+        }
     }
 
-    .hide-sidebar {
-        transform: translateY(100vh);
-    }
-
-    .show-sidebar {
-        transform: translateY(50vh);
-    }
 
 
     .show_l {

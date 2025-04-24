@@ -1,64 +1,63 @@
-"use client"
-import { useEffect, useState } from 'react';
-import Header from '../header/Header';
-import Sidebar from '../sidebar/Sidebar';
+"use client";
 
-
+import { useEffect, useState } from "react";
+import Header from "../header/Header";
+import Sidebar from "../sidebar/Sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const [isToggle, setIsToggle] = useState(false); // mobile sidebar toggle state
+  const [isMobile, setIsMobile] = useState(false); // device screen size
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true); // initial default
 
-
-  const [isToggle, setIsToggle] = useState<boolean>(false); // mobile sidebar toggle state
-  const [isMobile, setIsMobile] = useState<boolean>(false); // check if the device is mobile
-
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(() => {
-    if (typeof window !== "undefined") {
-      const savedState = localStorage.getItem("sidebarState");
-      return savedState ? JSON.parse(savedState) : true;
-    }
-    return true;
-  });
-
-  // Detect screen size on mount and when resizing
+  // Handle screen size changes
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 1024); // Set to true if the screen size is <= 1024px
+      const isNowMobile = window.innerWidth <= 1024;
+      setIsMobile(isNowMobile);
     };
 
-    // Initialize on mount
-    handleResize();
-
-    // Add event listener for window resize
+    handleResize(); // initialize
     window.addEventListener("resize", handleResize);
-
-    // Cleanup event listener
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Update localStorage whenever the state changes, but only for larger screens
+  // Load sidebar state from localStorage after mount (only for desktop)
   useEffect(() => {
-    if (typeof window !== "undefined" && !isMobile) {
+    if (!isMobile) {
+      const savedState = localStorage.getItem("sidebarState");
+      if (savedState !== null) {
+        setIsSidebarExpanded(JSON.parse(savedState));
+      }
+    }
+  }, [isMobile]);
+
+  // Save sidebar state when it changes (only for desktop)
+  useEffect(() => {
+    if (!isMobile) {
       localStorage.setItem("sidebarState", JSON.stringify(isSidebarExpanded));
     }
   }, [isSidebarExpanded, isMobile]);
 
-  // Toggle left sidebar for desktop
+  // Toggle for desktop sidebar
   const handleToggleSidebar = () => {
-    setIsSidebarExpanded((prevState: boolean) => !prevState);
+    setIsSidebarExpanded((prev) => !prev);
   };
 
-  // Toggle sidebar for mobile
+  // Toggle for mobile sidebar
   const openMenu = () => {
-    setIsToggle(!isToggle);  // Toggle mobile sidebar visibility
+    setIsToggle((prev) => !prev);
   };
-
 
   return (
     <div className="dashboard_container">
       <div
-        className={`sidebar ${isSidebarExpanded ? 'expanded-view' : 'collapse-view'} ${isMobile ? (isToggle ? 'show-sidebar' : 'hide-sidebar') : ''}`}
+        className={`sidebar ${
+          isSidebarExpanded ? "expanded-view" : "collapse-view"
+        } ${
+          isMobile ? (isToggle ? "show-sidebar" : "hide-sidebar") : ""
+        }`}
         style={{
-          width: isMobile ? '90%' : isSidebarExpanded ? '250px' : '90px',
+          width: isMobile ? "90%" : isSidebarExpanded ? "250px" : "90px",
         }}
       >
         <Sidebar
@@ -69,18 +68,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="dashboard_main">
-
         <Header
           handleToggleSidebar={handleToggleSidebar}
           openMenu={openMenu}
           isMobile={isMobile}
         />
-        <main className="dashboard_content">
-          {children}
-
-        </main>
+        <main className="dashboard_content">{children}</main>
       </div>
-
     </div>
   );
 }

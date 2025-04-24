@@ -129,6 +129,7 @@ export interface LesionResponse {
   page?: number;
   limit?: number;
   total?: number;
+  totalLesions?: number;
 }
 
 export interface ConfirmationPageParams {

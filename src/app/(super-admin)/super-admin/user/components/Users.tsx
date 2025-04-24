@@ -4,7 +4,6 @@ import Loader from "@/(common)/Loader";
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import { Users } from "@/utils/Types";
-import { UserCheck } from "lucide-react";
 import { useEffect } from "react";
 import { FaUsers } from "react-icons/fa";
 
@@ -23,9 +22,9 @@ export default function UserLists() {
     if (!userData) return;
 
     setRightContent(
-      <div className="total-users-wrapper">
+      <div className="total-count-wrapper">
         <i><FaUsers size={18} color="#56235E" /></i>
-        <span className="user-count">{userData.total} Users</span>
+        <span className="total-count">{userData.total} Users</span>
       </div>
     );
 

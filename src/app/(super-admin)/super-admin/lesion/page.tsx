@@ -1,50 +1,59 @@
-
 'use client';
 
+import Loader from '@/(common)/Loader';
 import { useGetAllLesionsQuery } from '@/(store)/services/lesion/lesionApi';
- 
-import React from 'react';
-
+import { useBreadcrumb } from '@/provider/BreadcrumbContext';
+import React, { useEffect } from 'react';
+import { FaBook } from 'react-icons/fa';
 
 export default function LesionList() {
     const { data, isLoading, isError } = useGetAllLesionsQuery({ page: 1, limit: 1000 });
+    const { setRightContent } = useBreadcrumb();
 
-    if (isLoading) return <p>Loading lesions…</p>;
-    if (isError) return <p>Failed to load lesions.</p>;
+    useEffect(() => {
+        if (!data) return;
 
-  
+        setRightContent(
+            <div className="total-count-wrapper">
+                <i><FaBook size={18} color="#56235E" /></i>
+                <span className="total-count"> {data.totalLesions} Lesions</span>
+            </div>
+        );
+
+        return () => setRightContent(null);
+    }, [data, setRightContent]);
+
+    if (isLoading) return <Loader />;
+    if (isError) return <p className="lesion-status error">Failed to load lesions.</p>;
 
     const lesions = data?.lesions ?? [];
 
     return (
-        <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">All Lesions</h2>
-            <table className="w-full table-auto border-collapse">
-                <thead>
-                    <tr className="bg-gray-100">
-                        <th className="p-2 border">patient Name</th>
-                        <th className="p-2 border">Age</th>
-                        <th className="p-2 border">Status</th>
-                        <th className="p-2 border">Submitted By</th>
-
-                        <th className="p-2 border">Created At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {lesions.map((lesion) => (
-                        <tr key={lesion._id}>
-                            <td className="p-2 border">{lesion.fullname}</td>
-                            <td className="p-2 border">{lesion.age}</td>
-                            <td className="p-2 border">{lesion.status}</td>
-                            <td className="p-2 border">{lesion.submitted_by}</td>
-
-                            <td className="p-2 border">
-                                {new Date(lesion.createdAt).toLocaleString()}
-                            </td>
+        <div className="lesion-wrapper">
+            <div className="lesion-table-container">
+                <table className="lesion-table">
+                    <thead>
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Age</th>
+                            <th>Status</th>
+                            <th>Submitted By</th>
+                            <th>Created At</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {lesions.map((lesion) => (
+                            <tr key={lesion._id}>
+                                <td>{lesion.fullname}</td>
+                                <td>{lesion.age}</td>
+                                <td>{lesion.status}</td>
+                                <td>{lesion.submitted_by}</td>
+                                <td>{new Date(lesion.createdAt).toLocaleString()}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

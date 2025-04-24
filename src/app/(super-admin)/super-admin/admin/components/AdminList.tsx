@@ -116,7 +116,6 @@
 
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
 import { useEffect, useState } from "react";
-import { CheckCircle, UserCheck, XCircle } from "lucide-react";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import { FaUserShield } from "react-icons/fa";
 import Loader from "@/(common)/Loader";
@@ -134,9 +133,9 @@ export default function AdminLists() {
     if (!adminData) return;
 
     setRightContent(
-      <div className="total-users-wrapper">
+      <div className="total-count-wrapper">
         <i><FaUserShield size={18} color="#56235E" /></i>
-        <span className="user-count">{adminData.total} Admins</span>
+        <span className="total-count">{adminData.total} Admins</span>
       </div>
     );
 
@@ -176,7 +175,7 @@ export default function AdminLists() {
     }
   };
 
-  if (ambassadorLoading) return <Loader/>;
+  if (ambassadorLoading) return <Loader />;
 
   return (
     <div className="ambassa_outer outer_wrapper">
@@ -210,14 +209,14 @@ export default function AdminLists() {
                           onClick={() => updateUser(ele._id, 'approved', ele.role)}
                           className={`approve_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
                         >
-                          <CheckCircle size={18} />
+                          Approved
                         </button>
                         <button
                           disabled={actionLoading || ele.status !== 'pending'}
                           onClick={() => updateUser(ele._id, 'rejected', ele.role)}
                           className={`reject_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
                         >
-                          <XCircle size={18} />
+                          Rejected
                         </button>
                       </div>
                     </td>
