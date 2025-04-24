@@ -16,6 +16,7 @@ import {
   WhatIsDiseaseDescriptionRepeater,
   WhatIsDiseaseRepeat
 } from '@/utils/Types';
+import Loader from '@/(common)/Loader';
 
 interface UpdateDiseaseProps {
   id: string;
@@ -289,7 +290,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     }
   };
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <Loader/>;
   if (error) return <p>Error loading disease data.</p>;
 
   return (

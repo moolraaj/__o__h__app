@@ -33,7 +33,6 @@
 @use './disease/disease.scss' as *;
 
 
-
 * {
   margin: 0;
   padding: 0;
@@ -52,7 +51,77 @@ body {
 
 // all icons+text
 
+// loader ********
+.custom-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  pointer-events: none;
 
+  @keyframes ripple {
+    0% {
+      transform: translate(-50%, -50%) scale(0.6);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translate(-50%, -50%) scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  .ripple-loader {
+    position: relative;
+    width: 200px;
+    height: 200px;
+
+    .logo-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+
+      img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+      }
+    }
+
+    .ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 120px;
+      border: 3px solid;
+      border-radius: 50%;
+      opacity: 0;
+      animation: ripple 2s infinite ease-out;
+    }
+
+    .ring1 {
+      border-color: rgba(86, 35, 94, 0.4);
+      animation-delay: 0s;
+    }
+
+    .ring2 {
+      border-color: rgba(193, 57, 45, 0.4);
+      animation-delay: 0.5s;
+    }
+
+    .ring3 {
+      border-color: rgba(86, 35, 94, 0.2);
+      animation-delay: 1s;
+    }
+  }
+}
+// end of loader *********
 
 span.iconsss {
   display: flex;
@@ -128,24 +197,6 @@ span.iconsss {
   gap: 20px;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.outer_wrapper {
-  padding: 20px 20px;
-}
 
 .ambass_wrapper {
   display: flex;

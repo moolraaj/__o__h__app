@@ -30,24 +30,23 @@
   .add-slider-btn {
     background: $primary-color;
     color: white;
-    padding: 10px 20px;
+    padding: 5px 12px;
     border-radius: 8px;
     font-size: 1rem;
     text-decoration: none;
-    transition: background 0.3s;
+    transition: background 0.3s ease, background-image 0.3s ease;
     display: flex;
     gap: 8px;
     align-items: center;
+    &:hover {
+      background: $button-hover;
+    }
   }
 
-  .add-slider-btn:hover {
-    background: #004bbf;
-  }
-   
   /* Slider Cards */
   .all-slider-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 20px;
   }
    
@@ -154,27 +153,12 @@ button.l_c_but {
         
     }
 }
-@media (max-width:1024px) {
-  .add-slider-btn {
-    padding: 10px 20px;
-    font-size: 1rem;
-
-}
-
-
-
-
-}
 @media (max-width:768px) {
   .all-slider-container {
     grid-template-columns:  1fr;
   }
   .section-onr-heading {
     font-size: 19px;
-}
-.add-slider-btn {
-  padding: 8px 10px;
-  width: fit-content;
 }
 
 }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useUpdateSliderMutation, useGetSingleSliderQuery } from '@/(store)/services/slider/sliderApi';
 import { SBody } from '@/utils/Types';
+import Loader from '@/(common)/Loader';
 
 interface Id {
   id: string;
@@ -110,7 +111,7 @@ const UpdateSlider = ({ id }: Id) => {
 
 
 
-  if (isLoading || !data) return <div>Loading...</div>;
+  if (isLoading || !data) return <Loader/>;
 
   return (
     <form onSubmit={handleSubmit} className="edit-slider-outer">

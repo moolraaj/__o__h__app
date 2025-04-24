@@ -1,9 +1,26 @@
 @use '../variables' as *;
 
+.total-users-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(86, 35, 94, 0.1);
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: #56235E;
+
+    .user-count {
+        font-size: 15px;
+        font-weight: 600;
+        color: #56235E;
+    }
+}
 
 .breadcrumb-container {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
     gap: 8px;
     padding: 16px 24px;
     background-color: #f7f9fc;
@@ -12,23 +29,27 @@
     font-size: 14px;
     color: #555;
     position: sticky;
+    overflow: hidden;
     top: 0;
+    height: 20px;
 
+
+    .breadcrumb-links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
     .breadcrumb-link {
+        display: flex;
+        align-items: center;
+        gap: 4px;
         text-decoration: none;
         color: #007bff;
     }
 
     .breadcrumb-link:hover {
         text-decoration: underline;
-    }
-
-    .home-link {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        color: #007bff;
     }
 
     .home-icon {
@@ -55,12 +76,6 @@
     .content-container {
         padding: 20px;
         margin-bottom: 50px;
-    }
-
-    .disease-main-container {
-        font-family: "Arial", sans-serif;
-        padding: 30px 20px;
-        margin: 0 auto;
     }
 
     .dash_container {
