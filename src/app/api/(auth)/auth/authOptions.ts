@@ -81,7 +81,7 @@ import type { Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { validateCredentials } from "@/utils/validateCredentials";
 
- 
+
 interface CustomUser extends User {
   id: string;
   name?: string;
@@ -90,7 +90,7 @@ interface CustomUser extends User {
   email?: string;
 }
 
- 
+
 interface CustomSession extends Session {
   user: CustomUser;
   accessToken: JWT;
@@ -98,7 +98,7 @@ interface CustomSession extends Session {
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
-  
+
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -109,10 +109,10 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(creds) {
         if (!creds?.phoneNumber || !creds.password) return null;
-        
+
         const user = await validateCredentials(creds.phoneNumber, creds.password);
         if (!user) return null;
-        
+
         return {
           id: String(user._id),
           name: user.name,
@@ -122,7 +122,7 @@ export const authOptions: NextAuthOptions = {
         };
       }
     }),
-    
+
     CredentialsProvider({
       id: "superadmin",
       credentials: {
@@ -131,38 +131,37 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(creds) {
         if (!creds?.email || !creds.password) return null;
-        
-        if (creds.email !== "superadmin@gmail.com") return null;
-        
+
+
         const user = await validateCredentials(creds.email, creds.password);
         if (!user || user.role !== "super-admin") return null;
-        
+
         return {
           id: String(user._id),
           name: user.name,
-          role: "super-admin",
-          email: user.email
-        };
+          email: user.email,
+          role: user.role,
+        } as CustomUser;
       }
     })
   ],
-  
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-      
+
         Object.assign(token, user as CustomUser);
       }
       return token;
     },
     async session({ session, token }) {
-    
+
       (session.user as CustomUser) = token as CustomUser;
       (session as CustomSession).accessToken = token;
       return session as CustomSession;
     }
   },
-  
+
   pages: { signIn: "/auth/login" },
   debug: process.env.NODE_ENV === "development"
 };
