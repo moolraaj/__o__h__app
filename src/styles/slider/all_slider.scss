@@ -28,20 +28,20 @@
   }
    
   .add-slider-btn {
-    background-color: $primary-color;
+    background: $primary-color;
     color: white;
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 1rem;
     text-decoration: none;
-    transition: background-color 0.3s;
+    transition: background 0.3s;
     display: flex;
     gap: 8px;
     align-items: center;
   }
 
   .add-slider-btn:hover {
-    background-color: #004bbf;
+    background: #004bbf;
   }
    
   /* Slider Cards */
@@ -176,10 +176,6 @@ button.l_c_but {
   padding: 8px 10px;
   width: fit-content;
 }
-
-
-
-
 
 }
 

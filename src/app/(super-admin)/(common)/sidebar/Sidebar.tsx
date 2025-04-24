@@ -102,6 +102,8 @@ import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { LayoutDashboard, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { FaTimes } from "react-icons/fa";
+import sidebarLogo from '@/images/danta-suraksha-logo.png';
+import Image from "next/image";
 
 interface SidebarProps {
   isSidebarExpanded: boolean;
@@ -121,7 +123,6 @@ const links = [
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu }) => {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
-  const userName = "John Doe"; // 👈 Define a userName variable
 
   useEffect(() => {
 
@@ -152,9 +153,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu
 
 
 
-      <div className="sidebar-user-profile-container">
+      {/* <div className="sidebar-user-profile-container">
         <div className="sidebar-user-icon">
-          {/* {firstLetter} */}
           <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="img" />
         </div>
         <div className="sidebar-user-name">
@@ -166,8 +166,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu
             </>
           }
         </div>
-      </div>
+      </div> */}
 
+
+      <div className="sidebar-logo-container">
+        <Link href={`/super-admin/dashboard`} className="sidebar-logo-inner">
+          <Image src={sidebarLogo.src} alt="datasuraksha-logo" width={300} height={300} className="danta-logo" />
+        </Link>
+      </div>
       <div className="sidebar_wrapper mt-6">
         <ul className="sidebar_links">
           {links.map(({ href, label, icon: Icon }) => {

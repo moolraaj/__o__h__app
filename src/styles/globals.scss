@@ -8,6 +8,10 @@
 // header styling
 @use './header/header.scss' as *;
 
+
+// froms styling
+@use './forms/login.scss' as *;
+
 // admin styling
 @use './admins/admins.scss' as *;
 
@@ -33,14 +37,14 @@
 * {
   margin: 0;
   padding: 0;
-  font-family: $font-family;
+  font-family: $nunito;
 }
 
 body {
-  font-family: $font-family;
-  background-color: #f6f9fb;
+  font-family: $nunito;
+  background-color: #fdf3ff51;
+  ;
 }
-
 
 ::-webkit-scrollbar {
   display: none;
@@ -111,6 +115,7 @@ span.iconsss {
 .disease-image {
   height: 150px;
   width: 100%;
+
   img {
     width: 100%;
     height: 100%;

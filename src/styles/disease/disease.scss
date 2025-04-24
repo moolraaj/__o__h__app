@@ -57,7 +57,7 @@
       padding: 8px 16px;
       border-radius: 68px;
       font-size: 15px;
-      background-color: $primary-color;
+      background: $primary-color;
       color: $white;
       border: unset;
 
@@ -253,8 +253,8 @@
 input:focus,
 textarea:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+  // border-color: #007bff;
+  // box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
 }
 
 // Add subtle hover effect for buttons

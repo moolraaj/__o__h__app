@@ -25,7 +25,7 @@ const ReusableModal: React.FC<ReusableModalProps> = ({
         <p>{message}</p>
         <div className="b_w_outer">
           <button className="l_c_but" onClick={() => onConfirm(id)}>
-            Confarm
+            Confirm
           </button>
           <button className="r_c_but" onClick={onCancel}>
             Cancel

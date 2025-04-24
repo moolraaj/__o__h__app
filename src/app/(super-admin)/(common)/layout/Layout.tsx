@@ -2,11 +2,11 @@
 import { useEffect, useState } from 'react';
 import Header from '../header/Header';
 import Sidebar from '../sidebar/Sidebar';
- 
- 
+
+
 
 export default function Layout({ children }: { children: React.ReactNode }) {
- 
+
 
   const [isToggle, setIsToggle] = useState<boolean>(false); // mobile sidebar toggle state
   const [isMobile, setIsMobile] = useState<boolean>(false); // check if the device is mobile
@@ -55,31 +55,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="dashboard_container">
-        <Header
-          handleToggleSidebar={handleToggleSidebar}
-          openMenu={openMenu}
-          isMobile={isMobile}
-        />
-     
-      <div className="dashboard_main">
       <div
         className={`sidebar ${isSidebarExpanded ? 'expanded-view' : 'collapse-view'} ${isMobile ? (isToggle ? 'show-sidebar' : 'hide-sidebar') : ''}`}
         style={{
           width: isMobile ? '90%' : isSidebarExpanded ? '250px' : '90px',
         }}
       >
-        <Sidebar 
-        isSidebarExpanded={isSidebarExpanded}
-        isMobile={isMobile}
-        openMenu={openMenu}
+        <Sidebar
+          isSidebarExpanded={isSidebarExpanded}
+          isMobile={isMobile}
+          openMenu={openMenu}
         />
-        </div>
+      </div>
+
+      <div className="dashboard_main">
+
+        <Header
+          handleToggleSidebar={handleToggleSidebar}
+          openMenu={openMenu}
+          isMobile={isMobile}
+        />
         <main className="dashboard_content">
-          {children}  
-        
+          {children}
+
         </main>
       </div>
-     
+
     </div>
   );
 }

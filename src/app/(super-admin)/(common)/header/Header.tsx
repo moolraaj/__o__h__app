@@ -154,54 +154,56 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
   return (
     <div className="header_inner">
       <div className="header_wrapper">
-        {!isMobile && (
-          <div className="toggle-logo-section">
+        <div className="toggle-logo-section">
+          {!isMobile && (
             <span className="togle-icon" onClick={handleToggleSidebar}>
-              <FaBars size={20} color="#116aef" />
+              <FaBars size={20} color="#56235E" />
             </span>
-            <Link href={`/super-admin/dashboard`} className="logo-wrapper">
-              <span className="logo">
-                <FaTooth size={22} color="#116aef" />
-              </span>
-              <span className="logo-text">
-                Oral Health
-              </span>
-            </Link>
-          </div>
-        )}
+          )}
+          <Link href={`/super-admin/dashboard`} className="logo-wrapper">
+            <span className="logo">
+              <FaTooth size={22} color="#56235E" />
+            </span>
+            <span className="logo-text">
+              Oral Health
+            </span>
+          </Link>
+        </div>
 
         <div className="right-section">
           <div className="search-box">
-            <FaSearch size={18} color="#116aef" />
-            <input type="text" placeholder="Search" />
+            <FaSearch size={20} color="#56235E" />
+            <input type="text" placeholder="Search..." />
           </div>
 
-          <div className="user-info" ref={dropdownRef}>
-            <div className="user-icon" onClick={() => setDropdownOpen((prev) => !prev)}>
-              {firstLetter}
-            </div>
-
-            {dropdownOpen && (
-              <div className="dropdown-menu">
-                <span
-                  onClick={() => {
-                    setShowLogoutModal(true);
-                    setDropdownOpen(false);
-                  }}
-                  className="logout-button"
-                >
-                  <LogOut size={18} /> Logout
-                </span>
+          {!isMobile && (
+            <div className="user-info" ref={dropdownRef}>
+              <div className="user-icon" onClick={() => setDropdownOpen((prev) => !prev)}>
+                {firstLetter}
               </div>
-            )}
-          </div>
+
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <span
+                    onClick={() => {
+                      setShowLogoutModal(true);
+                      setDropdownOpen(false);
+                    }}
+                    className="logout-button"
+                  >
+                    <LogOut size={18} /> Logout
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
 
         </div>
         {isMobile && (
 
           <span className="menu_icon togle-button" onClick={openMenu}>
-            <FaBars size={20} />
+            <FaBars size={20} color="#fff" />
           </span>
 
         )}
