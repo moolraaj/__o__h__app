@@ -8,7 +8,7 @@ const publicApi = [
   '/api/auth/register',
   '/api/auth/forgot-password',
   '/api/auth/reset-password',
-  '/api/auth/superadmin',
+  '/api/auth/superadmin/login',
   '/api/auth/verify',
   '/api/otpless/send-otp',
   '/api/otpless/verify-otp',

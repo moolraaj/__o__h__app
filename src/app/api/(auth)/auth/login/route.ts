@@ -1,8 +1,8 @@
- 
+
 import { NextRequest, NextResponse } from 'next/server';
-import { validateCredentials }      from '@/utils/validateCredentials';
-import { signAppToken }             from '@/utils/Jwt';
-import { dbConnect }                from '@/database/database';
+import { validateCredentials } from '@/utils/validateCredentials';
+import { signAppToken } from '@/utils/Jwt';
+import { dbConnect } from '@/database/database';
 
 export async function POST(req: NextRequest) {
   await dbConnect();
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   const hasEmail = typeof email === 'string' && email.trim() !== '';
   const hasPhone = typeof phoneNumber === 'string' && phoneNumber.trim() !== '';
 
- 
+
   if (hasEmail === hasPhone) {
     return NextResponse.json(
       { error: 'Please provide either email or phoneNumber (not both).' },
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   let user;
 
   if (hasEmail) {
- 
+
     const exists = await validateCredentials(normalizedId);
     if (!exists) {
       return NextResponse.json(
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
- 
+
     if (!password) {
       return NextResponse.json(
         { error: 'Password is required when logging in with email.' },
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
   } else {
- 
+
     user = await validateCredentials(normalizedId);
     if (!user) {
       return NextResponse.json(
@@ -62,12 +62,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
- 
+
   const token = await signAppToken({
-    id:          user._id,
-    name:        user.name,
-    role:        user.role,
-    email:       user.email,
+    id: user._id,
+    name: user.name,
+    role: user.role,
+    email: user.email,
     phoneNumber: user.phoneNumber,
   });
 
@@ -76,11 +76,11 @@ export async function POST(req: NextRequest) {
       message: `${user.name} logged in successfully!`,
       token,
       user: {
-        id:          user._id,
-        name:        user.name,
-        email:       user.email,
+        id: user._id,
+        name: user.name,
+        email: user.email,
         phoneNumber: user.phoneNumber,
-        role:        user.role,
+        role: user.role,
       },
     },
     { status: 200 }
