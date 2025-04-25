@@ -1,46 +1,38 @@
+ 
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
 const secret = process.env.NEXTAUTH_SECRET!
 
 const publicApi = [
-  '/api/auth/login',
-  '/api/auth/register',
-  '/api/auth/forgot-password',
-  '/api/auth/reset-password',
-  '/api/auth/superadmin/login',
-  '/api/auth/verify',
-  '/api/otpless/send-otp',
-  '/api/otpless/verify-otp',
+  '/api/auth',
+  '/api/otpless',
   '/api/lesion/verify',
   '/api/questionnaire/verify',
 ]
 
+ 
 const feedbackPath = /^\/api\/(?:lesion|questionnaire)\/[^\/]+\/feedback$/
-const submitPath = /^\/api\/(?:lesion|questionnaire)\/submit\/[^\/]+$/
-
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-
   if (pathname.startsWith('/api')) {
-    const isPublic =
-      publicApi.includes(pathname) ||
-      feedbackPath.test(pathname) ||
-      submitPath.test(pathname)
+    if (
+      publicApi.some(p => pathname.startsWith(p)) ||
+      feedbackPath.test(pathname)
+    ) {
+      return NextResponse.next()
+    }
 
-    if (!isPublic) {
-      const token = await getToken({ req, secret })
-      if (!token) {
-        return NextResponse.json(
-          { status: 401, error: 'Unauthorized! access denied' },
-        )
-      }
+    const token = await getToken({ req, secret })
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     return NextResponse.next()
   }
 
+ 
   const session = await getToken({ req, secret })
   if (pathname === '/' && session) {
     return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
@@ -61,8 +53,11 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/',
-    '/auth/:path*',
+    '/auth/login',
     '/super-admin/:path*',
     '/api/:path*',
+    '/api/lesion/verify',
+    '/api/questionnaire/verify',
+    
   ],
 }
