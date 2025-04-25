@@ -3,8 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateCredentials } from '@/utils/validateCredentials';
 import { signAppToken } from '@/utils/Jwt';
 import { Users } from '@/utils/Types';
+import { dbConnect } from '@/database/database';
 
 export async function POST(req: NextRequest) {
+  await dbConnect()
   const { phoneNumber } = await req.json();
   if (!phoneNumber) {
     return NextResponse.json({ error: 'Phone number required' }, { status: 400 });
