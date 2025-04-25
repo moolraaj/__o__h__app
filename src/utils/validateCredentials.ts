@@ -1,6 +1,7 @@
  
-import bcrypt from 'bcryptjs';
 import User from '@/models/User';
+import bcrypt from 'bcryptjs';
+ 
 
 export async function validateCredentials(
   phoneOrEmail: string,

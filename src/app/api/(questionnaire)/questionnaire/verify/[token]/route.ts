@@ -40,7 +40,7 @@ export async function GET(
     const html = renderConfirmationPage({
       recordType: "Questionnaire",
       action: action || '',
-      id:questionnaire._id.toString(),
+      id: questionnaire._id.toString(),
       redirectUrl: process.env.NEXT_PUBLIC_API_URL
     });
 
