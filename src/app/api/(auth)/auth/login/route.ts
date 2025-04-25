@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: 'Invalid phone number' }, { status: 404 });
   }
+  
 
   const token = await signAppToken({
     id: user._id.toString(),
