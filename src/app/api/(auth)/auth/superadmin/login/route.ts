@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
+  await dbConnect();
   try {
     const { email, password } = await req.json();
 
@@ -13,8 +14,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    
 
-    await dbConnect();
+   
 
      
     const user = await User.findOne({ email }).select("+password");
