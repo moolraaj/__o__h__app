@@ -6,7 +6,7 @@ import { Users } from '@/utils/Types';
 import { dbConnect } from '@/database/database';
 
 export async function POST(req: NextRequest) {
-  dbConnect()
+  await dbConnect()
   const { phoneNumber } = await req.json();
   if (!phoneNumber) {
     return NextResponse.json({ error: 'Phone number required' }, { status: 400 });
