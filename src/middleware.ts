@@ -10,7 +10,8 @@ const publicApi = [
   '/api/auth/reset-password',
   '/api/auth/superadmin',
   '/api/auth/verify',
-  '/api/otpless',
+  '/api/otpless/send-otp',
+  '/api/otpless/verify-otp',
   '/api/lesion/verify',
   '/api/questionnaire/verify',
 ]
