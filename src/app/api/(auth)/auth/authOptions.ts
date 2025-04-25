@@ -125,6 +125,7 @@ export const authOptions: NextAuthOptions = {
 
     CredentialsProvider({
       id: "superadmin",
+      name: "Super Admin Login",
       credentials: {
         email: { label: "E‑mail", type: "text" },
         password: { label: "Password", type: "password" }
