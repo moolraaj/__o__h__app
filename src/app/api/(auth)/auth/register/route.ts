@@ -1,4 +1,3 @@
- 
 import { NextRequest, NextResponse } from 'next/server'
 import { dbConnect } from '@/database/database'
 import User from '@/models/User'
@@ -20,7 +19,6 @@ export async function POST(req: NextRequest) {
 
     await dbConnect()
 
-  
     if (await User.findOne({ email })) {
       return NextResponse.json(
         { status: 409, error: 'Email already in use' },
@@ -34,14 +32,12 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    
     const finalRole = role || 'user'
     let status: 'approved' | 'pending' = 'approved'
     if (finalRole === 'admin' || finalRole === 'dantasurakshaks') {
       status = 'pending'
     }
 
-    
     const hashedPassword = await bcrypt.hash(password, 10)
     const newUser = await User.create({
       name,
@@ -50,9 +46,9 @@ export async function POST(req: NextRequest) {
       phoneNumber,
       role: finalRole,
       status,
+      isVerified: false
     })
 
- 
     const newUserObj = newUser.toObject()
     const userToSend: Users = {
       ...newUserObj,
@@ -60,13 +56,31 @@ export async function POST(req: NextRequest) {
       phoneNumber: Number(newUserObj.phoneNumber),
     }
 
-  
+ 
+    const superAdmins = await User.find({ role: 'superadmin' }).select('email')
+    const superAdminEmails = superAdmins.map(admin => admin.email)
+
+ 
     if (status === 'pending') {
       const tokenForRoleApproval = await createVerificationToken(newUser._id as string)
-      await sendApprovalEmail(userToSend, 'register', tokenForRoleApproval)
+      await sendApprovalEmail(
+        userToSend, 
+        'register', 
+        tokenForRoleApproval,
+        superAdminEmails
+      )
     }
 
-    
+ 
+    if (!newUser.isVerified) {
+      const verificationToken = await createVerificationToken(newUser._id as string)
+      await sendApprovalEmail(
+        userToSend,
+        'registerverificationcode',
+        verificationToken
+      )
+    }
+
     const baseUser = {
       id: newUser._id,
       name: newUser.name,
@@ -74,7 +88,7 @@ export async function POST(req: NextRequest) {
       phoneNumber: Number(newUser.phoneNumber),
       role: newUser.role,
       status: newUser.status,
-      isVerified: false,
+      isVerified: newUser.isVerified,
     }
 
  
@@ -85,18 +99,18 @@ export async function POST(req: NextRequest) {
         name: userToSend.name,
         role: userToSend.role,
       })
-      console.log(token)
 
       return NextResponse.json(
         {
           message: 'Registration successful',
           user: baseUser,
+          token,  
         },
         { status: 201 }
       )
     }
 
-  
+ 
     return NextResponse.json(
       {
         message: 'Registration successful; pending approval',
