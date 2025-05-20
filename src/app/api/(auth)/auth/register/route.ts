@@ -100,11 +100,12 @@ export async function POST(req: NextRequest) {
         role: userToSend.role,
       })
 
+      console.log(token)
+
       return NextResponse.json(
         {
           message: 'Registration successful',
           user: baseUser,
-          token,  
         },
         { status: 201 }
       )

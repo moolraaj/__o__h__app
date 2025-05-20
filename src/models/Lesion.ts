@@ -23,6 +23,7 @@ export interface ILesionRecord extends Document {
   recomanded_actions?: string;
   comments_or_notes?: string;
   send_email_to_dantasurakshaks?:boolean
+  case_number:string
 }
 
 const lesionRecordSchema: Schema = new Schema(
@@ -54,12 +55,33 @@ const lesionRecordSchema: Schema = new Schema(
     diagnosis_notes: { type: String, select: false },
     recomanded_actions: { type: String, select: false },
     comments_or_notes: { type: String, select: false },
-    send_email_to_dantasurakshaks:{ type: Boolean, select: false,default: false}
+    send_email_to_dantasurakshaks:{ type: Boolean, select: false,default: false},
+    case_number: { type: String, unique: true }
   },
   {
     timestamps: true,
   }
 );
+
+
+lesionRecordSchema.pre<ILesionRecord & Document>('save', async function (next) {
+  if (!this.isNew || this.case_number) return next();
+  try {
+    const model = this.constructor as Model<ILesionRecord & Document>;
+    const lastQuestionnaire = await model.findOne(
+      { case_number: /^L\d+$/ },
+      {},
+      { sort: { 'case_number': -1 } }
+    );
+    const lastNumber = lastQuestionnaire
+      ? parseInt(lastQuestionnaire.case_number.substring(1))
+      : 0;
+    this.case_number = `L${lastNumber + 1}`;
+    next();
+  } catch (err) {
+    next(err as Error);
+  }
+});
 
 export const LesionModel: Model<ILesionRecord> =
   mongoose.models.LesionRecord || mongoose.model<ILesionRecord>('LesionRecord', lesionRecordSchema);

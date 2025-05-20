@@ -44,22 +44,46 @@ const QuestionnaireSchema = new mongoose.Schema({
   presenceOfFluorosis: { type: String, required: true },
   send_to: { type: [mongoose.Schema.Types.ObjectId], ref: 'users', required: true },
   submitted_by: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
-  
+
   status: { type: String, default: 'unsubmit' },
   adminAction: { type: Boolean, default: false },
   assignTo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'users',
-        default: null,
-      },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    default: null,
+  },
 
- 
+
   questionary_type: { type: String, select: false },
   diagnosis_notes: { type: String, select: false },
   recomanded_actions: { type: String, select: false },
   comments_or_notes: { type: String, select: false },
-  send_email_to_dantasurakshaks: { type: Boolean, select: false, default: false }
+  send_email_to_dantasurakshaks: { type: Boolean, select: false, default: false },
+  case_number: { type: String, unique: true }
 });
+
+
+
+QuestionnaireSchema.pre<QuestionnaireTypes & Document>('save', async function (next) {
+  if (!this.isNew || this.case_number) return next();
+  try {
+    const model = this.constructor as Model<QuestionnaireTypes & Document>;
+    const lastQuestionnaire = await model.findOne(
+      { case_number: /^Q\d+$/ },
+      {},
+      { sort: { 'case_number': -1 } }
+    );
+    const lastNumber = lastQuestionnaire
+      ? parseInt(lastQuestionnaire.case_number.substring(1))
+      : 0;
+    this.case_number = `Q${lastNumber + 1}`;
+    next();
+  } catch (err) {
+    next(err as Error);
+  }
+});
+
+
 const Questionnaire: Model<QuestionnaireTypes> =
   (mongoose.models.Questionnaire as Model<QuestionnaireTypes>) ||
   mongoose.model<QuestionnaireTypes>('Questionnaire', QuestionnaireSchema);
