@@ -23,7 +23,7 @@ export interface ILesionRecord extends Document {
   recomanded_actions?: string;
   comments_or_notes?: string;
   send_email_to_dantasurakshaks?:boolean
-  case_number:string
+  case_number?:string
 }
 
 const lesionRecordSchema: Schema = new Schema(
@@ -74,6 +74,7 @@ lesionRecordSchema.pre<ILesionRecord & Document>('save', async function (next) {
       { sort: { 'case_number': -1 } }
     );
     const lastNumber = lastQuestionnaire
+    //@ts-expect-error - while validate the fileds
       ? parseInt(lastQuestionnaire.case_number.substring(1))
       : 0;
     this.case_number = `L${lastNumber + 1}`;

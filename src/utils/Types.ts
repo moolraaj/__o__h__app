@@ -184,7 +184,7 @@ export interface QuestionnaireTypes {
   recomanded_actions?: string;
   comments_or_notes?: string;
   send_email_to_dantasurakshaks?: boolean
-  case_number:string
+  case_number?:string
 }
 
 export interface WhatIsDiseaseDescriptionRepeater {

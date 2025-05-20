@@ -74,7 +74,8 @@ QuestionnaireSchema.pre<QuestionnaireTypes & Document>('save', async function (n
       { sort: { 'case_number': -1 } }
     );
     const lastNumber = lastQuestionnaire
-      ? parseInt(lastQuestionnaire.case_number.substring(1))
+      //@ts-expect-error - while validate the fileds
+      ? parseInt(lastQuestionnaire?.case_number.substring(1))
       : 0;
     this.case_number = `Q${lastNumber + 1}`;
     next();
