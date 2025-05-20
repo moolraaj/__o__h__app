@@ -22,7 +22,7 @@ export async function GET(
             return NextResponse.json({ success: false, status: 404, error: 'record not found' });
         }
 
-        return NextResponse.json({ status: 200, success: true, data: lesion });
+        return NextResponse.json({ status: 200, success: true, lesion: lesion });
     } catch (err) {
         if (err instanceof Error) {
             return NextResponse.json({ success: false, error: err.message || 'Server error' }, { status: 500 });

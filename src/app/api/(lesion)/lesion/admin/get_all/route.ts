@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
             status: 200,
             success: true,
-            data: lesions,
+            lesions: lesions,
             page,
             limit,
             totalResults: total,
