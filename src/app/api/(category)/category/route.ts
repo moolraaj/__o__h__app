@@ -13,13 +13,9 @@ export async function GET(request: NextRequest) {
     const { page, skip, limit } = ReusePaginationMethod(request);
 
     const categories = await Category.find()
-      .populate({
-        path: 'diseases', 
-        select: '_id disease_main_title disease_main_image disease_slug',
-      })
       .limit(limit)
       .skip(skip)
-      .lean({ virtuals: true })
+      .lean();
 
     const totalResults = await Category.countDocuments();
 
@@ -85,14 +81,6 @@ export async function GET(request: NextRequest) {
       } else {
         return {
           ...category,
-          diseases: Array.isArray(category.diseases)
-            ? category.diseases.map((disease: DiseaseTypes) => ({
-              _id: disease._id,
-              disease_main_title: disease.disease_main_title || {},
-              disease_main_image: disease.disease_main_image || '',
-              disease_slug: disease.disease_slug || {},
-            }))
-            : [],
         };
       }
     });

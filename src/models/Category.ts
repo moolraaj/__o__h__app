@@ -79,9 +79,8 @@ CategorySchema.virtual('diseases', {
   justOne: false   
 });
 
-
- 
 CategorySchema.set('toObject', { virtuals: true });
+CategorySchema.set('toJSON', { virtuals: true });
 
 
 export default mongoose.models.categories ||
