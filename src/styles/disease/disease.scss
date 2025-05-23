@@ -9,6 +9,10 @@
   box-shadow: none;
   font-family: 'Roboto', sans-serif;
 
+  h3{
+    margin-bottom: 20px;
+  }
+
   .add-disease-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -104,6 +108,105 @@
   }
 
 
+.nested-repeater {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    grid-column-start: 1;
+    grid-column-end: 3;
+    column-gap: 30px;
+}
+
+
+
+
+  .repeater 
+  
+  {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 80px;
+
+
+
+.upload_custom {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    display: grid;
+}
+
+.image_bundle {
+    display: flex;
+    column-gap: 20px;
+    margin-bottom: 20px;
+}
+.upload_custom {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    display: grid;
+}
+
+.image_bundle {
+    display: flex;
+    column-gap: 20px;
+    margin-bottom: 20px;
+}
+}
+
+  .en_g {
+    display: flex;
+    align-items: center;
+    column-gap: 20px;
+}
+
+.set_groups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 80px;
+}
+
+.set_groups inputs {
+    padding: 16px !important;
+}
+
+input[type="text"] {
+    padding: 5px 10px;
+}
+
+
+
+.image_cust {
+    display: grid;
+    align-items: center;
+    margin-top: 23px;
+    margin-bottom: 20px;
+}
+
+
+.upload_diseases {
+    display: grid;
+}
+
+.en_g { 
+  display: grid;
+  margin-bottom: 20px;
+input {
+    width: auto;
+   
+}
+}
+
+
+
+.kn_g {
+  display: grid;
+    margin-bottom: 20px;
+input {
+    width: auto;
+    
+}
+}
+
   // File input styling
   input[type="file"] {
     padding: 8px 12px;
@@ -121,7 +224,10 @@
     min-height: 140px;
     resize: vertical;
     font-family: 'Roboto', sans-serif;
+    padding: 10px;
   }
+
+
 
   .repeater {
     padding: 20px;
@@ -132,9 +238,9 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     .nested-repeater {
-      padding-left: 20px;
+    
       margin-top: 15px;
-      border-left: 4px solid #007bff;
+   
       margin-bottom: 20px;
 
       label {
