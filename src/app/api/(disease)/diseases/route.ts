@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
-import Disease from '@/models/Disease';
+ 
 import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { ReusePaginationMethod } from '@/utils/Pagination';
 import { Cause, CauseRepeat, PreventionTip, PreventionTipRepeat, Symptom, SymptomRepeat, TreatmentOption, TreatmentOptionRepeat, WhatIsDiseaseDescriptionRepeater, WhatIsDiseaseRepeat } from '@/utils/Types';
+import Disease from '@/models/Disease';
 
 export async function GET(request: NextRequest) {
   try {

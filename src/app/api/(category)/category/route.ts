@@ -13,15 +13,13 @@ export async function GET(request: NextRequest) {
     const { page, skip, limit } = ReusePaginationMethod(request);
 
     const categories = await Category.find()
-      .populate('diseases')
+      .populate({
+        path: 'diseases', 
+        select: '_id disease_main_title disease_main_image disease_slug',
+      })
       .limit(limit)
       .skip(skip)
-      .lean({ virtuals: true });
-
-
-
-  
-
+      .lean({ virtuals: true })
 
     const totalResults = await Category.countDocuments();
 

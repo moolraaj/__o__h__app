@@ -9,8 +9,6 @@ import { CategoryDiseaseTypes, FeatureSchema, Language, MythOrFactItem } from '@
 import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 
-
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -20,7 +18,10 @@ export async function GET(
     await dbConnect();
     const lang = getLanguage(request);
     const category = (await Category.findById(id)
-      .populate('diseases')
+     .populate({
+        path: 'diseases', 
+        select: '_id disease_main_title disease_main_image disease_slug',
+      })
       .lean()) as FeatureSchema | null;
 
     if (!category) {
@@ -29,7 +30,6 @@ export async function GET(
         { status: 404 }
       );
     }
-
     let localizedCategory;
 
     if (lang === EN || lang === KN) {
