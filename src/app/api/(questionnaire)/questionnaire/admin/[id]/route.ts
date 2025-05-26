@@ -12,7 +12,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         const id = (await params).id;
         const q = await Questionnaire.findOne({ _id: id, status: 'submit' })
             .select('+questionary_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
-            .populate('assignTo', 'name phoneNumber')
+            .populate([
+                { path: 'assignTo', select: 'name phoneNumber' },
+                { path: 'submitted_by', select: 'name' }
+            ])
             .lean();
 
         if (!q) {

@@ -15,7 +15,10 @@ export async function GET(req: NextRequest) {
         const [lesions, total] = await Promise.all([
             LesionModel.find({ status: 'submit' })
                 .select('+lesion_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
-                .populate('assignTo', 'name phoneNumber')
+                .populate([
+                    { path: 'assignTo', select: 'name phoneNumber' },
+                    { path: 'submitted_by', select: 'name' }
+                ])
                 .skip(skip)
                 .limit(limit)
                 .lean(),

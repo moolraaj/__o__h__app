@@ -15,7 +15,10 @@ export async function GET(
         const id = (await params).id;
         const lesion = await LesionModel.findOne({ _id: id, status: 'submit' })
             .select('+lesion_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
-            .populate('assignTo', 'name phoneNumber')
+            .populate([
+                { path: 'assignTo', select: 'name phoneNumber' },
+                { path: 'submitted_by', select: 'name' }
+            ])
             .lean();
 
         if (!lesion) {
