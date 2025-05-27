@@ -1,4 +1,7 @@
+
 import { NextRequest, NextResponse } from "next/server";
+import { validateCredentials } from "@/utils/validateCredentials";
+import { dbConnect } from "@/database/database";
 
 interface OTPRequestBody {
     phoneNumber: string;
@@ -6,27 +9,39 @@ interface OTPRequestBody {
     otpLength?: number;
     expiry?: number;
 }
-
-
 export async function POST(request: NextRequest) {
     try {
-        const { phoneNumber, channels = ['SMS'], otpLength = 6, expiry = 7200 } =
+        const { phoneNumber, channels = ["SMS"], otpLength = 6, expiry = 7200 } =
             (await request.json()) as OTPRequestBody;
 
-        const otplessUrl = process.env.NEXT_PUBLIC_OTPLESS_URL;
-        const clientId = process.env.NEXT_PUBLIC_OTPLESS_C_ID;
-        const clientSecret = process.env.NEXT_PUBLIC_OTPLESS_C_SEC;
+        if (!phoneNumber) {
+            return NextResponse.json(
+                { status: 400, error: "Phone number required" },
+
+            );
+        }
+        await dbConnect();
+        const user = (await validateCredentials(phoneNumber));
+        if (!user) {
+            return NextResponse.json(
+                { status: 404, error: "Please create an account first" },
+
+            );
+        }
+        const otplessUrl = process.env.NEXT_PUBLIC_OTPLESS_URL!;
+        const clientId = process.env.NEXT_PUBLIC_OTPLESS_C_ID!;
+        const clientSecret = process.env.NEXT_PUBLIC_OTPLESS_C_SEC!;
         if (!otplessUrl || !clientId || !clientSecret) {
             return NextResponse.json(
-                {status: 500, error: 'Missing environment configuration' },
-                 
+                { status: 500, error: "Missing OTP service configuration" },
+
             );
         }
 
-        const response = await fetch(`${otplessUrl}/auth/v1/initiate/otp`, {
-            method: 'POST',
+        const resp = await fetch(`${otplessUrl}/auth/v1/initiate/otp`, {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
                 clientId,
                 clientSecret,
             },
@@ -38,14 +53,15 @@ export async function POST(request: NextRequest) {
             }),
         });
 
-        const result = await response.json();
-        console.log(result);
-        return NextResponse.json(result);
-    } catch (error) {
-        console.error('Error sending OTP:', error);
-        return NextResponse.json(
-            {status: 500, error: 'Internal server issue' },
-            
-        );
+        const result = await resp.json();
+        return NextResponse.json(result, { status: resp.status });
+    } catch (err) {
+
+        if (err instanceof Error) {
+            return NextResponse.json(
+                { status: 500, error: "Internal server error" },
+
+            );
+        }
     }
 }

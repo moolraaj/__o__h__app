@@ -17,14 +17,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid phone number' }, { status: 404 });
     }
     
-    // Check if user has privileged role but status is pending
+ 
     if ((user.role === 'admin' || user.role === 'dantasurakshaks') && user.status === 'pending') {
-      // Create token with default 'user' role instead of their actual role
+   
       const token = await signAppToken({
         id: user._id.toString(),
         phoneNumber: user.phoneNumber,
         name: user.name,
-        role: 'user', // Force user role until approved
+        role: 'user',  
       });
 
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
             id: user._id, 
             name: user.name, 
             phoneNumber: user.phoneNumber, 
-            role: 'user', // Return user role in response
+            role: 'user',  
             status: user.status 
           },
         },
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Normal login for approved users or regular users
+    
     const token = await signAppToken({
       id: user._id.toString(),
       phoneNumber: user.phoneNumber,
