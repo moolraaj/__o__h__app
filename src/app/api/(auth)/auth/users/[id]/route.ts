@@ -80,18 +80,19 @@ export async function PUT(
   }
   const updateFields: Partial<Users> = {};
 
-  if (name && name !== currentUser.name) {
-    updateFields.name = name;
-  }
-  if (email && email !== currentUser.email) {
-    const emailExists = await User.findOne({ email });
-    if (emailExists) {
-      return NextResponse.json(
-        { error: 'Email is already in use' },
-        { status: 400 }
-      );
+
+  if (name !== undefined) updateFields.name = name;
+  if (email !== undefined) {
+    if (email !== currentUser.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return NextResponse.json(
+          { error: 'Email is already in use' },
+          { status: 400 }
+        );
+      }
+      updateFields.email = email;
     }
-    updateFields.email = email;
   }
   if (password) {
     updateFields.password = await bcrypt.hash(password, 10);
@@ -102,15 +103,11 @@ export async function PUT(
   if (newStatus !== undefined && newStatus !== currentUser.status) {
     updateFields.status = newStatus;
   }
-  if (Object.keys(updateFields).length === 0) {
-    return NextResponse.json(
-      { error: 'No updatable fields provided or values are unchanged.' },
-      { status: 400 }
-    );
-  }
+
   const updatedUser = await User.findByIdAndUpdate(id, updateFields, {
     new: true,
   });
+
   if (
     updateFields.status === 'approved' &&
     (updatedUser?.role === 'admin' || updatedUser?.role === 'dantasurakshaks')
