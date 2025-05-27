@@ -3,23 +3,46 @@ import { validateCredentials } from '@/utils/validateCredentials';
 import { signAppToken } from '@/utils/Jwt';
 import { Users } from '@/utils/Types';
 import { dbConnect } from '@/database/database';
+import bcrypt from 'bcryptjs';
+
+interface LoginRequestBody {
+  phoneNumber?: string;
+  email?: string;
+  password?: string;
+}
 
 export async function POST(req: NextRequest) {
   try {
-    await dbConnect()
-    const { phoneNumber } = await req.json();
-    if (!phoneNumber) {
-      return NextResponse.json({ error: 'Phone number required' }, { status: 400 });
+    await dbConnect();
+    const { phoneNumber, email, password }: LoginRequestBody = await req.json();
+
+
+    if (!phoneNumber && !(email && password)) {
+      return NextResponse.json(
+        { status: 404, error: 'Either phone number or email and password required' },
+
+      );
     }
 
-    const user = await validateCredentials(phoneNumber) as unknown as Users;
+
+    const user = await validateCredentials(phoneNumber || email!) as unknown as Users | null;
     if (!user) {
-      return NextResponse.json({ error: 'Invalid phone number' }, { status: 404 });
+      return NextResponse.json(
+        { status: 404, error: phoneNumber ? 'Invalid phone number' : 'Invalid credentials' },
+
+      );
+    }
+
+
+    if (email && password) {
+      const isPasswordValid = await bcrypt.compare(password, user.password || '');
+      if (!isPasswordValid) {
+        return NextResponse.json({ status: 401, error: 'Invalid credentials' });
+      }
     }
 
 
     if ((user.role === 'admin' || user.role === 'dantasurakshaks') && user.status === 'pending') {
-
       const token = await signAppToken({
         id: user._id.toString(),
         phoneNumber: user.phoneNumber,
@@ -28,25 +51,22 @@ export async function POST(req: NextRequest) {
         role: 'user',
       });
 
-      return NextResponse.json(
-        {
-          error: 'Your account is pending approval. Please wait for admin approval.',
-          message: 'Logged in with limited user access',
-          token,
-          user: {
-            id: user._id,
-            name: user.name,
-            phoneNumber: user.phoneNumber,
-            email: user.email,
-            role: 'user',
-            status: user.status
-          },
+      return NextResponse.json({
+        status: 200,
+        message: 'Logged in with limited user access',
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          phoneNumber: user.phoneNumber,
+          email: user.email,
+          role: 'user',
+          status: user.status
         },
-        { status: 200 },
-      );
+      });
     }
 
-   
+
     const token = await signAppToken({
       id: user._id.toString(),
       phoneNumber: user.phoneNumber,
@@ -55,26 +75,27 @@ export async function POST(req: NextRequest) {
       role: user.role,
     });
 
-    return NextResponse.json(
-      {
-        message: `${user.name} logged in successfully!`,
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          phoneNumber: user.phoneNumber,
-          role: user.role,
-          email: user.email,
-          status: user.status
-        },
+    return NextResponse.json({
+      status: 200,
+      message: `${user.name} logged in successfully!`,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+        email: user.email,
+        status: user.status
       },
-      { status: 200 },
-    );
+    },);
+
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: 'Server error.' },
-      { status: 500 }
-    );
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { status: 500, error: 'Server error.' },
+
+      );
+    }
+
   }
 }

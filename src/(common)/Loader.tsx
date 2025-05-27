@@ -1,5 +1,5 @@
-// Inside your component file
-import Image from "next/image"; // For the logo image
+ 
+import Image from "next/image"; 
 import siteLogo from "@/images/danta-suraksha-logo.png";
 
 export default function Loader() {

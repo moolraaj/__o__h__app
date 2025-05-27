@@ -13,7 +13,7 @@ import User from '@/models/User';
 
 
 
-// get single user
+ 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id
   await dbConnect()
@@ -27,9 +27,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json({ message: 'User retrieved successfully', user });
 }
 
-
-
-// delete single user
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id
   await dbConnect()
@@ -44,8 +41,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   return NextResponse.json({ message: 'User deleted successfully' });
 }
 
-
-
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -53,7 +48,6 @@ export async function PUT(
   const id = (await params).id;
   const body = await req.json();
   const { name, email, password, role, status: newStatus } = body;
-
   await dbConnect();
   if (!id) {
     return NextResponse.json({ error: 'User ID is missing' }, { status: 400 });
