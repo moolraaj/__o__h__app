@@ -45,91 +45,104 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 }
 
 
-// update user
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const id = (await params).id;
   const body = await req.json();
-  const { name, email, password, phoneNumber, role, status } = body;
+  const { name, email, password, role, status: newStatus } = body;
 
   await dbConnect();
-
   if (!id) {
     return NextResponse.json({ error: 'User ID is missing' }, { status: 400 });
   }
-
-  const currentUser = await User.findById({ _id: id });
+  if (body.phoneNumber !== undefined) {
+    return NextResponse.json(
+      { error: 'Phone number cannot be changed.' },
+      { status: 400 }
+    );
+  }
+  const currentUser = await User.findById(id);
   if (!currentUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
-
- 
+  if (
+    newStatus !== undefined &&
+    currentUser.status === 'approved' &&
+    newStatus !== currentUser.status
+  ) {
+    return NextResponse.json(
+      { error: 'Cannot change status once it is approved.' },
+      { status: 400 }
+    );
+  }
   const updateFields: Partial<Users> = {};
 
-  if (name) updateFields.name = name;
+  if (name && name !== currentUser.name) {
+    updateFields.name = name;
+  }
   if (email && email !== currentUser.email) {
     const emailExists = await User.findOne({ email });
     if (emailExists) {
-      return NextResponse.json({ error: 'Email is already in use' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Email is already in use' },
+        { status: 400 }
+      );
     }
     updateFields.email = email;
   }
-  if (phoneNumber) updateFields.phoneNumber = Number(phoneNumber);
-  if (password) updateFields.password = await bcrypt.hash(password, 10);
-
-  if (status) {
-    updateFields.status = status;
-    if (status === "approved") {
-      updateFields.role = role || currentUser.role;
-    } else if (status === "rejected") {
-      updateFields.role = "user";
-    }
-  } else {
-    updateFields.status = "pending";
-    if (role) {
-      updateFields.role = role;
-    }
+  if (password) {
+    updateFields.password = await bcrypt.hash(password, 10);
   }
-
+  if (role && role !== currentUser.role) {
+    updateFields.role = role;
+  }
+  if (newStatus !== undefined && newStatus !== currentUser.status) {
+    updateFields.status = newStatus;
+  }
   if (Object.keys(updateFields).length === 0) {
-    return NextResponse.json({ error: 'No fields to update provided or values are the same.' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'No updatable fields provided or values are unchanged.' },
+      { status: 400 }
+    );
   }
-
-  const updatedUser = await User.findByIdAndUpdate(id, updateFields, { new: true });
-
+  const updatedUser = await User.findByIdAndUpdate(id, updateFields, {
+    new: true,
+  });
   if (
-    updatedUser?.status === "pending" &&
-    (updatedUser?.role === "admin" || updatedUser?.role === "dantasurakshaks")
+    updateFields.status === 'approved' &&
+    (updatedUser?.role === 'admin' || updatedUser?.role === 'dantasurakshaks')
   ) {
-    const token = crypto.randomBytes(32).toString("hex");
+    const token = crypto.randomBytes(32).toString('hex');
     await VerificationToken.create({
       userId: updatedUser._id,
       token,
       createdAt: new Date(),
     });
-
-    
-    const userObj = updatedUser.toObject();
-    const user: Users = {
-      _id: userObj._id ? userObj._id.toString() : '',
-      name: userObj.name,
-      email: userObj.email,
-      phoneNumber: typeof userObj.phoneNumber === 'string' 
-        ? Number(userObj.phoneNumber)
-        : userObj.phoneNumber,
-      password: userObj.password,
-      role: userObj.role,
-      isVerified:userObj.isVerified,
-      status: userObj.status,
+    const emailUser: Users = {
+      //@ts-expect-error error comes due to severl reason
+      _id: updatedUser._id.toString(),
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phoneNumber: Number(updatedUser.phoneNumber),
+      password: updatedUser.password,
+      role: updatedUser.role,
+      isVerified: updatedUser.isVerified,
+      status: updatedUser.status,
     };
-
-    await sendApprovalEmail(user, 'register',token);
+    await sendApprovalEmail(emailUser, 'register', token);
   }
-
-  return NextResponse.json({ message: 'User updated successfully', user: updatedUser });
+  return NextResponse.json({
+    message: 'User updated successfully',
+    user: updatedUser,
+  });
 }
+
+
+
+
 
 
 
