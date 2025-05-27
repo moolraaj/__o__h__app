@@ -12,19 +12,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Phone number required' }, { status: 400 });
     }
 
-    const user = await validateCredentials(phoneNumber) as unknown as Users;      
+    const user = await validateCredentials(phoneNumber) as unknown as Users;
     if (!user) {
       return NextResponse.json({ error: 'Invalid phone number' }, { status: 404 });
     }
-    
- 
+
+
     if ((user.role === 'admin' || user.role === 'dantasurakshaks') && user.status === 'pending') {
-  
+
       const token = await signAppToken({
         id: user._id.toString(),
         phoneNumber: user.phoneNumber,
+        email: user.email,
         name: user.name,
-        role: 'user', 
+        role: 'user',
       });
 
       return NextResponse.json(
@@ -32,23 +33,25 @@ export async function POST(req: NextRequest) {
           error: 'Your account is pending approval. Please wait for admin approval.',
           message: 'Logged in with limited user access',
           token,
-          user: { 
-            id: user._id, 
-            name: user.name, 
-            phoneNumber: user.phoneNumber, 
-            role: 'user', 
-            status: user.status 
+          user: {
+            id: user._id,
+            name: user.name,
+            phoneNumber: user.phoneNumber,
+            email: user.email,
+            role: 'user',
+            status: user.status
           },
         },
         { status: 200 },
       );
     }
 
-    // Normal login for approved users or regular users
+   
     const token = await signAppToken({
       id: user._id.toString(),
       phoneNumber: user.phoneNumber,
       name: user.name,
+      email: user.email,
       role: user.role,
     });
 
@@ -56,12 +59,13 @@ export async function POST(req: NextRequest) {
       {
         message: `${user.name} logged in successfully!`,
         token,
-        user: { 
-          id: user._id, 
-          name: user.name, 
-          phoneNumber: user.phoneNumber, 
+        user: {
+          id: user._id,
+          name: user.name,
+          phoneNumber: user.phoneNumber,
           role: user.role,
-          status: user.status 
+          email: user.email,
+          status: user.status
         },
       },
       { status: 200 },
