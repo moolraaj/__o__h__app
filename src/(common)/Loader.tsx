@@ -1,4 +1,4 @@
- 
+
 import Image from "next/image"; 
 import siteLogo from "@/images/danta-suraksha-logo.png";
 

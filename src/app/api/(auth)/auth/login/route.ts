@@ -23,8 +23,6 @@ export async function POST(req: NextRequest) {
 
       );
     }
-
-
     const user = await validateCredentials(phoneNumber || email!) as unknown as Users | null;
     if (!user) {
       return NextResponse.json(
@@ -32,8 +30,6 @@ export async function POST(req: NextRequest) {
 
       );
     }
-
-
     if (email && password) {
       const isPasswordValid = await bcrypt.compare(password, user.password || '');
       if (!isPasswordValid) {
