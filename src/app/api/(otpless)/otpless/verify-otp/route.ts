@@ -1,32 +1,34 @@
- 
-import { dbConnect } from '@/database/database';
-import User from '@/models/User';
-import { verifyOtp } from '@/utils/Constants';
-import { NextRequest, NextResponse } from 'next/server';
- 
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  await dbConnect();
-  const { requestId, otp, phoneNumber } = await req.json();
-
- 
-  const result = await verifyOtp(requestId, otp);
- 
-
- 
-  if (result.status !== 'OK') {
- 
-    return NextResponse.json(
-      { error: result.message || 'Invalid or expired OTP' },
-      { status: 400 }
-    );
-  }
-
-   
-  const user = await User.findOneAndUpdate(
-    { phoneNumber },
-    { isPhoneVerified: true },
-    { new: true }
-  );
-  return NextResponse.json({ message: 'Phone verified', user });
+export async function POST(request: NextRequest) {
+    const { requestId, otp } = await request.json();
+    const otplessUrl = process.env.NEXT_PUBLIC_OTPLESS_URL;
+    const clientId = process.env.NEXT_PUBLIC_OTPLESS_C_ID;
+    const clientSecret = process.env.NEXT_PUBLIC_OTPLESS_C_SEC;
+    if (!otplessUrl || !clientId || !clientSecret) {
+        return NextResponse.json(
+            { error: "Missing environment configuration" },
+            { status: 500 }
+        );
+    }
+    try {
+        const response = await fetch(`${otplessUrl}/auth/v1/verify/otp`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                clientId,
+                clientSecret,
+            },
+            body: JSON.stringify({ requestId, otp }),
+        });
+        const result = await response.json();
+        
+        return NextResponse.json(result);
+    } catch (error) {
+        console.error("Error verifying OTP:", error);
+        return NextResponse.json(
+            {status: 500, error: "Internal server issue" },
+            
+        );
+    }
 }

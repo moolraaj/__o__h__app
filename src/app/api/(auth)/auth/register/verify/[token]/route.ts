@@ -1,80 +1,49 @@
-// app/api/auth/register/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { dbConnect } from '@/database/database';
 import User from '@/models/User';
+import VerificationToken from '@/models/VerificationToken';
+import { NextRequest, NextResponse } from 'next/server';
 
-interface RegisterRequestBody {
-  name: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-}
-
-export async function POST(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ token: string }> }
+) {
   try {
-    // —————————————————————————————
-    // 1) Connect to MongoDB
-    // —————————————————————————————
     await dbConnect();
-
-    // —————————————————————————————
-    // 2) Parse & validate input
-    // —————————————————————————————
-    const { name, email, password, phoneNumber } =
-      (await req.json()) as RegisterRequestBody;
-
-    if (!name || !email || !password || !phoneNumber) {
+    const  token  = (await params).token;
+    if (!token) {
       return NextResponse.json(
-        { error: 'All fields (name, email, password, phoneNumber) are required.' },
+        { error: 'Token is required.' },
         { status: 400 }
       );
     }
 
-    // —————————————————————————————
-    // 3) Ensure phone has been OTP-verified
-    // —————————————————————————————
-    const preUser = await User.findOne({ phoneNumber });
-    if (!preUser || !preUser.isPhoneVerified) {
+    const verificationRecord = await VerificationToken.findOne({ token });
+    if (!verificationRecord) {
       return NextResponse.json(
-        { error: 'You must verify your phone before registering.' },
+        { error: 'Invalid or expired token.' },
         { status: 400 }
       );
     }
-
-    // —————————————————————————————
-    // 4) Prevent duplicate email
-    // —————————————————————————————
-    const emailTaken = await User.findOne({ email });
-    if (emailTaken) {
+    const user = await User.findById(verificationRecord.userId);
+    if (!user) {
       return NextResponse.json(
-        { error: 'Email already in use.' },
-        { status: 400 }
+        { error: 'User not found.' },
+        { status: 404 }
       );
     }
 
-    // —————————————————————————————
-    // 5) Hash password & populate existing stub
-    // —————————————————————————————
-    const hashed = await bcrypt.hash(password, 12);
-    preUser.name = name;
-    preUser.email = email;
-    preUser.password = hashed;
-    preUser.status = 'approved';       // your default
-    // leave role, isVerified (email), isPhoneVerified as-is
-    await preUser.save();
 
-    // —————————————————————————————
-    // 6) Success
-    // —————————————————————————————
+    user.isVerified = true;
+    await user.save();
+    await VerificationToken.deleteOne({ token });
     return NextResponse.json(
-      { message: 'Registration complete', userId: preUser._id },
-      { status: 201 }
+      {status: 200, message: 'Email verified successfully.' },
+     
     );
   } catch (error) {
-    console.error('Register error:', error);
+    console.error(error);
     return NextResponse.json(
-      { error: 'Server error during registration.' },
+      { error: 'Internal server error.' },
       { status: 500 }
     );
   }
