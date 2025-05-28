@@ -33,11 +33,11 @@ export async function POST(req: NextRequest) {
     }
 
  
-    if (!user.isVerified) {
-      return NextResponse.json(
-        { status: 403, error: 'Please verify your email first' },
-      );
-    }
+    // if (!user.isVerified) {
+    //   return NextResponse.json(
+    //     { status: 403, error: 'Please verify your email first' },
+    //   );
+    // }
 
     if (email && password) {
       const isPasswordValid = await bcrypt.compare(password, user.password || '');
