@@ -117,7 +117,7 @@ export async function PUT(
       _id: updatedUser._id.toString(),
       name: updatedUser.name,
       email: updatedUser.email,
-      phoneNumber: Number(updatedUser.phoneNumber),
+      phoneNumber: updatedUser.phoneNumber,
       password: updatedUser.password,
       role: updatedUser.role,
       isVerified: updatedUser.isVerified,

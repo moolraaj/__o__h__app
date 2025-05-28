@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     const userToSend: Users = {
       ...newUserObj,
       _id: String(newUserObj._id),
-      phoneNumber: Number(newUserObj.phoneNumber),
+      phoneNumber:  newUserObj.phoneNumber,
     };
 
     const superAdmins = await User.find({ role: 'superadmin' }).select('email');
