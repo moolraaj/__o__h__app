@@ -10,13 +10,10 @@ interface LoginRequestBody {
   email?: string;
   password?: string;
 }
-
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const { phoneNumber, email, password }: LoginRequestBody = await req.json();
-
-
     if (!phoneNumber && !(email && password)) {
       return NextResponse.json(
         { status: 404, error: 'Either phone number or email and password required' },
@@ -30,14 +27,21 @@ export async function POST(req: NextRequest) {
 
       );
     }
+    if (!user.isVerified) {
+      return NextResponse.json(
+        { status: 403, error: 'You cannot login verify your email first' },
+
+      );
+    }
     if (email && password) {
       const isPasswordValid = await bcrypt.compare(password, user.password || '');
       if (!isPasswordValid) {
-        return NextResponse.json({ status: 401, error: 'Invalid credentials' });
+        return NextResponse.json(
+          { status: 401, error: 'Invalid credentials' },
+
+        );
       }
     }
-
-
     if ((user.role === 'admin' || user.role === 'dantasurakshaks') && user.status === 'pending') {
       const token = await signAppToken({
         id: user._id.toString(),
@@ -46,7 +50,6 @@ export async function POST(req: NextRequest) {
         name: user.name,
         role: 'user',
       });
-
       return NextResponse.json({
         status: 200,
         message: 'Logged in with limited user access',
@@ -61,8 +64,6 @@ export async function POST(req: NextRequest) {
         },
       });
     }
-
-
     const token = await signAppToken({
       id: user._id.toString(),
       phoneNumber: user.phoneNumber,
@@ -70,7 +71,6 @@ export async function POST(req: NextRequest) {
       email: user.email,
       role: user.role,
     });
-
     return NextResponse.json({
       status: 200,
       message: `${user.name} logged in successfully!`,
@@ -83,15 +83,12 @@ export async function POST(req: NextRequest) {
         email: user.email,
         status: user.status
       },
-    },);
-
+    });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json(
         { status: 500, error: 'Server error.' },
-
       );
     }
-
   }
 }

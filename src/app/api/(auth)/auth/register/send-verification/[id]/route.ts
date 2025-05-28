@@ -47,9 +47,10 @@ export async function POST(
       { status: 200, message: 'Verification email sent successfully.' }
     );
   } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { status: 500, error: 'Server error.' }
-    );
+    if(err instanceof Error){
+      return NextResponse.json(
+        { status: 500, error: 'Server error.' }
+      );
+    }
   }
 }
