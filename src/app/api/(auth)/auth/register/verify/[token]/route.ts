@@ -1,11 +1,10 @@
-
+// app/api/auth/register/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-
-import User from '@/models/User';
 import { dbConnect } from '@/database/database';
+import User from '@/models/User';
 
-interface RegisterBody {
+interface RegisterRequestBody {
   name: string;
   email: string;
   password: string;
@@ -14,42 +13,69 @@ interface RegisterBody {
 
 export async function POST(req: NextRequest) {
   try {
+    // —————————————————————————————
+    // 1) Connect to MongoDB
+    // —————————————————————————————
     await dbConnect();
-    const { name, email, password, phoneNumber } = (await req.json()) as RegisterBody;
+
+    // —————————————————————————————
+    // 2) Parse & validate input
+    // —————————————————————————————
+    const { name, email, password, phoneNumber } =
+      (await req.json()) as RegisterRequestBody;
+
     if (!name || !email || !password || !phoneNumber) {
       return NextResponse.json(
-        { status: 400, error: 'All fields (name, email, password, phoneNumber) are required.' },
-
+        { error: 'All fields (name, email, password, phoneNumber) are required.' },
+        { status: 400 }
       );
     }
+
+    // —————————————————————————————
+    // 3) Ensure phone has been OTP-verified
+    // —————————————————————————————
     const preUser = await User.findOne({ phoneNumber });
     if (!preUser || !preUser.isPhoneVerified) {
       return NextResponse.json(
-        { status: 400, error: 'You must verify your phone before registering.' },
-
+        { error: 'You must verify your phone before registering.' },
+        { status: 400 }
       );
     }
-    const emailInUse = await User.findOne({ email });
-    if (emailInUse) {
+
+    // —————————————————————————————
+    // 4) Prevent duplicate email
+    // —————————————————————————————
+    const emailTaken = await User.findOne({ email });
+    if (emailTaken) {
       return NextResponse.json(
-        { status: 400, error: 'Email already in use.' },
-
+        { error: 'Email already in use.' },
+        { status: 400 }
       );
     }
-    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // —————————————————————————————
+    // 5) Hash password & populate existing stub
+    // —————————————————————————————
+    const hashed = await bcrypt.hash(password, 12);
     preUser.name = name;
     preUser.email = email;
-    preUser.password = hashedPassword;
-    preUser.status = 'approved';
+    preUser.password = hashed;
+    preUser.status = 'approved';       // your default
+    // leave role, isVerified (email), isPhoneVerified as-is
     await preUser.save();
+
+    // —————————————————————————————
+    // 6) Success
+    // —————————————————————————————
     return NextResponse.json(
-      { status: 201, message: 'Registration complete', userId: preUser._id },
+      { message: 'Registration complete', userId: preUser._id },
+      { status: 201 }
     );
-  } catch (err) {
-    if (err instanceof Error) {
-      return NextResponse.json(
-        { status: 500, error: 'Server error during registration.' },
-      );
-    }
+  } catch (error) {
+    console.error('Register error:', error);
+    return NextResponse.json(
+      { error: 'Server error during registration.' },
+      { status: 500 }
+    );
   }
 }

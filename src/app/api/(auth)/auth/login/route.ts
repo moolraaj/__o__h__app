@@ -1,11 +1,9 @@
- 
+// app/api/auth/login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
- 
-import { validateCredentials } from '@/utils/validateCredentials';
-import { signAppToken } from '@/utils/Jwt';
-import { Users } from '@/utils/Types';
 import { dbConnect } from '@/database/database';
+import User from '@/models/User';
+import { signAppToken } from '@/utils/Jwt';
 
 interface LoginRequestBody {
   phoneNumber?: string;
@@ -15,44 +13,63 @@ interface LoginRequestBody {
 
 export async function POST(req: NextRequest) {
   try {
+    // 1) Connect
     await dbConnect();
+
+    // 2) Parse payload
     const { phoneNumber, email, password } = (await req.json()) as LoginRequestBody;
+
+    // 3) Require either phone OR email+password
     if (!phoneNumber && !(email && password)) {
       return NextResponse.json(
         { status: 400, error: 'Provide phoneNumber or email and password.' },
-     
+        { status: 400 }
       );
     }
-    let user: Users | null = null;
+
+    // 4) Lookup user directly in MongoDB
+    let user = null;
     if (phoneNumber) {
-      user = (await validateCredentials(phoneNumber)) as unknown as Users;
+      user = await User.findOne({ phoneNumber }).lean();
     } else {
-      user = (await validateCredentials(email!)) as unknown as Users;
+      user = await User.findOne({ email }).lean();
     }
 
     if (!user) {
       return NextResponse.json(
-        { status: 404, error: phoneNumber ? 'Invalid phone number.' : 'Invalid credentials.' },
-      
+        {
+          status: 404,
+          error: phoneNumber ? 'Invalid phone number.' : 'Invalid credentials.',
+        },
+        { status: 404 }
       );
     }
+
+    // 5) Enforce phone-verification
     if (!user.isPhoneVerified) {
       return NextResponse.json(
         { status: 403, error: 'Please verify your phone before logging in.' },
         { status: 403 }
       );
     }
+
+    // 6) If email+password, verify password
     if (email && password) {
       const isValid = await bcrypt.compare(password, user.password || '');
       if (!isValid) {
         return NextResponse.json(
           { status: 401, error: 'Invalid credentials.' },
-        
+          { status: 401 }
         );
       }
     }
-    if ((user.role === 'admin' || user.role === 'dantasurakshaks') && user.status === 'pending') {
-      const token = await signAppToken({
+
+    // 7) Limited-access logic
+    if (
+      (user.role === 'admin' || user.role === 'dantasurakshaks') &&
+      user.status === 'pending'
+    ) {
+      const token = signAppToken({
         id: user._id.toString(),
         phoneNumber: user.phoneNumber,
         email: user.email,
@@ -73,10 +90,12 @@ export async function POST(req: NextRequest) {
             status: user.status,
           },
         },
-       
+        { status: 200 }
       );
     }
-    const token = await signAppToken({
+
+    // 8) Full-access login
+    const token = signAppToken({
       id: user._id.toString(),
       phoneNumber: user.phoneNumber,
       email: user.email,
@@ -98,14 +117,14 @@ export async function POST(req: NextRequest) {
           status: user.status,
         },
       },
+      { status: 200 }
     );
-
   } catch (error) {
     if(error instanceof Error){
       return NextResponse.json(
         { status: 500, error: 'Server error.' },
+        { status: 500 }
       );
     }
- 
   }
 }
