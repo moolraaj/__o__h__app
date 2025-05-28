@@ -1,4 +1,4 @@
-
+ 
 import mongoose, { Schema, Document, Model, models } from 'mongoose';
 
 export interface IUser extends Document {
@@ -8,8 +8,7 @@ export interface IUser extends Document {
   phoneNumber: string;
   role: 'user' | 'admin' | 'dantasurakshaks' | 'super-admin';
   status: 'pending' | 'approved' | 'rejected';
-  isVerified: boolean,
-  phoneIsVerified: boolean;
+  isVerified:boolean,
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,7 +18,7 @@ const userSchema = new Schema<IUser>(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phoneNumber: { type: String },
+    phoneNumber: { type: String},
     role: {
       type: String,
       enum: ['user', 'admin', 'dantasurakshaks', 'super-admin'],
@@ -30,8 +29,8 @@ const userSchema = new Schema<IUser>(
       enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
     },
-    isVerified: { type: Boolean, default: false },
-    phoneIsVerified: { type: Boolean, default: false }
+    isVerified:{type:Boolean,default:false}
+
   },
   { timestamps: true }
 );
