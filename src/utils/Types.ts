@@ -14,7 +14,7 @@ export interface Users {
   _id: string;
   name: string;
   email?: string;
-  phoneNumber?: string;
+  phoneNumber?: number;
   password?: string;
   role: "admin" | "user" | "dantasurakshaks" | "super-admin";
   status: string;
