@@ -16,6 +16,7 @@ export interface Users {
   email?: string;
   phoneNumber?: number;
   password?: string;
+  isPhoneVerified:boolean|undefined
   role: "admin" | "user" | "dantasurakshaks" | "super-admin";
   status: string;
   isVerified: boolean
@@ -315,6 +316,7 @@ export interface RegisterEmailData {
   name: string;
   email: string;
   phoneNumber: string;
+  isPhoneVerified:boolean
 }
 
 export interface RegisterVerificationEmailData {

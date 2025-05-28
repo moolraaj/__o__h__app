@@ -1,50 +1,55 @@
-import { dbConnect } from '@/database/database';
-import User from '@/models/User';
-import VerificationToken from '@/models/VerificationToken';
-import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ token: string }> }
-) {
+import { NextRequest, NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+
+import User from '@/models/User';
+import { dbConnect } from '@/database/database';
+
+interface RegisterBody {
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+}
+
+export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    const  token  = (await params).token;
-    if (!token) {
+    const { name, email, password, phoneNumber } = (await req.json()) as RegisterBody;
+    if (!name || !email || !password || !phoneNumber) {
       return NextResponse.json(
-        { error: 'Token is required.' },
-        { status: 400 }
+        { status: 400, error: 'All fields (name, email, password, phoneNumber) are required.' },
+
       );
     }
-
-    const verificationRecord = await VerificationToken.findOne({ token });
-    if (!verificationRecord) {
+    const preUser = await User.findOne({ phoneNumber });
+    if (!preUser || !preUser.isPhoneVerified) {
       return NextResponse.json(
-        { error: 'Invalid or expired token.' },
-        { status: 400 }
+        { status: 400, error: 'You must verify your phone before registering.' },
+
       );
     }
-    const user = await User.findById(verificationRecord.userId);
-    if (!user) {
+    const emailInUse = await User.findOne({ email });
+    if (emailInUse) {
       return NextResponse.json(
-        { error: 'User not found.' },
-        { status: 404 }
+        { status: 400, error: 'Email already in use.' },
+
       );
     }
-
-
-    user.isVerified = true;
-    await user.save();
-    await VerificationToken.deleteOne({ token });
+    const hashedPassword = await bcrypt.hash(password, 12);
+    preUser.name = name;
+    preUser.email = email;
+    preUser.password = hashedPassword;
+    preUser.status = 'approved';
+    await preUser.save();
     return NextResponse.json(
-      {status: 200, message: 'Email verified successfully.' },
-     
+      { status: 201, message: 'Registration complete', userId: preUser._id },
     );
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: 'Internal server error.' },
-      { status: 500 }
-    );
+  } catch (err) {
+    if (err instanceof Error) {
+      return NextResponse.json(
+        { status: 500, error: 'Server error during registration.' },
+      );
+    }
   }
 }

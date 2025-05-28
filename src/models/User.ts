@@ -9,6 +9,7 @@ export interface IUser extends Document {
   role: 'user' | 'admin' | 'dantasurakshaks' | 'super-admin';
   status: 'pending' | 'approved' | 'rejected';
   isVerified:boolean,
+   isPhoneVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,7 +30,8 @@ const userSchema = new Schema<IUser>(
       enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
     },
-    isVerified:{type:Boolean,default:false}
+    isVerified:{type:Boolean,default:false},
+    isPhoneVerified: { type: Boolean, default: false }, 
 
   },
   { timestamps: true }

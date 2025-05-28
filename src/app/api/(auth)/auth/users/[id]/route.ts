@@ -112,6 +112,7 @@ export async function PUT(
       token,
       createdAt: new Date(),
     });
+      //@ts-expect-error error comes due to severl reason
     const emailUser: Users = {
       //@ts-expect-error error comes due to severl reason
       _id: updatedUser._id.toString(),
@@ -122,6 +123,7 @@ export async function PUT(
       role: updatedUser.role,
       isVerified: updatedUser.isVerified,
       status: updatedUser.status,
+       
     };
     await sendApprovalEmail(emailUser, 'register', token);
   }

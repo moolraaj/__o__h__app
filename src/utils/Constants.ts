@@ -155,3 +155,42 @@ export const generatePDFBase64 = async (data: Record<string, unknown>): Promise<
 
 
 
+ 
+export async function initiateOtp(phoneNumber: string, channels = ['SMS'], otpLength = 6, expiry = 7200) {
+  const { NEXT_PUBLIC_OTPLESS_URL, NEXT_PUBLIC_OTPLESS_C_ID, NEXT_PUBLIC_OTPLESS_C_SEC } = process.env;
+  if (!NEXT_PUBLIC_OTPLESS_URL || !NEXT_PUBLIC_OTPLESS_C_ID || !NEXT_PUBLIC_OTPLESS_C_SEC) {
+    throw new Error('Missing OTPless config');
+  }
+  const res = await fetch(`${NEXT_PUBLIC_OTPLESS_URL}/auth/v1/initiate/otp`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      clientId: NEXT_PUBLIC_OTPLESS_C_ID,
+      clientSecret: NEXT_PUBLIC_OTPLESS_C_SEC,
+    },
+    body: JSON.stringify({ phoneNumber, channels, otpLength, expiry }),
+  });
+  return res.json();
+}
+
+export async function verifyOtp(requestId: string, otp: string) {
+  const { NEXT_PUBLIC_OTPLESS_URL, NEXT_PUBLIC_OTPLESS_C_ID, NEXT_PUBLIC_OTPLESS_C_SEC } = process.env;
+  if (!NEXT_PUBLIC_OTPLESS_URL || !NEXT_PUBLIC_OTPLESS_C_ID || !NEXT_PUBLIC_OTPLESS_C_SEC) {
+    throw new Error('Missing OTPless config');
+  }
+  const res = await fetch(`${NEXT_PUBLIC_OTPLESS_URL}/auth/v1/verify/otp`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      clientId: NEXT_PUBLIC_OTPLESS_C_ID,
+      clientSecret: NEXT_PUBLIC_OTPLESS_C_SEC,
+    },
+    body: JSON.stringify({ requestId, otp }),
+  });
+  return res.json();
+}
+
+
+
+
+
