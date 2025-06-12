@@ -7,6 +7,6 @@ export const rootApi = createApi({
     baseUrl: '/',           
     credentials: 'include',  
   }),
-  tagTypes: ['User','Slider','Disease','Lesion'],
+  tagTypes: ['User','Slider','Disease','Lesion','Category'],
   endpoints: () => ({}),    
 })

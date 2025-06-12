@@ -17,6 +17,7 @@ import {
   WhatIsDiseaseRepeat
 } from '@/utils/Types';
 import Loader from '@/(common)/Loader';
+import { useGetCategoriesQuery } from '@/(store)/services/category/categoryApi';
 
 interface UpdateDiseaseProps {
   id: string;
@@ -26,6 +27,14 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
   const router = useRouter();
   const { data, isLoading, error } = useGetDiseasesQuery({ id });
   const [updateDisease] = useUpdateDiseasesMutation();
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const { data: categoriesData } = useGetCategoriesQuery();
+  const categories = categoriesData?.result || [];
+  useEffect(() => {
+    if (categories.length > 0) {
+      setSelectedCategory(categories[0]._id);
+    }
+  }, [categories]);
 
   // Main Fields
   const [diseaseMainTitle, setDiseaseMainTitle] = useState({ en: '', kn: '' });
@@ -180,6 +189,8 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
+    formData.append("category", selectedCategory);
+
     // Main
     formData.append('disease_main_title', JSON.stringify(diseaseMainTitle));
     if (diseaseMainImage) formData.append('disease_main_image', diseaseMainImage);
@@ -217,9 +228,9 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     commonCauses.forEach((c, idx) => {
       if (c.cause_icon) formData.append(`cause_icon${idx}`, c.cause_icon);
       c.cause_repeat.forEach((rep, j) => {
-        if (rep.cause_repeat_icon){
+        if (rep.cause_repeat_icon) {
           formData.append(`cause_repeat_icon${idx}_${j}`, rep.cause_repeat_icon!)
-        } ;
+        };
       });
     });
     // Symptoms
@@ -237,8 +248,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     symptoms.forEach((s, idx) => {
       if (s.symptoms_icon) formData.append(`symptoms_icon${idx}`, s.symptoms_icon);
       s.symptoms_repeat.forEach((rep, j) => {
-        if (rep.symptoms_repeat_icon)
-          {formData.append(`symptoms_repeat_icon${idx}_${j}`,rep.symptoms_repeat_icon!)};
+        if (rep.symptoms_repeat_icon) { formData.append(`symptoms_repeat_icon${idx}_${j}`, rep.symptoms_repeat_icon!) };
       });
     });
     // Prevention tips
@@ -256,9 +266,9 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     preventionTips.forEach((t, idx) => {
       if (t.prevention_tips_icon) formData.append(`prevention_tips_icon${idx}`, t.prevention_tips_icon);
       t.prevention_tips_repeat.forEach((rep, j) => {
-        if (rep.prevention_tips_repeat_icon){
-          formData.append(`prevention_tips_repeat_icon${idx}_${j}`,rep.prevention_tips_repeat_icon!)
-        } ;
+        if (rep.prevention_tips_repeat_icon) {
+          formData.append(`prevention_tips_repeat_icon${idx}_${j}`, rep.prevention_tips_repeat_icon!)
+        };
       });
     });
     // Treatment options
@@ -276,9 +286,9 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     treatmentOptions.forEach((o, idx) => {
       if (o.treatment_option_icon) formData.append(`treatment_option_icon${idx}`, o.treatment_option_icon);
       o.treatment_option_repeat.forEach((rep, j) => {
-        if (rep.treatment_option_repeat_icon){
+        if (rep.treatment_option_repeat_icon) {
           formData.append(`treatment_option_repeat_icon${idx}_${j}`, rep.treatment_option_repeat_icon!);
-        } 
+        }
       });
     });
 
@@ -290,22 +300,38 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     }
   };
 
-  if (isLoading) return <Loader/>;
+  if (isLoading) return <Loader />;
   if (error) return <p>Error loading disease data.</p>;
 
   return (
     <form onSubmit={handleSubmit} className="form-container">
       <h2 className="form-title">Update Disease</h2>
 
+      <div className='Disease_category'>
+        <label htmlFor='category'>Disease Category</label>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          required
+        >
+          {categories?.map((cat) => (
+            <option key={cat._id} value={cat._id}>
+              {cat._id}
+            </option>
+          ))}
+        </select>
+      </div>
+
+
       {/* Main Fields */}
       <div className='set_groups'>
         <div className='en_g'>
-        <label>Main Title (EN):</label>
-        <input type="text" value={diseaseMainTitle.en} onChange={e => setDiseaseMainTitle({ ...diseaseMainTitle, en: e.target.value })} />
+          <label>Main Title (EN):</label>
+          <input type="text" value={diseaseMainTitle.en} onChange={e => setDiseaseMainTitle({ ...diseaseMainTitle, en: e.target.value })} />
         </div>
         <div className='kn_g'>
-        <label>Main Title (KN):</label>
-        <input type="text" value={diseaseMainTitle.kn} onChange={e => setDiseaseMainTitle({ ...diseaseMainTitle, kn: e.target.value })} />
+          <label>Main Title (KN):</label>
+          <input type="text" value={diseaseMainTitle.kn} onChange={e => setDiseaseMainTitle({ ...diseaseMainTitle, kn: e.target.value })} />
         </div>
       </div>
       <div className='image_cust'>
@@ -313,53 +339,53 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
         <input type="file" accept="image/*" onChange={e => handleFileChange(e, setDiseaseMainImage, setDiseaseMainImageUrl)} />
         {diseaseMainImageUrl && <img src={diseaseMainImageUrl} alt="Main" style={{ width: 100 }} />}
       </div>
-      
+
       <div className='set_groups'>
-          <div className='en_g'>
-        <label>Disease Slug (EN):</label>
-        <input type="text" value={diseaseSlug.en} onChange={e => setDiseaseSlug({ ...diseaseSlug, en: e.target.value })} />
+        <div className='en_g'>
+          <label>Disease Slug (EN):</label>
+          <input type="text" value={diseaseSlug.en} onChange={e => setDiseaseSlug({ ...diseaseSlug, en: e.target.value })} />
         </div>
         <div className='kn_g'>
-        <label>Disease Slug (KN):</label>
-        <input type="text" value={diseaseSlug.kn} onChange={e => setDiseaseSlug({ ...diseaseSlug, kn: e.target.value })} />
+          <label>Disease Slug (KN):</label>
+          <input type="text" value={diseaseSlug.kn} onChange={e => setDiseaseSlug({ ...diseaseSlug, kn: e.target.value })} />
         </div>
       </div>
 
       <div className='set_groups'>
-           <div className='en_g'>
-        <label>Disease Title (EN):</label>
-        <input type="text" value={diseaseTitle.en} onChange={e => setDiseaseTitle({ ...diseaseTitle, en: e.target.value })} />
+        <div className='en_g'>
+          <label>Disease Title (EN):</label>
+          <input type="text" value={diseaseTitle.en} onChange={e => setDiseaseTitle({ ...diseaseTitle, en: e.target.value })} />
         </div>
-         <div className='kn_g'>
-        <label>Disease Title (KN):</label>
-        <input type="text" value={diseaseTitle.kn} onChange={e => setDiseaseTitle({ ...diseaseTitle, kn: e.target.value })} />
+        <div className='kn_g'>
+          <label>Disease Title (KN):</label>
+          <input type="text" value={diseaseTitle.kn} onChange={e => setDiseaseTitle({ ...diseaseTitle, kn: e.target.value })} />
+        </div>
       </div>
-      </div>
-     <div className="set_groups">
+      <div className="set_groups">
 
-  <div className="en_g">
-    <label>Disease Description (EN):</label>
-    <textarea value={diseaseDescription.en}
-      onChange={e =>
-        setDiseaseDescription({
-          ...diseaseDescription,
-          en: e.target.value
-        })
-      }
-    />
-  </div>
-  <div className="kn_g">
-    <label>Disease Description (KN):</label>
-    <textarea value={diseaseDescription.kn}
-      onChange={e =>
-        setDiseaseDescription({
-          ...diseaseDescription,
-          kn: e.target.value
-        })
-      }
-    />
-  </div>
-</div>
+        <div className="en_g">
+          <label>Disease Description (EN):</label>
+          <textarea value={diseaseDescription.en}
+            onChange={e =>
+              setDiseaseDescription({
+                ...diseaseDescription,
+                en: e.target.value
+              })
+            }
+          />
+        </div>
+        <div className="kn_g">
+          <label>Disease Description (KN):</label>
+          <textarea value={diseaseDescription.kn}
+            onChange={e =>
+              setDiseaseDescription({
+                ...diseaseDescription,
+                kn: e.target.value
+              })
+            }
+          />
+        </div>
+      </div>
 
       <div className='upload_diseases'>
         <label>Upload Disease Icon:</label>
@@ -372,74 +398,74 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
       <h3>What Is Disease</h3>
       {whatIsDiseaseRepeats.map((item, i) => (
         <div key={i} className="repeater">
-            <div className='en_g'>
-          <label>Heading (EN):</label>
-          <input type="text" value={item.what_is_disease_heading.en} onChange={e => {
-            const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_heading.en = e.target.value; setWhatIsDiseaseRepeats(a);
-            
-          }} /></div>
-             <div className='kn_g'>
-          <label>Heading (KN):</label>
-          <input type="text" value={item.what_is_disease_heading.kn} onChange={e => {
-            const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_heading.kn = e.target.value; setWhatIsDiseaseRepeats(a);
-          }} /></div>
+          <div className='en_g'>
+            <label>Heading (EN):</label>
+            <input type="text" value={item.what_is_disease_heading.en} onChange={e => {
+              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_heading.en = e.target.value; setWhatIsDiseaseRepeats(a);
+
+            }} /></div>
+          <div className='kn_g'>
+            <label>Heading (KN):</label>
+            <input type="text" value={item.what_is_disease_heading.kn} onChange={e => {
+              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_heading.kn = e.target.value; setWhatIsDiseaseRepeats(a);
+            }} /></div>
           <div className='upload_custom'>
-          <label>Upload Icon:</label>
-          <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-            const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_icon = f; setWhatIsDiseaseRepeats(a);
-          }, url => {
-            const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_icon_url = url; setWhatIsDiseaseRepeats(a);
-          })} />
-          {item.what_is_disease_disease_repeat_icon_url && <img src={item.what_is_disease_disease_repeat_icon_url} alt="Icon" style={{ width: 100 }} />}
-          <label>Upload Images:</label>
-          <input type="file" multiple accept="image/*" onChange={e => {
-            const files = e.target.files ? Array.from(e.target.files) : [];
-            const urls = files.map(f => URL.createObjectURL(f));
-            const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_repeat_images = files;
-            a[i].what_is_disease_repeat_images_urls = urls; setWhatIsDiseaseRepeats(a);
-          }} />
-          <div className='image_bundle'>
-          {item.what_is_disease_repeat_images_urls.map((u, j) => <img key={j} src={u} alt="Repeat" style={{ width: 100 }} />)}
-          </div>
+            <label>Upload Icon:</label>
+            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
+              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_icon = f; setWhatIsDiseaseRepeats(a);
+            }, url => {
+              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_icon_url = url; setWhatIsDiseaseRepeats(a);
+            })} />
+            {item.what_is_disease_disease_repeat_icon_url && <img src={item.what_is_disease_disease_repeat_icon_url} alt="Icon" style={{ width: 100 }} />}
+            <label>Upload Images:</label>
+            <input type="file" multiple accept="image/*" onChange={e => {
+              const files = e.target.files ? Array.from(e.target.files) : [];
+              const urls = files.map(f => URL.createObjectURL(f));
+              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_repeat_images = files;
+              a[i].what_is_disease_repeat_images_urls = urls; setWhatIsDiseaseRepeats(a);
+            }} />
+            <div className='image_bundle'>
+              {item.what_is_disease_repeat_images_urls.map((u, j) => <img key={j} src={u} alt="Repeat" style={{ width: 100 }} />)}
+            </div>
           </div>
 
-           <div className='en_g'>
-          <label>Description (EN):</label>
-          <input type="text" value={item.what_is_disease_disease_repeat_description.en} onChange={e => {
-            const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_description.en = e.target.value; setWhatIsDiseaseRepeats(a);
-          }} />
+          <div className='en_g'>
+            <label>Description (EN):</label>
+            <input type="text" value={item.what_is_disease_disease_repeat_description.en} onChange={e => {
+              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_description.en = e.target.value; setWhatIsDiseaseRepeats(a);
+            }} />
           </div>
-           <div className='en_g'>
-          <label>Description (KN):</label>
-          <input type="text" value={item.what_is_disease_disease_repeat_description.kn} onChange={e => {
-            const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_description.kn = e.target.value; setWhatIsDiseaseRepeats(a);
-          }} />
+          <div className='en_g'>
+            <label>Description (KN):</label>
+            <input type="text" value={item.what_is_disease_disease_repeat_description.kn} onChange={e => {
+              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_description.kn = e.target.value; setWhatIsDiseaseRepeats(a);
+            }} />
           </div>
           {item.what_is_disease_description_repeater.map((rep, k) => (
             <div key={k} className="nested-repeater">
-               <div className='en_g'>
-              <label>Sub-heading (EN):</label>
-              <input type="text" value={rep.what_is_disease_heading_repeat.en} onChange={e => {
-                const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_heading_repeat.en = e.target.value; setWhatIsDiseaseRepeats(a);
-              }} />
+              <div className='en_g'>
+                <label>Sub-heading (EN):</label>
+                <input type="text" value={rep.what_is_disease_heading_repeat.en} onChange={e => {
+                  const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_heading_repeat.en = e.target.value; setWhatIsDiseaseRepeats(a);
+                }} />
               </div>
               <div className='kn_g'>
-              <label>Sub-heading (KN):</label>
-              <input type="text" value={rep.what_is_disease_heading_repeat.kn} onChange={e => {
-                const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_heading_repeat.kn = e.target.value; setWhatIsDiseaseRepeats(a);
-              }} />
+                <label>Sub-heading (KN):</label>
+                <input type="text" value={rep.what_is_disease_heading_repeat.kn} onChange={e => {
+                  const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_heading_repeat.kn = e.target.value; setWhatIsDiseaseRepeats(a);
+                }} />
               </div>
               <div className='en_g'>
-              <label>Sub-desc (EN):</label>
-              <input type="text" value={rep.what_is_disease_description_repeat.en} onChange={e => {
-                const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_description_repeat.en = e.target.value; setWhatIsDiseaseRepeats(a);
-              }} />
+                <label>Sub-desc (EN):</label>
+                <input type="text" value={rep.what_is_disease_description_repeat.en} onChange={e => {
+                  const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_description_repeat.en = e.target.value; setWhatIsDiseaseRepeats(a);
+                }} />
               </div>
               <div className='en_g'>
-              <label>Sub-desc (KN):</label>
-              <input type="text" value={rep.what_is_disease_description_repeat.kn} onChange={e => {
-                const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_description_repeat.kn = e.target.value; setWhatIsDiseaseRepeats(a);
-              }} />
+                <label>Sub-desc (KN):</label>
+                <input type="text" value={rep.what_is_disease_description_repeat.kn} onChange={e => {
+                  const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_description_repeat.kn = e.target.value; setWhatIsDiseaseRepeats(a);
+                }} />
               </div>
             </div>
           ))}
@@ -452,77 +478,77 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
       {commonCauses.map((c, i) => (
         <div key={i} className="repeater">
           <div className='en_g'>
-          <label>Title (EN):</label>
-          <input type="text" value={c.cause_title.en} onChange={e => {
-            const a = [...commonCauses]; a[i].cause_title.en = e.target.value; setCommonCauses(a);
-          }} />
+            <label>Title (EN):</label>
+            <input type="text" value={c.cause_title.en} onChange={e => {
+              const a = [...commonCauses]; a[i].cause_title.en = e.target.value; setCommonCauses(a);
+            }} />
           </div>
-            <div className='kn_g'>
-          <label>Title (KN):</label>
-          <input type="text" value={c.cause_title.kn} onChange={e => {
-            const a = [...commonCauses]; a[i].cause_title.kn = e.target.value; setCommonCauses(a);
-          }} />
+          <div className='kn_g'>
+            <label>Title (KN):</label>
+            <input type="text" value={c.cause_title.kn} onChange={e => {
+              const a = [...commonCauses]; a[i].cause_title.kn = e.target.value; setCommonCauses(a);
+            }} />
           </div>
-           <div className='en_g'>
-          <label>Paragraph (EN):</label>
-          <input type="text" value={c.cause_para.en} onChange={e => {
-            const a = [...commonCauses]; a[i].cause_para.en = e.target.value; setCommonCauses(a);
-          }} />
+          <div className='en_g'>
+            <label>Paragraph (EN):</label>
+            <input type="text" value={c.cause_para.en} onChange={e => {
+              const a = [...commonCauses]; a[i].cause_para.en = e.target.value; setCommonCauses(a);
+            }} />
           </div>
-             <div className='kn_g'>
-          <label>Paragraph (KN):</label>
-          <input type="text" value={c.cause_para.kn} onChange={e => {
-            const a = [...commonCauses]; a[i].cause_para.kn = e.target.value; setCommonCauses(a);
-          }} />
+          <div className='kn_g'>
+            <label>Paragraph (KN):</label>
+            <input type="text" value={c.cause_para.kn} onChange={e => {
+              const a = [...commonCauses]; a[i].cause_para.kn = e.target.value; setCommonCauses(a);
+            }} />
           </div>
 
-              <div className='en_g'>
-          <label>Brief (EN):</label>
-          <input type="text" value={c.cause_brief.en} onChange={e => {
-            const a = [...commonCauses]; a[i].cause_brief.en = e.target.value; setCommonCauses(a);
-          }} />
+          <div className='en_g'>
+            <label>Brief (EN):</label>
+            <input type="text" value={c.cause_brief.en} onChange={e => {
+              const a = [...commonCauses]; a[i].cause_brief.en = e.target.value; setCommonCauses(a);
+            }} />
           </div>
-             <div className='kn_g'>
-          <label>Brief (KN):</label>
-          <input type="text" value={c.cause_brief.kn} onChange={e => {
-            const a = [...commonCauses]; a[i].cause_brief.kn = e.target.value; setCommonCauses(a);
-          }} />
+          <div className='kn_g'>
+            <label>Brief (KN):</label>
+            <input type="text" value={c.cause_brief.kn} onChange={e => {
+              const a = [...commonCauses]; a[i].cause_brief.kn = e.target.value; setCommonCauses(a);
+            }} />
           </div>
           <div className='upload_custom'>
-          <label>Upload Icon:</label>
-          <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-            const a = [...commonCauses]; a[i].cause_icon = f; setCommonCauses(a);
-          }, url => {
-            const a = [...commonCauses]; a[i].cause_icon_url = url; setCommonCauses(a);
-          })} />
-          
-          {c.cause_icon_url && <img src={c.cause_icon_url} alt="Cause" style={{ width: 100 }} />}
+            <label>Upload Icon:</label>
+            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
+              const a = [...commonCauses]; a[i].cause_icon = f; setCommonCauses(a);
+            }, url => {
+              const a = [...commonCauses]; a[i].cause_icon_url = url; setCommonCauses(a);
+            })} />
+
+            {c.cause_icon_url && <img src={c.cause_icon_url} alt="Cause" style={{ width: 100 }} />}
           </div>
           {c.cause_repeat.map((rep, j) => (
             <div key={j} className="nested-repeater">
-               <div className='en_g'>
-              <label>Repeat Title (EN):</label>
-              <input type="text" value={rep.cause_repeat_title.en} onChange={e => {
-                const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_title.en = e.target.value; setCommonCauses(a);
-              }} />
+              <div className='en_g'>
+                <label>Repeat Title (EN):</label>
+                <input type="text" value={rep.cause_repeat_title.en} onChange={e => {
+                  const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_title.en = e.target.value; setCommonCauses(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Title (KN):</label>
-              <input type="text" value={rep.cause_repeat_title.kn} onChange={e => {
-                const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_title.kn = e.target.value; setCommonCauses(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Title (KN):</label>
+                <input type="text" value={rep.cause_repeat_title.kn} onChange={e => {
+                  const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_title.kn = e.target.value; setCommonCauses(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Desc (EN):</label>
-              <input type="text" value={rep.cause_repeat_description.en} onChange={e => {
-                const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_description.en = e.target.value; setCommonCauses(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Desc (EN):</label>
+                <input type="text" value={rep.cause_repeat_description.en} onChange={e => {
+                  const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_description.en = e.target.value; setCommonCauses(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Desc (KN):</label>
-              <input type="text" value={rep.cause_repeat_description.kn} onChange={e => {
-                const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_description.kn = e.target.value; setCommonCauses(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Desc (KN):</label>
+                <input type="text" value={rep.cause_repeat_description.kn} onChange={e => {
+                  const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_description.kn = e.target.value; setCommonCauses(a);
+                }} />
               </div>
               <label>Upload Repeat Icon:</label>
               <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
@@ -541,83 +567,83 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
       <h3>Symptoms</h3>
       {symptoms.map((s, i) => (
         <div key={i} className="repeater">
-           <div className='en_g'>
-          <label>Title (EN):</label>
-          <input type="text" value={s.symptoms_title.en} onChange={e => {
-            const a = [...symptoms]; a[i].symptoms_title.en = e.target.value; setSymptoms(a);
-          }} />
+          <div className='en_g'>
+            <label>Title (EN):</label>
+            <input type="text" value={s.symptoms_title.en} onChange={e => {
+              const a = [...symptoms]; a[i].symptoms_title.en = e.target.value; setSymptoms(a);
+            }} />
           </div>
           <div className='kn_g'>
-          <label>Title (KN):</label>
-          <input type="text" value={s.symptoms_title.kn} onChange={e => {
-            const a = [...symptoms]; a[i].symptoms_title.kn = e.target.value; setSymptoms(a);
-          }} />
+            <label>Title (KN):</label>
+            <input type="text" value={s.symptoms_title.kn} onChange={e => {
+              const a = [...symptoms]; a[i].symptoms_title.kn = e.target.value; setSymptoms(a);
+            }} />
           </div>
           <div className='en_g'>
-          <label>Paragraph (EN):</label>
-          <input type="text" value={s.symptoms_para.en} onChange={e => {
-            const a = [...symptoms]; a[i].symptoms_para.en = e.target.value; setSymptoms(a);
-          }} />
+            <label>Paragraph (EN):</label>
+            <input type="text" value={s.symptoms_para.en} onChange={e => {
+              const a = [...symptoms]; a[i].symptoms_para.en = e.target.value; setSymptoms(a);
+            }} />
           </div>
           <div className='kn_g'>
-          <label>Paragraph (KN):</label>
-          <input type="text" value={s.symptoms_para.kn} onChange={e => {
-            const a = [...symptoms]; a[i].symptoms_para.kn = e.target.value; setSymptoms(a);
-          }} />
+            <label>Paragraph (KN):</label>
+            <input type="text" value={s.symptoms_para.kn} onChange={e => {
+              const a = [...symptoms]; a[i].symptoms_para.kn = e.target.value; setSymptoms(a);
+            }} />
           </div>
           <div className='en_g'>
-          <label>Brief (EN):</label>
-          <input type="text" value={s.symptoms_brief.en} onChange={e => {
-            const a = [...symptoms]; a[i].symptoms_brief.en = e.target.value; setSymptoms(a);
-          }} />
+            <label>Brief (EN):</label>
+            <input type="text" value={s.symptoms_brief.en} onChange={e => {
+              const a = [...symptoms]; a[i].symptoms_brief.en = e.target.value; setSymptoms(a);
+            }} />
           </div>
           <div className='en_g'>
-          <label>Brief (KN):</label>
-          <input type="text" value={s.symptoms_brief.kn} onChange={e => {
-            const a = [...symptoms]; a[i].symptoms_brief.kn = e.target.value; setSymptoms(a);
-          }} />
+            <label>Brief (KN):</label>
+            <input type="text" value={s.symptoms_brief.kn} onChange={e => {
+              const a = [...symptoms]; a[i].symptoms_brief.kn = e.target.value; setSymptoms(a);
+            }} />
           </div>
           <div className='upload_custom'>
-          <label>Upload Icon:</label>
-          <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-            const a = [...symptoms]; a[i].symptoms_icon = f; setSymptoms(a);
-          }, url => {
-            const a = [...symptoms]; a[i].symptoms_icon_url = url; setSymptoms(a);
-          })} />
-          {s.symptoms_icon_url && <img src={s.symptoms_icon_url} alt="Symptom" style={{ width: 100 }} />}
+            <label>Upload Icon:</label>
+            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
+              const a = [...symptoms]; a[i].symptoms_icon = f; setSymptoms(a);
+            }, url => {
+              const a = [...symptoms]; a[i].symptoms_icon_url = url; setSymptoms(a);
+            })} />
+            {s.symptoms_icon_url && <img src={s.symptoms_icon_url} alt="Symptom" style={{ width: 100 }} />}
           </div>
           {s.symptoms_repeat.map((rep, j) => (
             <div key={j} className="nested-repeater">
               <div className='en_g'>
-              <label>Repeat Title (EN):</label>               
-              <input type="text" value={rep.symptoms_repeat_title.en} onChange={e => {
-                const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_title.en = e.target.value; setSymptoms(a);
-              }} />
+                <label>Repeat Title (EN):</label>
+                <input type="text" value={rep.symptoms_repeat_title.en} onChange={e => {
+                  const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_title.en = e.target.value; setSymptoms(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Title (KN):</label>
-              <input type="text" value={rep.symptoms_repeat_title.kn} onChange={e => {
-                const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_title.kn = e.target.value; setSymptoms(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Title (KN):</label>
+                <input type="text" value={rep.symptoms_repeat_title.kn} onChange={e => {
+                  const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_title.kn = e.target.value; setSymptoms(a);
+                }} />
               </div>
-               <div className='en_g'>
-              <label>Repeat Desc (EN):</label>
-              <input type="text" value={rep.symptoms_repeat_description.en} onChange={e => {
-                const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_description.en = e.target.value; setSymptoms(a);
-              }} />
+              <div className='en_g'>
+                <label>Repeat Desc (EN):</label>
+                <input type="text" value={rep.symptoms_repeat_description.en} onChange={e => {
+                  const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_description.en = e.target.value; setSymptoms(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Desc (KN):</label>
-              <input type="text" value={rep.symptoms_repeat_description.kn} onChange={e => {
-                const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_description.kn = e.target.value; setSymptoms(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Desc (KN):</label>
+                <input type="text" value={rep.symptoms_repeat_description.kn} onChange={e => {
+                  const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_description.kn = e.target.value; setSymptoms(a);
+                }} />
               </div>
 
               <label>Upload Repeat Icon:</label>
               <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
                 const a = [...symptoms]; (a[i].symptoms_repeat[j]).symptoms_repeat_icon = f; setSymptoms(a);
               }, url => {
-                const a = [...symptoms]; (a[i].symptoms_repeat[j] ).symptoms_repeat_icon_url = url; setSymptoms(a);
+                const a = [...symptoms]; (a[i].symptoms_repeat[j]).symptoms_repeat_icon_url = url; setSymptoms(a);
               })} />
               {/* { (rep as any).symptoms_repeat_icon_url && <img src={(rep as any).symptoms_repeat_icon_url} alt="Repeat" style={{ width: 100 }} />}  */}
             </div>
@@ -630,78 +656,78 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
       <h3>Prevention Tips</h3>
       {preventionTips.map((t, i) => (
         <div key={i} className="repeater">
-           <div className='en_g'>
-          <label>Title (EN):</label>
-          <input type="text" value={t.prevention_tips_title.en} onChange={e => {
-            const a = [...preventionTips]; a[i].prevention_tips_title.en = e.target.value; setPreventionTips(a);
-          }} />
+          <div className='en_g'>
+            <label>Title (EN):</label>
+            <input type="text" value={t.prevention_tips_title.en} onChange={e => {
+              const a = [...preventionTips]; a[i].prevention_tips_title.en = e.target.value; setPreventionTips(a);
+            }} />
           </div>
-           <div className='kn_g'>
-          <label>Title (KN):</label>
-          <input type="text" value={t.prevention_tips_title.kn} onChange={e => {
-            const a = [...preventionTips]; a[i].prevention_tips_title.kn = e.target.value; setPreventionTips(a);
-          }} />
+          <div className='kn_g'>
+            <label>Title (KN):</label>
+            <input type="text" value={t.prevention_tips_title.kn} onChange={e => {
+              const a = [...preventionTips]; a[i].prevention_tips_title.kn = e.target.value; setPreventionTips(a);
+            }} />
           </div>
-           <div className='en_g'>
-          <label>Paragraph (EN):</label>
-          <input type="text" value={t.prevention_tips_para.en} onChange={e => {
-            const a = [...preventionTips]; a[i].prevention_tips_para.en = e.target.value; setPreventionTips(a);
-          }} />
+          <div className='en_g'>
+            <label>Paragraph (EN):</label>
+            <input type="text" value={t.prevention_tips_para.en} onChange={e => {
+              const a = [...preventionTips]; a[i].prevention_tips_para.en = e.target.value; setPreventionTips(a);
+            }} />
           </div>
-           <div className='kn_g'>
-          <label>Paragraph (KN):</label>
-          <input type="text" value={t.prevention_tips_para.kn} onChange={e => {
-            const a = [...preventionTips]; a[i].prevention_tips_para.kn = e.target.value; setPreventionTips(a);
-          }} />
+          <div className='kn_g'>
+            <label>Paragraph (KN):</label>
+            <input type="text" value={t.prevention_tips_para.kn} onChange={e => {
+              const a = [...preventionTips]; a[i].prevention_tips_para.kn = e.target.value; setPreventionTips(a);
+            }} />
           </div>
-           <div className='en_g'>
-          <label>Brief (EN):</label>
-          <input type="text" value={t.prevention_tips_brief.en} onChange={e => {
-            const a = [...preventionTips]; a[i].prevention_tips_brief.en = e.target.value; setPreventionTips(a);
-          }} />
+          <div className='en_g'>
+            <label>Brief (EN):</label>
+            <input type="text" value={t.prevention_tips_brief.en} onChange={e => {
+              const a = [...preventionTips]; a[i].prevention_tips_brief.en = e.target.value; setPreventionTips(a);
+            }} />
           </div>
-           <div className='kn_g'>
-          <label>Brief (KN):</label>
-          <input type="text" value={t.prevention_tips_brief.kn} onChange={e => {
-            const a = [...preventionTips]; a[i].prevention_tips_brief.kn = e.target.value; setPreventionTips(a);
-          }} />
+          <div className='kn_g'>
+            <label>Brief (KN):</label>
+            <input type="text" value={t.prevention_tips_brief.kn} onChange={e => {
+              const a = [...preventionTips]; a[i].prevention_tips_brief.kn = e.target.value; setPreventionTips(a);
+            }} />
           </div>
           <div className='upload_custom'>
-          <label>Upload Icon:</label>
-          <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-            const a = [...preventionTips]; a[i].prevention_tips_icon = f; setPreventionTips(a);
-          }, url => {
-            const a = [...preventionTips]; a[i].prevention_tips_icon_url = url; setPreventionTips(a);
-          })} />
-          {t.prevention_tips_icon_url && <img src={t.prevention_tips_icon_url} alt="Tip" style={{ width: 100 }} />}
+            <label>Upload Icon:</label>
+            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
+              const a = [...preventionTips]; a[i].prevention_tips_icon = f; setPreventionTips(a);
+            }, url => {
+              const a = [...preventionTips]; a[i].prevention_tips_icon_url = url; setPreventionTips(a);
+            })} />
+            {t.prevention_tips_icon_url && <img src={t.prevention_tips_icon_url} alt="Tip" style={{ width: 100 }} />}
           </div>
           {t.prevention_tips_repeat.map((rep, j) => (
             <div key={j} className="nested-repeater">
-               <div className='en_g'>
-              <label>Repeat Title (EN):</label>
-              <input type="text" value={rep.prevention_tips_repeat_title.en} onChange={e => {
-                const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_title.en = e.target.value; setPreventionTips(a);
-              }} />
+              <div className='en_g'>
+                <label>Repeat Title (EN):</label>
+                <input type="text" value={rep.prevention_tips_repeat_title.en} onChange={e => {
+                  const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_title.en = e.target.value; setPreventionTips(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Title (KN):</label>
-              <input type="text" value={rep.prevention_tips_repeat_title.kn} onChange={e => {
-                const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_title.kn = e.target.value; setPreventionTips(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Title (KN):</label>
+                <input type="text" value={rep.prevention_tips_repeat_title.kn} onChange={e => {
+                  const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_title.kn = e.target.value; setPreventionTips(a);
+                }} />
               </div>
-               <div className='en_g'>
-              <label>Repeat Desc (EN):</label>
-              <input type="text" value={rep.prevention_tips_repeat_description.en} onChange={e => {
-                const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_description.en = e.target.value; setPreventionTips(a);
-              }} />
+              <div className='en_g'>
+                <label>Repeat Desc (EN):</label>
+                <input type="text" value={rep.prevention_tips_repeat_description.en} onChange={e => {
+                  const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_description.en = e.target.value; setPreventionTips(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Desc (KN):</label>
-              <input type="text" value={rep.prevention_tips_repeat_description.kn} onChange={e => {
-                const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_description.kn = e.target.value; setPreventionTips(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Desc (KN):</label>
+                <input type="text" value={rep.prevention_tips_repeat_description.kn} onChange={e => {
+                  const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_description.kn = e.target.value; setPreventionTips(a);
+                }} />
               </div>
-             
+
               <label>Upload Repeat Icon:</label>
               <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
                 const a = [...preventionTips]; (a[i].prevention_tips_repeat[j]).prevention_tips_repeat_icon = f; setPreventionTips(a);
@@ -719,88 +745,88 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
       <h3>Treatment Options</h3>
       {treatmentOptions.map((o, i) => (
         <div key={i} className="repeater">
-           <div className='en_g'>
-          <label>Title (EN):</label>
-          <input type="text" value={o.treatment_option_title.en} onChange={e => {
-            const a = [...treatmentOptions]; a[i].treatment_option_title.en = e.target.value; setTreatmentOptions(a);
-          }} />
+          <div className='en_g'>
+            <label>Title (EN):</label>
+            <input type="text" value={o.treatment_option_title.en} onChange={e => {
+              const a = [...treatmentOptions]; a[i].treatment_option_title.en = e.target.value; setTreatmentOptions(a);
+            }} />
           </div>
-           <div className='kn_g'>
-          <label>Title (KN):</label>
-          <input type="text" value={o.treatment_option_title.kn} onChange={e => {
-            const a = [...treatmentOptions]; a[i].treatment_option_title.kn = e.target.value; setTreatmentOptions(a);
-          }} />
+          <div className='kn_g'>
+            <label>Title (KN):</label>
+            <input type="text" value={o.treatment_option_title.kn} onChange={e => {
+              const a = [...treatmentOptions]; a[i].treatment_option_title.kn = e.target.value; setTreatmentOptions(a);
+            }} />
           </div>
-           <div className='en_g'>
-          <label>Paragraph (EN):</label>
-          <input type="text" value={o.treatment_option_para.en} onChange={e => {
-            const a = [...treatmentOptions]; a[i].treatment_option_para.en = e.target.value; setTreatmentOptions(a);
-          }} />
+          <div className='en_g'>
+            <label>Paragraph (EN):</label>
+            <input type="text" value={o.treatment_option_para.en} onChange={e => {
+              const a = [...treatmentOptions]; a[i].treatment_option_para.en = e.target.value; setTreatmentOptions(a);
+            }} />
           </div>
-           <div className='kn_g'>
-          <label>Paragraph (KN):</label>
-          <input type="text" value={o.treatment_option_para.kn} onChange={e => {
-            const a = [...treatmentOptions]; a[i].treatment_option_para.kn = e.target.value; setTreatmentOptions(a);
-          }} />
+          <div className='kn_g'>
+            <label>Paragraph (KN):</label>
+            <input type="text" value={o.treatment_option_para.kn} onChange={e => {
+              const a = [...treatmentOptions]; a[i].treatment_option_para.kn = e.target.value; setTreatmentOptions(a);
+            }} />
           </div>
-           <div className='en_g'>
-          <label>Brief (EN):</label>
-          <input type="text" value={o.treatment_option_brief.en} onChange={e => {
-            const a = [...treatmentOptions]; a[i].treatment_option_brief.en = e.target.value; setTreatmentOptions(a);
-          }} />
+          <div className='en_g'>
+            <label>Brief (EN):</label>
+            <input type="text" value={o.treatment_option_brief.en} onChange={e => {
+              const a = [...treatmentOptions]; a[i].treatment_option_brief.en = e.target.value; setTreatmentOptions(a);
+            }} />
           </div>
-           <div className='kn_g'>
-          <label>Brief (KN):</label>
-          <input type="text" value={o.treatment_option_brief.kn} onChange={e => {
-            const a = [...treatmentOptions]; a[i].treatment_option_brief.kn = e.target.value; setTreatmentOptions(a);
-          }} />
+          <div className='kn_g'>
+            <label>Brief (KN):</label>
+            <input type="text" value={o.treatment_option_brief.kn} onChange={e => {
+              const a = [...treatmentOptions]; a[i].treatment_option_brief.kn = e.target.value; setTreatmentOptions(a);
+            }} />
           </div>
           <div className='upload_custom'>
-          <label>Upload Icon:</label>
-          <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-            const a = [...treatmentOptions]; a[i].treatment_option_icon = f; setTreatmentOptions(a);
-          }, url => {
-            const a = [...treatmentOptions]; a[i].treatment_option_icon_url = url; setTreatmentOptions(a);
-          })} />
-          {o.treatment_option_icon_url && <img src={o.treatment_option_icon_url} alt="Option" style={{ width: 100 }} />}
+            <label>Upload Icon:</label>
+            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
+              const a = [...treatmentOptions]; a[i].treatment_option_icon = f; setTreatmentOptions(a);
+            }, url => {
+              const a = [...treatmentOptions]; a[i].treatment_option_icon_url = url; setTreatmentOptions(a);
+            })} />
+            {o.treatment_option_icon_url && <img src={o.treatment_option_icon_url} alt="Option" style={{ width: 100 }} />}
           </div>
           {o.treatment_option_repeat.map((rep, j) => (
             <div key={j} className="nested-repeater">
-                  <div className='kn_g'>
-              <label>Repeat Title (EN):</label>
-              <input type="text" value={rep.treatment_option_repeat_title.en} onChange={e => {
-                const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_title.en = e.target.value; setTreatmentOptions(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Title (EN):</label>
+                <input type="text" value={rep.treatment_option_repeat_title.en} onChange={e => {
+                  const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_title.en = e.target.value; setTreatmentOptions(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Title (KN):</label>
-              <input type="text" value={rep.treatment_option_repeat_title.kn} onChange={e => {
-                const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_title.kn = e.target.value; setTreatmentOptions(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Title (KN):</label>
+                <input type="text" value={rep.treatment_option_repeat_title.kn} onChange={e => {
+                  const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_title.kn = e.target.value; setTreatmentOptions(a);
+                }} />
               </div>
               <div className='en_g'>
-              <label>Repeat Desc (EN):</label>
-              <input type="text" value={rep.treatment_option_repeat_description.en} onChange={e => {
-                const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_description.en = e.target.value; setTreatmentOptions(a);
-              }} />
+                <label>Repeat Desc (EN):</label>
+                <input type="text" value={rep.treatment_option_repeat_description.en} onChange={e => {
+                  const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_description.en = e.target.value; setTreatmentOptions(a);
+                }} />
               </div>
-               <div className='kn_g'>
-              <label>Repeat Desc (KN):</label>
-              <input type="text" value={rep.treatment_option_repeat_description.kn} onChange={e => {
-                const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_description.kn = e.target.value; setTreatmentOptions(a);
-              }} />
+              <div className='kn_g'>
+                <label>Repeat Desc (KN):</label>
+                <input type="text" value={rep.treatment_option_repeat_description.kn} onChange={e => {
+                  const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_description.kn = e.target.value; setTreatmentOptions(a);
+                }} />
               </div>
               <label>Upload Repeat Icon:</label>
               <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-                const a = [...treatmentOptions]; (a[i].treatment_option_repeat[j]  ).treatment_option_repeat_icon = f; setTreatmentOptions(a);
+                const a = [...treatmentOptions]; (a[i].treatment_option_repeat[j]).treatment_option_repeat_icon = f; setTreatmentOptions(a);
               }, url => {
-                const a = [...treatmentOptions]; (a[i].treatment_option_repeat[j] ).treatment_option_repeat_icon_url = url; setTreatmentOptions(a);
+                const a = [...treatmentOptions]; (a[i].treatment_option_repeat[j]).treatment_option_repeat_icon_url = url; setTreatmentOptions(a);
               })} />
               {/* { (rep as any).treatment_option_repeat_icon_url && <img src={(rep as any).treatment_option_repeat_icon_url} alt="Repeat" style={{ width: 100 }} />}  */}
             </div>
           ))}
-      
-    
+
+
         </div>
 
       ))}

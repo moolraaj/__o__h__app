@@ -96,6 +96,15 @@ export interface Faqs {
   __v: number
 }
 
+ 
+
+export type CategoryResponse = {
+  status: boolean;
+  message: string;
+  result: CategoryType[];
+};
+
+
 export interface CategoryType {
   _id: string,
   categoryImage: string,

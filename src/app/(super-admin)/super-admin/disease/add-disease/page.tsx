@@ -1,17 +1,26 @@
 
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useCreateDiseaseMutation } from '@/(store)/services/disease/diseaseApi';
 import { Cause, CauseRepeat, PreventionTip, PreventionTipRepeat, Symptom, SymptomRepeat, TreatmentOption, TreatmentOptionRepeat, WhatIsDiseaseDescriptionRepeater, WhatIsDiseaseRepeat } from '@/utils/Types';
 import { FaPlus } from 'react-icons/fa';
+import { useGetCategoriesQuery } from '@/(store)/services/category/categoryApi';
 
 const AddDisease = () => {
   const [createDisease] = useCreateDiseaseMutation();
   const router = useRouter();
 
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const { data } = useGetCategoriesQuery();
+  const categories = data?.result || [];
+  useEffect(() => {
+    if (categories.length > 0) {
+      setSelectedCategory(categories[0]._id);
+    }
+  }, [categories]);
 
   const [diseaseMainTitle, setDiseaseMainTitle] = useState({ en: '', kn: '' });
   const [diseaseMainImage, setDiseaseMainImage] = useState<File | null>(null);
@@ -456,6 +465,8 @@ const AddDisease = () => {
     e.preventDefault();
     const formData = new FormData();
 
+    formData.append('category', selectedCategory);
+
     // Main Disease Fields
     formData.append('disease_main_title', JSON.stringify(diseaseMainTitle));
     if (diseaseMainImage) formData.append('disease_main_image', diseaseMainImage);
@@ -498,6 +509,7 @@ const AddDisease = () => {
       });
     });
 
+
     // Prevention Tips Section
     formData.append('prevention_tips_tab_title', JSON.stringify(preventionTipsTabTitle));
     formData.append('prevention_tips', JSON.stringify(preventionTips));
@@ -518,6 +530,9 @@ const AddDisease = () => {
       });
     });
 
+
+
+
     try {
       const result = await createDisease(formData).unwrap();
       if (result) {
@@ -532,8 +547,26 @@ const AddDisease = () => {
 
   return (
     <form onSubmit={handleSubmit} className="form-container">
+      <div className='Disease_category'>
+        <label htmlFor='category'>Disease Category</label>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          required
+        >
+          {categories?.map((cat) => (
+            <option key={cat._id} value={cat._id}>
+              {cat._id}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div className="add-disease-grid">
+
+
+
+
         <div className='disease-fields-grid'>
           <label>Main Title (EN):</label>
           <input
@@ -1067,13 +1100,6 @@ const AddDisease = () => {
         </div>
       ))}
 
-
-      {/* ---------------- Treatment Options Section ---------------- */}
-      <hr />
-      <div className="button-container">
-        <h3>{treatmentOptionTabTitle.en}</h3>
-        <button type="submit" className="disease-form-submit-button"> Submit Disease</button>
-      </div>
       {treatmentOptions.map((item, index) => (
         <div key={index} className="repeater">
           <label>Treatment Option Title (EN):</label>
@@ -1164,7 +1190,14 @@ const AddDisease = () => {
                 Remove Treatment Option Repeat
               </button>
             </div>
+
+
           ))}
+
+
+
+
+
           <button type="button" onClick={() => addTreatmentOptionRepeat(index)}>
             Add Treatment Option Repeat
           </button>
@@ -1172,8 +1205,18 @@ const AddDisease = () => {
             Remove Treatment Option
           </button>
         </div>
+
       ))}
+
+      <h3>{treatmentOptionTabTitle.en}</h3>
       <button type="button" onClick={addTreatmentOption}><FaPlus /> Add Treatment Option</button>
+
+      {/* ---------------- Treatment Options Section ---------------- */}
+      <hr />
+      <div className="button-container">
+        <button type="submit" className="disease-form-submit-button"> Submit Disease</button>
+      </div>
+
 
       <hr />
 
