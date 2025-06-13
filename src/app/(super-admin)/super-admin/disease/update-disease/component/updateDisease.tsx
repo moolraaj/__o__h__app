@@ -94,85 +94,183 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
   }[]>([]);
 
   // Prefill data
+ 
+
   useEffect(() => {
     const d = data?.result?.[0];
     if (!d) return;
-    // Main
-    setDiseaseMainTitle(d.disease_main_title);
-    setDiseaseSlug(d.disease_slug);
-    setDiseaseTitle(d.disease_title);
-    setDiseaseDescription(d.disease_description);
+
+    setDiseaseMainTitle({
+      en: d.disease_main_title?.en || '',
+      kn: d.disease_main_title?.kn || ''
+    });
+
+    setDiseaseSlug({
+      en: d.disease_slug?.en || '',
+      kn: d.disease_slug?.kn || ''
+    });
+
+    setDiseaseTitle({
+      en: d.disease_title?.en || '',
+      kn: d.disease_title?.kn || ''
+    });
+
+    setDiseaseDescription({
+      en: d.disease_description?.en || '',
+      kn: d.disease_description?.kn || ''
+    });
+
     setDiseaseMainImageUrl(d.disease_main_image);
     setDiseaseIconUrl(d.disease_icon);
-    // What is disease
+
     setWhatIsDiseaseRepeats(
-      d.what_is_disease_repeat.map((item: WhatIsDiseaseRepeat) => ({
-        what_is_disease_heading: item.what_is_disease_heading,
+      d.what_is_disease_repeat?.map((item:WhatIsDiseaseRepeat) => ({
+        what_is_disease_heading: {
+          en: item.what_is_disease_heading?.en || '',
+          kn: item.what_is_disease_heading?.kn || ''
+        },
         what_is_disease_disease_repeat_icon: null,
         what_is_disease_disease_repeat_icon_url: item.what_is_disease_disease_repeat_icon || '',
         what_is_disease_repeat_images: [],
         what_is_disease_repeat_images_urls: item.what_is_disease_repeat_images || [],
-        what_is_disease_disease_repeat_description: item.what_is_disease_disease_repeat_description,
-        what_is_disease_description_repeater: item.what_is_disease_description_repeater || []
-      }))
+        what_is_disease_disease_repeat_description: {
+          en: item.what_is_disease_disease_repeat_description?.en || '',
+          kn: item.what_is_disease_disease_repeat_description?.kn || ''
+        },
+        what_is_disease_description_repeater: item.what_is_disease_description_repeater?.map((rep:WhatIsDiseaseDescriptionRepeater) => ({
+          what_is_disease_heading_repeat: {
+            en: rep.what_is_disease_heading_repeat?.en || '',
+            kn: rep.what_is_disease_heading_repeat?.kn || ''
+          },
+          what_is_disease_description_repeat: {
+            en: rep.what_is_disease_description_repeat?.en || '',
+            kn: rep.what_is_disease_description_repeat?.kn || ''
+          }
+        })) || []
+      })) || []
     );
-    // Common causes
+
     setCommonCauses(
-      d.common_cause.map((item: Cause) => ({
-        cause_title: item.cause_title,
-        cause_para: item.cause_para,
-        cause_brief: item.cause_brief,
+      d.common_cause?.map((item:Cause) => ({
+        cause_title: {
+          en: item.cause_title?.en || '',
+          kn: item.cause_title?.kn || ''
+        },
+        cause_para: {
+          en: item.cause_para?.en || '',
+          kn: item.cause_para?.kn || ''
+        },
+        cause_brief: {
+          en: item.cause_brief?.en || '',
+          kn: item.cause_brief?.kn || ''
+        },
         cause_icon: null,
         cause_icon_url: item.cause_icon || '',
-        cause_repeat: item.cause_repeat?.map((rep: CauseRepeat) => ({
-          ...rep,
+        cause_repeat: item.cause_repeat?.map((rep:CauseRepeat) => ({
+          cause_repeat_title: {
+            en: rep.cause_repeat_title?.en || '',
+            kn: rep.cause_repeat_title?.kn || ''
+          },
+          cause_repeat_description: {
+            en: rep.cause_repeat_description?.en || '',
+            kn: rep.cause_repeat_description?.kn || ''
+          },
           cause_repeat_icon_url: rep.cause_repeat_icon || ''
         })) || []
-      }))
+      })) || []
     );
-    // Symptoms
+
     setSymptoms(
-      d.symptoms.map((item: Symptom) => ({
-        symptoms_title: item.symptoms_title,
-        symptoms_para: item.symptoms_para,
-        symptoms_brief: item.symptoms_brief,
+      d.symptoms?.map((item:Symptom) => ({
+        symptoms_title: {
+          en: item.symptoms_title?.en || '',
+          kn: item.symptoms_title?.kn || ''
+        },
+        symptoms_para: {
+          en: item.symptoms_para?.en || '',
+          kn: item.symptoms_para?.kn || ''
+        },
+        symptoms_brief: {
+          en: item.symptoms_brief?.en || '',
+          kn: item.symptoms_brief?.kn || ''
+        },
         symptoms_icon: null,
         symptoms_icon_url: item.symptoms_icon || '',
-        symptoms_repeat: item.symptoms_repeat?.map((rep: SymptomRepeat) => ({
-          ...rep,
+        symptoms_repeat: item.symptoms_repeat?.map((rep:SymptomRepeat) => ({
+          symptoms_repeat_title: {
+            en: rep.symptoms_repeat_title?.en || '',
+            kn: rep.symptoms_repeat_title?.kn || ''
+          },
+          symptoms_repeat_description: {
+            en: rep.symptoms_repeat_description?.en || '',
+            kn: rep.symptoms_repeat_description?.kn || ''
+          },
           symptoms_repeat_icon_url: rep.symptoms_repeat_icon || ''
         })) || []
-      }))
+      })) || []
     );
-    // Prevention tips
+
     setPreventionTips(
-      d.prevention_tips.map((item: PreventionTip) => ({
-        prevention_tips_title: item.prevention_tips_title,
-        prevention_tips_para: item.prevention_tips_para,
-        prevention_tips_brief: item.prevention_tips_brief,
+      d.prevention_tips?.map((item:PreventionTip) => ({
+        prevention_tips_title: {
+          en: item.prevention_tips_title?.en || '',
+          kn: item.prevention_tips_title?.kn || ''
+        },
+        prevention_tips_para: {
+          en: item.prevention_tips_para?.en || '',
+          kn: item.prevention_tips_para?.kn || ''
+        },
+        prevention_tips_brief: {
+          en: item.prevention_tips_brief?.en || '',
+          kn: item.prevention_tips_brief?.kn || ''
+        },
         prevention_tips_icon: null,
         prevention_tips_icon_url: item.prevention_tips_icon || '',
-        prevention_tips_repeat: item.prevention_tips_repeat?.map((rep: PreventionTipRepeat) => ({
-          ...rep,
+        prevention_tips_repeat: item.prevention_tips_repeat?.map((rep:PreventionTipRepeat) => ({
+          prevention_tips_repeat_title: {
+            en: rep.prevention_tips_repeat_title?.en || '',
+            kn: rep.prevention_tips_repeat_title?.kn || ''
+          },
+          prevention_tips_repeat_description: {
+            en: rep.prevention_tips_repeat_description?.en || '',
+            kn: rep.prevention_tips_repeat_description?.kn || ''
+          },
           prevention_tips_repeat_icon_url: rep.prevention_tips_repeat_icon || ''
         })) || []
-      }))
+      })) || []
     );
-    // Treatment options
+
     setTreatmentOptions(
-      d.treatment_option.map((item: TreatmentOption) => ({
-        treatment_option_title: item.treatment_option_title,
-        treatment_option_para: item.treatment_option_para,
-        treatment_option_brief: item.treatment_option_brief,
+      d.treatment_option?.map((item:TreatmentOption) => ({
+        treatment_option_title: {
+          en: item.treatment_option_title?.en || '',
+          kn: item.treatment_option_title?.kn || ''
+        },
+        treatment_option_para: {
+          en: item.treatment_option_para?.en || '',
+          kn: item.treatment_option_para?.kn || ''
+        },
+        treatment_option_brief: {
+          en: item.treatment_option_brief?.en || '',
+          kn: item.treatment_option_brief?.kn || ''
+        },
         treatment_option_icon: null,
         treatment_option_icon_url: item.treatment_option_icon || '',
-        treatment_option_repeat: item.treatment_option_repeat?.map((rep: TreatmentOptionRepeat) => ({
-          ...rep,
+        treatment_option_repeat: item.treatment_option_repeat?.map((rep:TreatmentOptionRepeat) => ({
+          treatment_option_repeat_title: {
+            en: rep.treatment_option_repeat_title?.en || '',
+            kn: rep.treatment_option_repeat_title?.kn || ''
+          },
+          treatment_option_repeat_description: {
+            en: rep.treatment_option_repeat_description?.en || '',
+            kn: rep.treatment_option_repeat_description?.kn || ''
+          },
           treatment_option_repeat_icon_url: rep.treatment_option_repeat_icon || ''
         })) || []
-      }))
+      })) || []
     );
   }, [data]);
+
 
   // Handlers
   const handleFileChange = (
