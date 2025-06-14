@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { useGetDiseasesQuery, useUpdateDiseasesMutation } from '@/(store)/services/disease/diseaseApi';
+import {  useGetSingleDiseasesQuery, useUpdateDiseasesMutation } from '@/(store)/services/disease/diseaseApi';
 import {
   Cause,
   CauseRepeat,
@@ -25,7 +25,7 @@ interface UpdateDiseaseProps {
 
 const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
   const router = useRouter();
-  const { data, isLoading, error } = useGetDiseasesQuery({ id });
+  const { data, isLoading, error } = useGetSingleDiseasesQuery({ id });
   const [updateDisease] = useUpdateDiseasesMutation();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const { data: categoriesData } = useGetCategoriesQuery();
@@ -35,6 +35,9 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
       setSelectedCategory(categories[0]._id);
     }
   }, [categories]);
+
+  console.log(`data`)
+  console.log(data)
 
   // Main Fields
   const [diseaseMainTitle, setDiseaseMainTitle] = useState({ en: '', kn: '' });
@@ -93,11 +96,12 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     treatment_option_repeat: TreatmentOptionRepeat[] & { treatment_option_repeat_icon_url?: string }[];
   }[]>([]);
 
-  // Prefill data
+ 
  
 
   useEffect(() => {
-    const d = data?.result?.[0];
+    //@ts-expect-error ignore this error
+    const d = data?.data;
     if (!d) return;
 
     setDiseaseMainTitle({
