@@ -1,224 +1,171 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { useUpdateSliderMutation, useGetSingleSliderQuery } from '@/(store)/services/slider/sliderApi';
+import { useGetSingleSliderQuery, useUpdateSliderMutation } from '@/(store)/services/slider/sliderApi';
 import { SBody } from '@/utils/Types';
-import Loader from '@/(common)/Loader';
 
-interface Id {
+interface UpdateSliderProps {
   id: string;
 }
 
-const UpdateSlider = ({ id }: Id) => {
-  const router = useRouter();
-
-
+const UpdateSlider: React.FC<UpdateSliderProps> = ({ id }) => {
   const { data, isLoading } = useGetSingleSliderQuery({ id });
   const [updateSlider] = useUpdateSliderMutation();
-
+  const router = useRouter();
 
   const [sliderImage, setSliderImage] = useState<File | null>(null);
-
-  const [sliderImageUrl, setSliderImageUrl] = useState<string>('');
+  const [existingSliderImage, setExistingSliderImage] = useState<string | null>(null);
   const [text, setText] = useState({ en: '', kn: '' });
   const [description, setDescription] = useState({ en: '', kn: '' });
+  const [bodyItems, setBodyItems] = useState<{
+    image: File | null;
+    existingImage?: string;
+    text: { en: string; kn: string };
+    description: { en: string; kn: string };
+  }[]>([]);
 
-  const [bodyItems, setBodyItems] = useState<
-    { text: { en: string; kn: string }; description: { en: string; kn: string }; image: File | string | null }[]
-  >([]);
+  console.log(`data`)
+  console.log(data)
+  //@ts-expect-error error maybe result variable
+  const response = data?.result ?? null
 
   useEffect(() => {
-    if (data) {
-      const sliderData = data;
-      setText(sliderData.text);
-      setDescription(sliderData.description);
-      setSliderImageUrl(sliderData.sliderImage);
+    if (response) {
+      setText(response.text || { en: '', kn: '' });
+      setDescription(response.description || { en: '', kn: '' });
+      setExistingSliderImage(response.sliderImage || null);
       setBodyItems(
-        sliderData.body && Array.isArray(sliderData.body)
-          ? sliderData.body.map((item: SBody) => ({
-            text: item.text,
-            description: item.description,
-            image: item.image,
-          }))
-          : []
+        response.body.map((item: SBody) => ({
+          image: null,
+          existingImage: item.image,
+          text: item.text || { en: '', kn: '' },
+          description: item.description || { en: '', kn: '' },
+        }))
       );
     }
   }, [data]);
-
-
+  const handleBodyChange = (index: number, field: 'text' | 'description', lang: 'en' | 'kn', value: string) => {
+    setBodyItems(prev => {
+      const updated = [...prev];
+      updated[index][field][lang] = value;
+      return updated;
+    });
+  };
+  const handleBodyImageChange = (index: number, file: File | null) => {
+    setBodyItems(prev => {
+      const updated = [...prev];
+      updated[index].image = file;
+      return updated;
+    });
+  };
+  const deleteBodyImage = (index: number) => {
+    setBodyItems(prev => {
+      const updated = [...prev];
+      updated[index].existingImage = undefined;
+      return updated;
+    });
+  };
+  const deleteSliderImage = () => {
+    setExistingSliderImage(null);
+  };
+  const addBodyItem = () => {
+    setBodyItems(prev => [...prev, { image: null, text: { en: '', kn: '' }, description: { en: '', kn: '' } }]);
+  };
+  const removeBodyItem = (index: number) => {
+    setBodyItems(prev => prev.filter((_, i) => i !== index));
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const formData = new FormData();
-
     if (sliderImage) formData.append('sliderImage', sliderImage);
     formData.append('text', JSON.stringify(text));
     formData.append('description', JSON.stringify(description));
-    formData.append(
-      'body',
-      JSON.stringify(bodyItems.map((b) => ({ text: b.text, description: b.description })))
-    );
-
-
+    formData.append('body', JSON.stringify(bodyItems.map(item => ({
+      image: item.existingImage || '',
+      text: item.text,
+      description: item.description
+    }))));
     bodyItems.forEach((item, index) => {
-      if (item.image && item.image instanceof File) {
-        formData.append(`bodyImage${index}`, item.image);
-      }
+      if (item.image) formData.append(`bodyImage${index}`, item.image);
     });
-
     try {
-      const result = await updateSlider({ id, formData }).unwrap();
-      if (result) {
+      const res = await updateSlider({ id, formData }).unwrap();
+      if (res) {
         toast.success('Slider updated successfully');
         router.push('/super-admin/slider');
       }
-    } catch (error) {
-      if (error instanceof Error) {
+    } catch (err) {
+      if (err instanceof Error) {
         toast.error('Failed to update slider');
-
       }
     }
   };
-
-  const handleBodyChange = (
-    index: number,
-    field: "text" | "description",
-    lang: "en" | "kn",
-    value: string
-  ) => {
-    setBodyItems((prevBodyItems) => {
-      const updatedItems = [...prevBodyItems];
-      const currentItem = updatedItems[index];
-      updatedItems[index] = {
-        ...currentItem,
-        [field]: {
-          ...currentItem[field],
-          [lang]: value,
-        },
-      };
-      return updatedItems;
-    });
-  };
-
-
-  const handleImageChange = (index: number, file: File | null) => {
-    const updated = [...bodyItems];
-    updated[index].image = file;
-    setBodyItems(updated);
-  };
-
-
-
-  if (isLoading || !data) return <Loader/>;
+  if (isLoading) return <div className="loader">Loading...</div>;
 
   return (
-    <form onSubmit={handleSubmit} className="edit-slider-outer">
-      <h2 className="edit-slider-heading">Update Slider</h2>
+    <form onSubmit={handleSubmit} className="form-container">
+      <h2 className="form-title">Update Slider</h2>
 
-
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setSliderImage(e.target.files?.[0] || null)}
-      />
-      {sliderImage ? (
-        <img
-          src={URL.createObjectURL(sliderImage)}
-          alt="Slider Preview"
-          className="w-24 h-24 object-cover mt-2 rounded"
-        />
-      ) : (
-        sliderImageUrl && (
-          <img
-            src={sliderImageUrl}
-            alt="Slider Current"
-            className="w-24 h-24 object-cover mt-2 rounded"
-          />
-        )
-      )}
-<div className='all-editing-inputs'>
-        <input
-        placeholder="Text EN"
-        value={text?.en || ""}
-        onChange={(e) => setText({ ...text, en: e.target.value })}
-      />
-
-      <input
-        placeholder="Text KN"
-        value={text?.kn || ""}
-        onChange={(e) => setText({ ...text, kn: e.target.value })}
-      />
-
-      <input
-        placeholder="Desc EN"
-        value={description?.en || ""}
-        onChange={(e) => setDescription({ ...description, en: e.target.value })}
-      />
-
-      <input
-        placeholder="Desc KN"
-        value={description?.kn || ""}
-        onChange={(e) => setDescription({ ...description, kn: e.target.value })}
-      />
+      <div>
+        {existingSliderImage && !sliderImage && (
+          <div className="preview">
+            <img src={existingSliderImage} alt="Current Slider" className="preview-image" />
+            <button type="button" onClick={deleteSliderImage}>Delete Current Image</button>
+          </div>
+        )}
+        <label>Upload New Slider Image:</label>
+        <input type="file" accept="image/*" onChange={(e) => setSliderImage(e.target.files?.[0] || null)} />
       </div>
 
+      <div>
+        <label>Text (EN):</label>
+        <input type="text" value={text.en} onChange={(e) => setText({ ...text, en: e.target.value })} />
+        <label>Text (KN):</label>
+        <input type="text" value={text.kn} onChange={(e) => setText({ ...text, kn: e.target.value })} />
+      </div>
 
+      <div>
+        <label>Description (EN):</label>
+        <textarea value={description.en} onChange={(e) => setDescription({ ...description, en: e.target.value })} />
+        <label>Description (KN):</label>
+        <textarea value={description.kn} onChange={(e) => setDescription({ ...description, kn: e.target.value })} />
+      </div>
+
+      <hr />
+      <h3>Slider Body Items</h3>
       {bodyItems.map((item, index) => (
-        <div key={index} className="border p-3 bg-white rounded relative">
-          <input
-            placeholder="Body Text EN"
-            value={item.text.en}
-            onChange={(e) => handleBodyChange(index, 'text', 'en', e.target.value)}
-          />
-          <input
-            placeholder="Body Text KN"
-            value={item.text.kn}
-            onChange={(e) => handleBodyChange(index, 'text', 'kn', e.target.value)}
-          />
-          <input
-            placeholder="Body Desc EN"
-            value={item.description.en}
-            onChange={(e) => handleBodyChange(index, 'description', 'en', e.target.value)}
-          />
-          <input
-            placeholder="Body Desc KN"
-            value={item.description.kn}
-            onChange={(e) => handleBodyChange(index, 'description', 'kn', e.target.value)}
-          />
+        <div key={index} className="repeater">
+          <label>Body Text (EN):</label>
+          <input type="text" value={item.text.en} onChange={(e) => handleBodyChange(index, 'text', 'en', e.target.value)} />
+          <label>Body Text (KN):</label>
+          <input type="text" value={item.text.kn} onChange={(e) => handleBodyChange(index, 'text', 'kn', e.target.value)} />
 
+          <label>Body Description (EN):</label>
+          <input type="text" value={item.description.en} onChange={(e) => handleBodyChange(index, 'description', 'en', e.target.value)} />
+          <label>Body Description (KN):</label>
+          <input type="text" value={item.description.kn} onChange={(e) => handleBodyChange(index, 'description', 'kn', e.target.value)} />
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(index, e.target.files?.[0] || null)}
-          />
-          {item.image ? (
-            item.image instanceof File ? (
-              <img
-                src={URL.createObjectURL(item.image)}
-                alt="Body Preview"
-                className="w-24 h-24 object-cover mt-2 rounded"
-              />
-            ) : (
-              <img
-                src={item.image as string}
-                alt="Body Current"
-                className="w-24 h-24 object-cover mt-2 rounded"
-              />
-            )
-          ) : null}
+          {item.existingImage && !item.image && (
+            <div className="preview">
+              <img src={item.existingImage} alt="Body" className="preview-image" />
+              <button type="button" onClick={() => deleteBodyImage(index)}>Delete Existing Image</button>
+            </div>
+          )}
 
+          <label>Upload New Body Image:</label>
+          <input type="file" accept="image/*" onChange={(e) => handleBodyImageChange(index, e.target.files?.[0] || null)} />
 
+          <button type="button" onClick={() => removeBodyItem(index)}>
+            Remove Body Item
+          </button>
         </div>
       ))}
+      <button type="button" onClick={addBodyItem}>Add Body Item</button>
 
-
-
-      <button type="submit" className="bg-blue-500 text-white p-3 rounded">
-        Update
-      </button>
+      <hr />
+      <button type="submit" className="submit-button">Update Slider</button>
     </form>
   );
 };

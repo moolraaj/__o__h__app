@@ -1,7 +1,7 @@
- 
+
 import { NextResponse, NextRequest } from 'next/server';
 import Questionnaire from '@/models/Questionnaire';
- 
+
 import { dbConnect } from '@/database/database';
 import { ValidateQuestionnaireFields } from '@/validators/Validate';
 import { QuestionnaireTypes } from '@/utils/Types';
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const formData = await req.formData();
 
- 
+
     const data: Partial<QuestionnaireTypes> = {
       demographics: formData.get('demographics')?.toString() || '',
       name: formData.get('name')?.toString() || '',
@@ -50,51 +50,51 @@ export async function POST(req: NextRequest) {
       presenceOfSharpTeeth: formData.get('presenceOfSharpTeeth')?.toString() || '',
       presenceOfDecayedTeeth: formData.get('presenceOfDecayedTeeth')?.toString() || '',
       presenceOfFluorosis: formData.get('presenceOfFluorosis')?.toString() || '',
-     submitted_by : formData.get('submitted_by')?.toString() || ''
+      submitted_by: formData.get('submitted_by')?.toString() || ''
     };
 
-  
+
     const sendToRaw = formData.get('send_to') as string;
     let send_to: string[] = [];
     if (sendToRaw) {
       try {
         send_to = JSON.parse(sendToRaw);
       } catch (error) {
-        if(error instanceof Error){
+        if (error instanceof Error) {
           send_to = [sendToRaw];
         }
-    
+
       }
     }
     data.send_to = send_to;
-    
+
     if (formData.has('presenceOfGumDisease')) {
       const gumValue = formData.get('presenceOfGumDisease');
       if (gumValue) {
         const rawGum = gumValue.toString();
-   
+
         data.presenceOfGumDisease = rawGum.includes(',')
           ? rawGum.split(',').map(item => item.trim()).filter(item => item !== '')
           : [rawGum.trim()];
       }
     }
 
- 
+
     const validatedData = ValidateQuestionnaireFields(data);
 
-  
+
     const doc = new Questionnaire(validatedData);
     await doc.save();
 
     return NextResponse.json({ status: 201, success: true, data: doc });
   } catch (err) {
-    if(err instanceof Error){
+    if (err instanceof Error) {
       return NextResponse.json(
         { success: false, message: err.message || 'Error creating questionnaire' },
         { status: 400 }
       );
 
     }
-    
+
   }
 }

@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
         return {
           _id: slide._id,
           sliderImage: slide.sliderImage,
+          sliderVideo: slide.sliderVideo,
           text: { [lang]: slide.text?.[lang] || "" },
           description: { [lang]: slide.description?.[lang] || "" },
           body: slide.body?.map((b:SBody) => ({

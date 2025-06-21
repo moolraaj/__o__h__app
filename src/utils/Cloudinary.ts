@@ -36,6 +36,21 @@ export const uploadPhotoToCloudinary = async (photo: Blob) => {
   });
 };
 
+export const uploadVideoToCloudinary = async (video: Blob): Promise<string> => {
+  const buffer = Buffer.from(await video.arrayBuffer());
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream(
+        { folder: process.env.CLOUD_APP_NAME, resource_type: 'video' },
+        (error, result) => {
+          if (error) return reject(new Error('Failed to upload video'));
+          resolve(result!.secure_url);
+        }
+      )
+      .end(buffer);
+  });
+};
+
   
   
    

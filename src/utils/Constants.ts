@@ -10,7 +10,7 @@ import fs from 'fs';
 import LesionVerificationTokens from "@/models/LesionVerificationTokens";
 import QuestionnaireVerificationTokens from "@/models/QuestionnaireVerificationTokens";
 
-export const PAGE_PER_PAGE_LIMIT = 10
+export const PAGE_PER_PAGE_LIMIT = 20
 export const LESION_CREATE = "lesion-created"
 
 export const EN = 'en'

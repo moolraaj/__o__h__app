@@ -125,13 +125,15 @@ import { Users } from "@/utils/Types";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import { FaUserTie } from "react-icons/fa";
 import Loader from "@/(common)/Loader";
+import { PAGE_PER_ITEMS } from "@/utils/const";
 
 
 
 export default function ManageAmbassadors() {
+  const [page, setPage] = useState(1)
   const { data: ambassadorData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
-    page: 1,
-    limit: 15,
+    page: page,
+    limit: PAGE_PER_ITEMS,
     role: 'dantasurakshaks'
   });
   const { setRightContent } = useBreadcrumb();
@@ -146,7 +148,7 @@ export default function ManageAmbassadors() {
     );
 
     return () => setRightContent(null);
-  }, [ambassadorData, setRightContent]);
+  }, [ambassadorData, setRightContent, page]);
 
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -181,7 +183,11 @@ export default function ManageAmbassadors() {
     }
   };
 
-  if (ambassadorLoading) return <Loader/>;
+  if (ambassadorLoading) return <Loader />;
+
+  const totalResults = ambassadorData?.total ?? 0;
+  const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
+  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   return (
     <div className="ambassa_outer outer_wrapper">
@@ -232,6 +238,28 @@ export default function ManageAmbassadors() {
 
           </div>
         </div>
+
+        <div className="pagination_steps">
+          {shouldShowPagination && (
+            <div className="pagination-controls mt-4 flex items-center justify-center space-x-4">
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+                className={`px-3 py-1 border rounded disabled:opacity-50 ${page === 1 ? 'disable_prev' : ''}`}
+              >
+                Prev
+              </button>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+                className={`px-3 py-1 border rounded disabled:opacity-50 ${page === totalPages ? 'disable_next' : ''}`}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );

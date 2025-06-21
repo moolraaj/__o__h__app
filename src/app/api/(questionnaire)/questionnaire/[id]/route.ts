@@ -21,6 +21,7 @@ export async function GET(
     const questionnaire = await Questionnaire.findById(id)
       .select('+questionary_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
       .populate('assignTo', 'name phoneNumber')     
+      .populate('submitted_by', 'name phoneNumber')
       .lean();
 
     if (!questionnaire) {

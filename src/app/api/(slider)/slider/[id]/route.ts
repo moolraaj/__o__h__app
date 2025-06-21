@@ -28,6 +28,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             localizedData = {
                 _id: slide._id,
                 sliderImage: slide.sliderImage,
+                sliderVideo: slide.sliderVideo,
                 text: { [lang]: slide.text?.[lang] || "" },
                 description: { [lang]: slide.description?.[lang] || "" },
                 body: slide.body.map((b: SBody) => ({
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             };
         }
 
-        return NextResponse.json({ status: 200, success: true, data: localizedData });
+        return NextResponse.json({ status: 200, success: true, result: localizedData });
     } catch (err) {
         console.error(err);
         return NextResponse.json({ success: false, message: 'Failed to fetch slider' }, { status: 500 });

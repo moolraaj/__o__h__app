@@ -16,7 +16,7 @@ export interface Users {
   email?: string;
   phoneNumber?: number;
   password?: string;
-  isPhoneVerified:boolean|undefined
+  isPhoneVerified: boolean | undefined
   role: "admin" | "user" | "dantasurakshaks" | "super-admin";
   status: string;
   isVerified: boolean
@@ -58,7 +58,7 @@ export interface Slide {
 
 export interface SliderResponse {
   result: Slide[];
-  total: number;
+  totalResults: number;
   page: number;
   limit: number;
 }
@@ -96,7 +96,7 @@ export interface Faqs {
   __v: number
 }
 
- 
+
 
 export type CategoryResponse = {
   status: boolean;
@@ -129,7 +129,7 @@ export interface Lesion {
   dental_images?: string[];
   status?: string,
   adminAction?: boolean,
-  createdAt:Date
+  createdAt: Date
 }
 
 
@@ -147,6 +147,63 @@ export interface ConfirmationPageParams {
   action: string;
   id: string;
   redirectUrl?: string;
+}
+
+export interface Questionnaire {
+  _id: string;
+  createdAt: string;
+  submitted_by?: {
+    name?: string;
+    phoneNumber?: string;
+  };
+  assignTo?: {
+    name?: string;
+    phoneNumber?: string;
+  };
+  demographics?: string;
+  name?: string;
+  age?: number;
+  gender?: string;
+  bloodGroup?: string;
+  idCardAvailable?: string;
+  cardNumber?: string;
+  religion?: string;
+  religion_input?: string;
+  education?: string;
+  occupation?: string;
+  income?: number;
+  phoneNumber?: string;
+  address?: string;
+  familyHistory?: string;
+  firstDegreeRelativeOralCancer?: string
+  height?: number;
+  diabetes?: string
+  hypertension?: string;
+  dietHistory?: string;
+  fruitsConsumption?: string;
+  vegetableConsumption?: string;
+  habitHistory?: string;
+  tobaccoChewer?: string;
+  tobaccoType?: string;
+  discontinuedHabit?: string;
+  durationOfDiscontinuingHabit?: string;
+  otherConsumptionHistory?: string;
+  alcoholConsumption?: string;
+  smoking?: string;
+  oralCavityExamination?: string;
+  presenceOfLesion?: string;
+  reductionInMouthOpening?: string;
+  suddenWeightLoss?: string;
+  presenceOfSharpTeeth?: string;
+  presenceOfDecayedTeeth?: string;
+  presenceOfFluorosis?: string;
+  presenceOfGumDisease?: string[];
+  questionary_type?: string;
+  diagnosis_notes?: string;
+  recomanded_actions?: string;
+  comments_or_notes?: string;
+  send_email_to_dantasurakshaks?: boolean
+  case_number?: string
 }
 
 export interface QuestionnaireTypes {
@@ -194,7 +251,7 @@ export interface QuestionnaireTypes {
   recomanded_actions?: string;
   comments_or_notes?: string;
   send_email_to_dantasurakshaks?: boolean
-  case_number?:string
+  case_number?: string
 }
 
 export interface WhatIsDiseaseDescriptionRepeater {
@@ -325,7 +382,7 @@ export interface RegisterEmailData {
   name: string;
   email: string;
   phoneNumber: string;
-  isPhoneVerified:boolean
+  isPhoneVerified: boolean
 }
 
 export interface RegisterVerificationEmailData {
@@ -450,8 +507,8 @@ export interface DentalEmergencyTypes {
   dental_emer_title: Language;
   dental_emer_sub_title: Language;
   dental_emer_repeater: DentalEmerRepeater[];
-  createdAt: Date;  
-  updatedAt: Date;  
+  createdAt: Date;
+  updatedAt: Date;
   __v: number;
 }
 

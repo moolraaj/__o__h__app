@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { LayoutDashboard, ShieldCheck, UserCheck, Users } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, UserCheck, Users,ImageIcon,Thermometer,ClipboardList,ListChecks,Smile} from "lucide-react";
 import { FaTimes } from "react-icons/fa";
 import sidebarLogo from '@/images/danta-suraksha-logo.png';
 import Image from "next/image";
@@ -19,9 +19,12 @@ const links = [
   { href: "/super-admin/admin", label: "Admins", icon: ShieldCheck },
   { href: "/super-admin/ambassador", label: "Ambassadors", icon: UserCheck },
   { href: "/super-admin/user", label: "Users", icon: Users },
-  { href: "/super-admin/slider", label: "Slider", icon: Users },
-  { href: "/super-admin/disease", label: "Diseases", icon: Users },
-  { href: "/super-admin/lesion", label: "Lesions", icon: Users },
+{ href: "/super-admin/slider", label: "Slider", icon: ImageIcon }, 
+  { href: "/super-admin/disease", label: "Diseases", icon: Thermometer },
+  // { href: "/super-admin/lesion", label: "Lesions", icon: Microscope },
+  { href: "/super-admin/habit-health", label: "Habit Health", icon: ListChecks  },
+  { href: "/super-admin/dental-emergency", label: "Dental Emergency", icon: Smile   },
+  { href: "/super-admin/questionnaire", label: "Questionnaires", icon: ClipboardList },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarExpanded, isMobile, openMenu }) => {

@@ -60,7 +60,7 @@ const QuestionnaireSchema = new mongoose.Schema({
   comments_or_notes: { type: String, select: false },
   send_email_to_dantasurakshaks: { type: Boolean, select: false, default: false },
   case_number: { type: String, unique: true }
-});
+},{ timestamps: true });
 
 
 

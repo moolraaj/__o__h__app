@@ -104,10 +104,12 @@ import { DiseaseTypes } from "@/utils/Types";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import Loader from "@/(common)/Loader";
+import { PAGE_PER_ITEMS } from "@/utils/const";
 
 const DiseaseList = () => {
   const { setRightContent } = useBreadcrumb();
-  const { data: diseasesData, isLoading, refetch } = useGetDiseasesQuery({ page: 1, limit: 15, lang: "en" });
+  const [page, setPage] = useState(1)
+  const { data: diseasesData, isLoading, refetch } = useGetDiseasesQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
   const [deleteDisease] = useDeleteDiseaseMutation();
   const [showModal, setShowModal] = useState(false);
   const [selectedDiseaseId, setSelectedDiseaseId] = useState<string | null>(null);
@@ -143,6 +145,11 @@ const DiseaseList = () => {
       setSelectedDiseaseId(null);
     }
   };
+ 
+
+  const totalResults = diseasesData?.totalResults ?? 0;
+  const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
+  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   return (
     <div className="disease-main-container">
@@ -193,6 +200,26 @@ const DiseaseList = () => {
           setSelectedDiseaseId(null);
         }}
       />
+      <div className="pagination_steps">
+        {shouldShowPagination && (
+          <div className="pagination-controls mt-4 flex items-center justify-center space-x-4">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className={`px-3 py-1 border rounded disabled:opacity-50 ${page === 1 ? 'disable_prev' : ''}`}
+            >
+              Prev
+            </button>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page === totalPages}
+              className={`px-3 py-1 border rounded disabled:opacity-50 ${page === totalPages ? 'disable_next' : ''}`}
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

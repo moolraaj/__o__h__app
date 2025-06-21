@@ -8,9 +8,10 @@ import { useCreateDiseaseMutation } from '@/(store)/services/disease/diseaseApi'
 import { Cause, CauseRepeat, PreventionTip, PreventionTipRepeat, Symptom, SymptomRepeat, TreatmentOption, TreatmentOptionRepeat, WhatIsDiseaseDescriptionRepeater, WhatIsDiseaseRepeat } from '@/utils/Types';
 import { FaPlus } from 'react-icons/fa';
 import { useGetCategoriesQuery } from '@/(store)/services/category/categoryApi';
+import { BeatLoader } from 'react-spinners';
 
 const AddDisease = () => {
-  const [createDisease] = useCreateDiseaseMutation();
+  const [createDisease,{isLoading}] = useCreateDiseaseMutation();
   const router = useRouter();
 
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -1211,10 +1212,25 @@ const AddDisease = () => {
       <h3>{treatmentOptionTabTitle.en}</h3>
       <button type="button" onClick={addTreatmentOption}><FaPlus /> Add Treatment Option</button>
 
-      {/* ---------------- Treatment Options Section ---------------- */}
+      
       <hr />
       <div className="button-container">
-        <button type="submit" className="disease-form-submit-button"> Submit Disease</button>
+       
+        <button
+          type="submit"
+          className="disease-form-submit-button"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              Submitting
+              <BeatLoader color="#ffffff" size={10} />
+
+            </>
+          ) : (
+            'Submit Disease'
+          )}
+        </button>
       </div>
 
 

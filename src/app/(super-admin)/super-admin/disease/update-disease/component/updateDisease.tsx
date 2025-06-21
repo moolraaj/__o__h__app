@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import {  useGetSingleDiseasesQuery, useUpdateDiseasesMutation } from '@/(store)/services/disease/diseaseApi';
+import { useGetSingleDiseasesQuery, useUpdateDiseasesMutation } from '@/(store)/services/disease/diseaseApi';
 import {
   Cause,
   CauseRepeat,
@@ -18,6 +18,7 @@ import {
 } from '@/utils/Types';
 import Loader from '@/(common)/Loader';
 import { useGetCategoriesQuery } from '@/(store)/services/category/categoryApi';
+import { BeatLoader } from 'react-spinners';
 
 interface UpdateDiseaseProps {
   id: string;
@@ -96,8 +97,8 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     treatment_option_repeat: TreatmentOptionRepeat[] & { treatment_option_repeat_icon_url?: string }[];
   }[]>([]);
 
- 
- 
+
+
 
   useEffect(() => {
     //@ts-expect-error ignore this error
@@ -128,7 +129,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     setDiseaseIconUrl(d.disease_icon);
 
     setWhatIsDiseaseRepeats(
-      d.what_is_disease_repeat?.map((item:WhatIsDiseaseRepeat) => ({
+      d.what_is_disease_repeat?.map((item: WhatIsDiseaseRepeat) => ({
         what_is_disease_heading: {
           en: item.what_is_disease_heading?.en || '',
           kn: item.what_is_disease_heading?.kn || ''
@@ -141,7 +142,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
           en: item.what_is_disease_disease_repeat_description?.en || '',
           kn: item.what_is_disease_disease_repeat_description?.kn || ''
         },
-        what_is_disease_description_repeater: item.what_is_disease_description_repeater?.map((rep:WhatIsDiseaseDescriptionRepeater) => ({
+        what_is_disease_description_repeater: item.what_is_disease_description_repeater?.map((rep: WhatIsDiseaseDescriptionRepeater) => ({
           what_is_disease_heading_repeat: {
             en: rep.what_is_disease_heading_repeat?.en || '',
             kn: rep.what_is_disease_heading_repeat?.kn || ''
@@ -155,7 +156,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     );
 
     setCommonCauses(
-      d.common_cause?.map((item:Cause) => ({
+      d.common_cause?.map((item: Cause) => ({
         cause_title: {
           en: item.cause_title?.en || '',
           kn: item.cause_title?.kn || ''
@@ -170,7 +171,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
         },
         cause_icon: null,
         cause_icon_url: item.cause_icon || '',
-        cause_repeat: item.cause_repeat?.map((rep:CauseRepeat) => ({
+        cause_repeat: item.cause_repeat?.map((rep: CauseRepeat) => ({
           cause_repeat_title: {
             en: rep.cause_repeat_title?.en || '',
             kn: rep.cause_repeat_title?.kn || ''
@@ -185,7 +186,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     );
 
     setSymptoms(
-      d.symptoms?.map((item:Symptom) => ({
+      d.symptoms?.map((item: Symptom) => ({
         symptoms_title: {
           en: item.symptoms_title?.en || '',
           kn: item.symptoms_title?.kn || ''
@@ -200,7 +201,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
         },
         symptoms_icon: null,
         symptoms_icon_url: item.symptoms_icon || '',
-        symptoms_repeat: item.symptoms_repeat?.map((rep:SymptomRepeat) => ({
+        symptoms_repeat: item.symptoms_repeat?.map((rep: SymptomRepeat) => ({
           symptoms_repeat_title: {
             en: rep.symptoms_repeat_title?.en || '',
             kn: rep.symptoms_repeat_title?.kn || ''
@@ -215,7 +216,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     );
 
     setPreventionTips(
-      d.prevention_tips?.map((item:PreventionTip) => ({
+      d.prevention_tips?.map((item: PreventionTip) => ({
         prevention_tips_title: {
           en: item.prevention_tips_title?.en || '',
           kn: item.prevention_tips_title?.kn || ''
@@ -230,7 +231,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
         },
         prevention_tips_icon: null,
         prevention_tips_icon_url: item.prevention_tips_icon || '',
-        prevention_tips_repeat: item.prevention_tips_repeat?.map((rep:PreventionTipRepeat) => ({
+        prevention_tips_repeat: item.prevention_tips_repeat?.map((rep: PreventionTipRepeat) => ({
           prevention_tips_repeat_title: {
             en: rep.prevention_tips_repeat_title?.en || '',
             kn: rep.prevention_tips_repeat_title?.kn || ''
@@ -245,7 +246,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     );
 
     setTreatmentOptions(
-      d.treatment_option?.map((item:TreatmentOption) => ({
+      d.treatment_option?.map((item: TreatmentOption) => ({
         treatment_option_title: {
           en: item.treatment_option_title?.en || '',
           kn: item.treatment_option_title?.kn || ''
@@ -260,7 +261,7 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
         },
         treatment_option_icon: null,
         treatment_option_icon_url: item.treatment_option_icon || '',
-        treatment_option_repeat: item.treatment_option_repeat?.map((rep:TreatmentOptionRepeat) => ({
+        treatment_option_repeat: item.treatment_option_repeat?.map((rep: TreatmentOptionRepeat) => ({
           treatment_option_repeat_title: {
             en: rep.treatment_option_repeat_title?.en || '',
             kn: rep.treatment_option_repeat_title?.kn || ''
@@ -932,10 +933,21 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
         </div>
 
       ))}
-
-
       <hr />
-      <button type="submit" className="submit-button">Update Disease</button>
+      <button
+        type="submit"
+        className="submit-button"
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <>
+            Updating
+            <BeatLoader color="#ffffff" size={10} />
+          </>
+        ) : (
+          'Update Disease'
+        )}
+      </button>
     </form>
   );
 };
