@@ -116,7 +116,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReusableModal from "@/(common)/Model";
 import { LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { FaBars, FaSearch, FaTooth } from "react-icons/fa";
 import Link from "next/link";
 
@@ -131,7 +131,10 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const userName = "User"; // Fallback static name if you don't use session
+  
+
+  const { data: session } = useSession();
+  const userName = session?.user?.name || "User";
   const firstLetter = userName.charAt(0).toUpperCase();
 
   const handleLogout = () => {
