@@ -46,6 +46,7 @@ const DentalEmergencyList = () => {
   const totalResults = diseasesData?.totalResults ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
   const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
+ 
 
   return (
     <div className="disease-main-container">

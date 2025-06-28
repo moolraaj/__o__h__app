@@ -27,10 +27,11 @@ export async function GET(req: NextRequest) {
       phoneNumber: 1,
       role: 1,
       status: 1,
-      isVerified:1
+      isVerified: 1
     })
       .skip(skip)
       .limit(limit)
+      .sort({ createdAt: -1 })
       .exec();
 
     const totalFilteredUsers = await User.countDocuments(query);

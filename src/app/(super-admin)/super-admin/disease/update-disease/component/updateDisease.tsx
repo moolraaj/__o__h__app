@@ -4,21 +4,28 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useGetSingleDiseasesQuery, useUpdateDiseasesMutation } from '@/(store)/services/disease/diseaseApi';
-import {
-  Cause,
-  CauseRepeat,
-  PreventionTip,
-  PreventionTipRepeat,
-  Symptom,
-  SymptomRepeat,
-  TreatmentOption,
-  TreatmentOptionRepeat,
-  WhatIsDiseaseDescriptionRepeater,
-  WhatIsDiseaseRepeat
-} from '@/utils/Types';
-import Loader from '@/(common)/Loader';
 import { useGetCategoriesQuery } from '@/(store)/services/category/categoryApi';
 import { BeatLoader } from 'react-spinners';
+ 
+import Loader from '@/(common)/Loader';
+import { CauseItem,  CauseRepeater, PreventionTipsItem, PreventionTipsRepeater, SymptomsItem, SymptomsRepeater, TreatmentOptionItem, TreatmentOptionRepeater } from '@/utils/Types';
+import CKEditorWrapper from '@/app/(super-admin)/(common)/editor/CKEditorWrapper';
+import { FaPlus } from 'react-icons/fa';
+
+interface RepeaterItem {
+  description: {
+    en: string;
+    kn: string;
+  };
+}
+
+interface SectionItem {
+  title: {
+    en: string;
+    kn: string;
+  };
+  repeater: RepeaterItem[];
+}
 
 interface UpdateDiseaseProps {
   id: string;
@@ -27,18 +34,10 @@ interface UpdateDiseaseProps {
 const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
   const router = useRouter();
   const { data, isLoading, error } = useGetSingleDiseasesQuery({ id });
-  const [updateDisease] = useUpdateDiseasesMutation();
+  const [updateDisease, { isLoading: isUpdating }] = useUpdateDiseasesMutation();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const { data: categoriesData } = useGetCategoriesQuery();
   const categories = categoriesData?.result || [];
-  useEffect(() => {
-    if (categories.length > 0) {
-      setSelectedCategory(categories[0]._id);
-    }
-  }, [categories]);
-
-  console.log(`data`)
-  console.log(data)
 
   // Main Fields
   const [diseaseMainTitle, setDiseaseMainTitle] = useState({ en: '', kn: '' });
@@ -50,234 +49,71 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
   const [diseaseIcon, setDiseaseIcon] = useState<File | null>(null);
   const [diseaseIconUrl, setDiseaseIconUrl] = useState('');
 
-  // Repeaters
-  const [whatIsDiseaseRepeats, setWhatIsDiseaseRepeats] = useState<{
-    what_is_disease_heading: { en: string; kn: string };
-    what_is_disease_disease_repeat_icon: File | null;
-    what_is_disease_disease_repeat_icon_url: string;
-    what_is_disease_repeat_images: File[];
-    what_is_disease_repeat_images_urls: string[];
-    what_is_disease_disease_repeat_description: { en: string; kn: string };
-    what_is_disease_description_repeater: WhatIsDiseaseDescriptionRepeater[];
-  }[]>([]);
+  // Tab Titles
+  const [commonCauseTabTitle, setCommonCauseTabTitle] = useState({ en: 'Common Causes', kn: 'ಸಾಮಾನ್ಯ ಕಾರಣಗಳು' });
+  const [symptomsTabTitle, setSymptomsTabTitle] = useState({ en: 'Symptoms', kn: 'ಲಕ್ಷಣಗಳು' });
+  const [preventionTipsTabTitle, setPreventionTipsTabTitle] = useState({ en: 'Prevention Tips', kn: 'ತಡೆಗಟ್ಟುವ ಸಲಹೆಗಳು' });
+  const [treatmentOptionTabTitle, setTreatmentOptionTabTitle] = useState({ en: 'Treatment Options', kn: 'ಚಿಕಿತ್ಸಾ ಆಯ್ಕೆಗಳು' });
 
-  const [commonCauses, setCommonCauses] = useState<{
-    cause_title: { en: string; kn: string };
-    cause_para: { en: string; kn: string };
-    cause_brief: { en: string; kn: string };
-    cause_icon: File | null;
-    cause_icon_url: string;
-    cause_repeat: CauseRepeat[] & { cause_repeat_icon_url?: string }[];
-  }[]>([]);
-
-  const [symptoms, setSymptoms] = useState<{
-    symptoms_title: { en: string; kn: string };
-    symptoms_para: { en: string; kn: string };
-    symptoms_brief: { en: string; kn: string };
-    symptoms_icon: File | null;
-    symptoms_icon_url: string;
-    symptoms_repeat: SymptomRepeat[] & { symptoms_repeat_icon_url?: string }[];
-  }[]>([]);
-
-  const [preventionTips, setPreventionTips] = useState<{
-    prevention_tips_title: { en: string; kn: string };
-    prevention_tips_para: { en: string; kn: string };
-    prevention_tips_brief: { en: string; kn: string };
-    prevention_tips_icon: File | null;
-    prevention_tips_icon_url: string;
-    prevention_tips_repeat: PreventionTipRepeat[] & { prevention_tips_repeat_icon_url?: string }[];
-  }[]>([]);
-
-  const [treatmentOptions, setTreatmentOptions] = useState<{
-    treatment_option_title: { en: string; kn: string };
-    treatment_option_para: { en: string; kn: string };
-    treatment_option_brief: { en: string; kn: string };
-    treatment_option_icon: File | null;
-    treatment_option_icon_url: string;
-    treatment_option_repeat: TreatmentOptionRepeat[] & { treatment_option_repeat_icon_url?: string }[];
-  }[]>([]);
-
-
-
+  // Sections
+  const [commonCauses, setCommonCauses] = useState<SectionItem[]>([]);
+  const [symptoms, setSymptoms] = useState<SectionItem[]>([]);
+  const [preventionTips, setPreventionTips] = useState<SectionItem[]>([]);
+  const [treatmentOptions, setTreatmentOptions] = useState<SectionItem[]>([]);
 
   useEffect(() => {
-    //@ts-expect-error ignore this error
+    if (categories.length > 0) {
+      setSelectedCategory(categories[0]._id);
+    }
+  }, [categories]);
+
+  useEffect(() => {
     const d = data?.data;
     if (!d) return;
 
-    setDiseaseMainTitle({
-      en: d.disease_main_title?.en || '',
-      kn: d.disease_main_title?.kn || ''
-    });
+    setDiseaseMainTitle(d.disease_main_title || { en: '', kn: '' });
+    setDiseaseSlug(d.disease_slug || { en: '', kn: '' });
+    setDiseaseTitle(d.disease_title || { en: '', kn: '' });
+    setDiseaseDescription(d.disease_description || { en: '', kn: '' });
+    setDiseaseMainImageUrl(d.disease_main_image || '');
+    setDiseaseIconUrl(d.disease_icon || '');
 
-    setDiseaseSlug({
-      en: d.disease_slug?.en || '',
-      kn: d.disease_slug?.kn || ''
-    });
+    // Set tab titles
+    setCommonCauseTabTitle(d.common_cause_tab_title || { en: 'Common Causes', kn: 'ಸಾಮಾನ್ಯ ಕಾರಣಗಳು' });
+    setSymptomsTabTitle(d.symptoms_tab_title || { en: 'Symptoms', kn: 'ಲಕ್ಷಣಗಳು' });
+    setPreventionTipsTabTitle(d.prevention_tips_tab_title || { en: 'Prevention Tips', kn: 'ತಡೆಗಟ್ಟುವ ಸಲಹೆಗಳು' });
+    setTreatmentOptionTabTitle(d.treatment_option_tab_title || { en: 'Treatment Options', kn: 'ಚಿಕಿತ್ಸಾ ಆಯ್ಕೆಗಳು' });
 
-    setDiseaseTitle({
-      en: d.disease_title?.en || '',
-      kn: d.disease_title?.kn || ''
-    });
-
-    setDiseaseDescription({
-      en: d.disease_description?.en || '',
-      kn: d.disease_description?.kn || ''
-    });
-
-    setDiseaseMainImageUrl(d.disease_main_image);
-    setDiseaseIconUrl(d.disease_icon);
-
-    setWhatIsDiseaseRepeats(
-      d.what_is_disease_repeat?.map((item: WhatIsDiseaseRepeat) => ({
-        what_is_disease_heading: {
-          en: item.what_is_disease_heading?.en || '',
-          kn: item.what_is_disease_heading?.kn || ''
-        },
-        what_is_disease_disease_repeat_icon: null,
-        what_is_disease_disease_repeat_icon_url: item.what_is_disease_disease_repeat_icon || '',
-        what_is_disease_repeat_images: [],
-        what_is_disease_repeat_images_urls: item.what_is_disease_repeat_images || [],
-        what_is_disease_disease_repeat_description: {
-          en: item.what_is_disease_disease_repeat_description?.en || '',
-          kn: item.what_is_disease_disease_repeat_description?.kn || ''
-        },
-        what_is_disease_description_repeater: item.what_is_disease_description_repeater?.map((rep: WhatIsDiseaseDescriptionRepeater) => ({
-          what_is_disease_heading_repeat: {
-            en: rep.what_is_disease_heading_repeat?.en || '',
-            kn: rep.what_is_disease_heading_repeat?.kn || ''
-          },
-          what_is_disease_description_repeat: {
-            en: rep.what_is_disease_description_repeat?.en || '',
-            kn: rep.what_is_disease_description_repeat?.kn || ''
-          }
-        })) || []
+    // Set sections with proper initialization
+    setCommonCauses(d.common_cause?.map((item: CauseItem) => ({
+      title: item.cause_title || { en: '', kn: '' },
+      repeater: item.cause_repeater?.map((rep: CauseRepeater) => ({
+        description: rep.description || { en: '', kn: '' }
       })) || []
-    );
+    })) || []);
 
-    setCommonCauses(
-      d.common_cause?.map((item: Cause) => ({
-        cause_title: {
-          en: item.cause_title?.en || '',
-          kn: item.cause_title?.kn || ''
-        },
-        cause_para: {
-          en: item.cause_para?.en || '',
-          kn: item.cause_para?.kn || ''
-        },
-        cause_brief: {
-          en: item.cause_brief?.en || '',
-          kn: item.cause_brief?.kn || ''
-        },
-        cause_icon: null,
-        cause_icon_url: item.cause_icon || '',
-        cause_repeat: item.cause_repeat?.map((rep: CauseRepeat) => ({
-          cause_repeat_title: {
-            en: rep.cause_repeat_title?.en || '',
-            kn: rep.cause_repeat_title?.kn || ''
-          },
-          cause_repeat_description: {
-            en: rep.cause_repeat_description?.en || '',
-            kn: rep.cause_repeat_description?.kn || ''
-          },
-          cause_repeat_icon_url: rep.cause_repeat_icon || ''
-        })) || []
+    setSymptoms(d.symptoms?.map((item: SymptomsItem) => ({
+      title: item.symptoms_title || { en: '', kn: '' },
+      repeater: item.symptoms_repeater?.map((rep: SymptomsRepeater) => ({
+        description: rep.description || { en: '', kn: '' }
       })) || []
-    );
+    })) || []);
 
-    setSymptoms(
-      d.symptoms?.map((item: Symptom) => ({
-        symptoms_title: {
-          en: item.symptoms_title?.en || '',
-          kn: item.symptoms_title?.kn || ''
-        },
-        symptoms_para: {
-          en: item.symptoms_para?.en || '',
-          kn: item.symptoms_para?.kn || ''
-        },
-        symptoms_brief: {
-          en: item.symptoms_brief?.en || '',
-          kn: item.symptoms_brief?.kn || ''
-        },
-        symptoms_icon: null,
-        symptoms_icon_url: item.symptoms_icon || '',
-        symptoms_repeat: item.symptoms_repeat?.map((rep: SymptomRepeat) => ({
-          symptoms_repeat_title: {
-            en: rep.symptoms_repeat_title?.en || '',
-            kn: rep.symptoms_repeat_title?.kn || ''
-          },
-          symptoms_repeat_description: {
-            en: rep.symptoms_repeat_description?.en || '',
-            kn: rep.symptoms_repeat_description?.kn || ''
-          },
-          symptoms_repeat_icon_url: rep.symptoms_repeat_icon || ''
-        })) || []
+    setPreventionTips(d.prevention_tips?.map((item: PreventionTipsItem) => ({
+      title: item.prevention_tips_title || { en: '', kn: '' },
+      repeater: item.prevention_tips_repeater?.map((rep: PreventionTipsRepeater) => ({
+        description: rep.description || { en: '', kn: '' }
       })) || []
-    );
+    })) || []);
 
-    setPreventionTips(
-      d.prevention_tips?.map((item: PreventionTip) => ({
-        prevention_tips_title: {
-          en: item.prevention_tips_title?.en || '',
-          kn: item.prevention_tips_title?.kn || ''
-        },
-        prevention_tips_para: {
-          en: item.prevention_tips_para?.en || '',
-          kn: item.prevention_tips_para?.kn || ''
-        },
-        prevention_tips_brief: {
-          en: item.prevention_tips_brief?.en || '',
-          kn: item.prevention_tips_brief?.kn || ''
-        },
-        prevention_tips_icon: null,
-        prevention_tips_icon_url: item.prevention_tips_icon || '',
-        prevention_tips_repeat: item.prevention_tips_repeat?.map((rep: PreventionTipRepeat) => ({
-          prevention_tips_repeat_title: {
-            en: rep.prevention_tips_repeat_title?.en || '',
-            kn: rep.prevention_tips_repeat_title?.kn || ''
-          },
-          prevention_tips_repeat_description: {
-            en: rep.prevention_tips_repeat_description?.en || '',
-            kn: rep.prevention_tips_repeat_description?.kn || ''
-          },
-          prevention_tips_repeat_icon_url: rep.prevention_tips_repeat_icon || ''
-        })) || []
+    setTreatmentOptions(d.treatment_option?.map((item: TreatmentOptionItem) => ({
+      title: item.treatment_option_title || { en: '', kn: '' },
+      repeater: item.treatment_option_repeater?.map((rep: TreatmentOptionRepeater) => ({
+        description: rep.description || { en: '', kn: '' }
       })) || []
-    );
-
-    setTreatmentOptions(
-      d.treatment_option?.map((item: TreatmentOption) => ({
-        treatment_option_title: {
-          en: item.treatment_option_title?.en || '',
-          kn: item.treatment_option_title?.kn || ''
-        },
-        treatment_option_para: {
-          en: item.treatment_option_para?.en || '',
-          kn: item.treatment_option_para?.kn || ''
-        },
-        treatment_option_brief: {
-          en: item.treatment_option_brief?.en || '',
-          kn: item.treatment_option_brief?.kn || ''
-        },
-        treatment_option_icon: null,
-        treatment_option_icon_url: item.treatment_option_icon || '',
-        treatment_option_repeat: item.treatment_option_repeat?.map((rep: TreatmentOptionRepeat) => ({
-          treatment_option_repeat_title: {
-            en: rep.treatment_option_repeat_title?.en || '',
-            kn: rep.treatment_option_repeat_title?.kn || ''
-          },
-          treatment_option_repeat_description: {
-            en: rep.treatment_option_repeat_description?.en || '',
-            kn: rep.treatment_option_repeat_description?.kn || ''
-          },
-          treatment_option_repeat_icon_url: rep.treatment_option_repeat_icon || ''
-        })) || []
-      })) || []
-    );
+    })) || []);
   }, [data]);
 
-
-  // Handlers
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     setFile: (f: File | null) => void,
@@ -288,123 +124,427 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
     setUrl(f ? URL.createObjectURL(f) : '');
   };
 
-  // Submit
+  // Section management
+  const addSection = (sectionType: 'commonCauses' | 'symptoms' | 'preventionTips' | 'treatmentOptions') => {
+    const newItem = {
+      title: { en: '', kn: '' },
+      repeater: []
+    };
+
+    switch (sectionType) {
+      case 'commonCauses':
+        setCommonCauses(prev => [...prev, newItem]);
+        break;
+      case 'symptoms':
+        setSymptoms(prev => [...prev, newItem]);
+        break;
+      case 'preventionTips':
+        setPreventionTips(prev => [...prev, newItem]);
+        break;
+      case 'treatmentOptions':
+        setTreatmentOptions(prev => [...prev, newItem]);
+        break;
+    }
+  };
+
+  const removeSection = (
+    sectionType: 'commonCauses' | 'symptoms' | 'preventionTips' | 'treatmentOptions',
+    index: number
+  ) => {
+    switch (sectionType) {
+      case 'commonCauses':
+        setCommonCauses(prev => prev.filter((_, i) => i !== index));
+        break;
+      case 'symptoms':
+        setSymptoms(prev => prev.filter((_, i) => i !== index));
+        break;
+      case 'preventionTips':
+        setPreventionTips(prev => prev.filter((_, i) => i !== index));
+        break;
+      case 'treatmentOptions':
+        setTreatmentOptions(prev => prev.filter((_, i) => i !== index));
+        break;
+    }
+  };
+
+  // Repeater management
+  const addRepeater = (
+    sectionType: 'commonCauses' | 'symptoms' | 'preventionTips' | 'treatmentOptions',
+    sectionIndex: number
+  ) => {
+    const newRepeaterItem = {
+      description: { en: '', kn: '' }
+    };
+
+    switch (sectionType) {
+      case 'commonCauses':
+        setCommonCauses(prev =>
+          prev.map((item, idx) =>
+            idx === sectionIndex
+              ? { ...item, repeater: [...item.repeater, newRepeaterItem] }
+              : item
+          )
+        );
+        break;
+      case 'symptoms':
+        setSymptoms(prev =>
+          prev.map((item, idx) =>
+            idx === sectionIndex
+              ? { ...item, repeater: [...item.repeater, newRepeaterItem] }
+              : item
+          )
+        );
+        break;
+      case 'preventionTips':
+        setPreventionTips(prev =>
+          prev.map((item, idx) =>
+            idx === sectionIndex
+              ? { ...item, repeater: [...item.repeater, newRepeaterItem] }
+              : item
+          )
+        );
+        break;
+      case 'treatmentOptions':
+        setTreatmentOptions(prev =>
+          prev.map((item, idx) =>
+            idx === sectionIndex
+              ? { ...item, repeater: [...item.repeater, newRepeaterItem] }
+              : item
+          )
+        );
+        break;
+    }
+  };
+
+  const removeRepeater = (
+    sectionType: 'commonCauses' | 'symptoms' | 'preventionTips' | 'treatmentOptions',
+    sectionIndex: number,
+    repeaterIndex: number
+  ) => {
+    switch (sectionType) {
+      case 'commonCauses':
+        setCommonCauses(prev =>
+          prev.map((item, idx) =>
+            idx === sectionIndex
+              ? { ...item, repeater: item.repeater.filter((_, i) => i !== repeaterIndex) }
+              : item
+          )
+        );
+        break;
+      case 'symptoms':
+        setSymptoms(prev =>
+          prev.map((item, idx) =>
+            idx === sectionIndex
+              ? { ...item, repeater: item.repeater.filter((_, i) => i !== repeaterIndex) }
+              : item
+          )
+        );
+        break;
+      case 'preventionTips':
+        setPreventionTips(prev =>
+          prev.map((item, idx) =>
+            idx === sectionIndex
+              ? { ...item, repeater: item.repeater.filter((_, i) => i !== repeaterIndex) }
+              : item
+          )
+        );
+        break;
+      case 'treatmentOptions':
+        setTreatmentOptions(prev =>
+          prev.map((item, idx) =>
+            idx === sectionIndex
+              ? { ...item, repeater: item.repeater.filter((_, i) => i !== repeaterIndex) }
+              : item
+          )
+        );
+        break;
+    }
+  };
+
+  // Field handlers
+  const handleTitleChange = (
+    sectionType: 'commonCauses' | 'symptoms' | 'preventionTips' | 'treatmentOptions',
+    index: number,
+    lang: 'en' | 'kn',
+    value: string
+  ) => {
+    switch (sectionType) {
+      case 'commonCauses':
+        setCommonCauses(prev =>
+          prev.map((item, idx) =>
+            idx === index
+              ? { ...item, title: { ...item.title, [lang]: value } }
+              : item
+          )
+        );
+        break;
+      case 'symptoms':
+        setSymptoms(prev =>
+          prev.map((item, idx) =>
+            idx === index
+              ? { ...item, title: { ...item.title, [lang]: value } }
+              : item
+          )
+        );
+        break;
+      case 'preventionTips':
+        setPreventionTips(prev =>
+          prev.map((item, idx) =>
+            idx === index
+              ? { ...item, title: { ...item.title, [lang]: value } }
+              : item
+          )
+        );
+        break;
+      case 'treatmentOptions':
+        setTreatmentOptions(prev =>
+          prev.map((item, idx) =>
+            idx === index
+              ? { ...item, title: { ...item.title, [lang]: value } }
+              : item
+          )
+        );
+        break;
+    }
+  };
+
+  const handleRepeaterChange = (
+    sectionType: 'commonCauses' | 'symptoms' | 'preventionTips' | 'treatmentOptions',
+    sectionIndex: number,
+    repeaterIndex: number,
+    lang: 'en' | 'kn',
+    data: string
+  ) => {
+    switch (sectionType) {
+      case 'commonCauses':
+        setCommonCauses(prev =>
+          prev.map((section, secIdx) =>
+            secIdx === sectionIndex
+              ? {
+                ...section,
+                repeater: section.repeater.map((rep, repIdx) =>
+                  repIdx === repeaterIndex
+                    ? {
+                      ...rep,
+                      description: {
+                        ...rep.description,
+                        [lang]: data
+                      }
+                    }
+                    : rep
+                )
+              }
+              : section
+          )
+        );
+        break;
+      case 'symptoms':
+        setSymptoms(prev =>
+          prev.map((section, secIdx) =>
+            secIdx === sectionIndex
+              ? {
+                ...section,
+                repeater: section.repeater.map((rep, repIdx) =>
+                  repIdx === repeaterIndex
+                    ? {
+                      ...rep,
+                      description: {
+                        ...rep.description,
+                        [lang]: data
+                      }
+                    }
+                    : rep
+                )
+              }
+              : section
+          )
+        );
+        break;
+      case 'preventionTips':
+        setPreventionTips(prev =>
+          prev.map((section, secIdx) =>
+            secIdx === sectionIndex
+              ? {
+                ...section,
+                repeater: section.repeater.map((rep, repIdx) =>
+                  repIdx === repeaterIndex
+                    ? {
+                      ...rep,
+                      description: {
+                        ...rep.description,
+                        [lang]: data
+                      }
+                    }
+                    : rep
+                )
+              }
+              : section
+          )
+        );
+        break;
+      case 'treatmentOptions':
+        setTreatmentOptions(prev =>
+          prev.map((section, secIdx) =>
+            secIdx === sectionIndex
+              ? {
+                ...section,
+                repeater: section.repeater.map((rep, repIdx) =>
+                  repIdx === repeaterIndex
+                    ? {
+                      ...rep,
+                      description: {
+                        ...rep.description,
+                        [lang]: data
+                      }
+                    }
+                    : rep
+                )
+              }
+              : section
+          )
+        );
+        break;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
+
     formData.append("category", selectedCategory);
 
-    // Main
+    // Main Fields
     formData.append('disease_main_title', JSON.stringify(diseaseMainTitle));
     if (diseaseMainImage) formData.append('disease_main_image', diseaseMainImage);
     formData.append('disease_slug', JSON.stringify(diseaseSlug));
     formData.append('disease_title', JSON.stringify(diseaseTitle));
     formData.append('disease_description', JSON.stringify(diseaseDescription));
     if (diseaseIcon) formData.append('disease_icon', diseaseIcon);
-    // What is disease
-    formData.append('what_is_disease_repeat', JSON.stringify(
-      whatIsDiseaseRepeats.map(item => ({
-        what_is_disease_heading: item.what_is_disease_heading,
-        what_is_disease_disease_repeat_description: item.what_is_disease_disease_repeat_description,
-        what_is_disease_description_repeater: item.what_is_disease_description_repeater
-      }))
-    ));
-    whatIsDiseaseRepeats.forEach((item, idx) => {
-      if (item.what_is_disease_disease_repeat_icon)
-        formData.append(`what_is_disease_disease_repeat_icon${idx}`, item.what_is_disease_disease_repeat_icon!);
-      item.what_is_disease_repeat_images.forEach((f) =>
-        formData.append(`what_is_disease_repeat_images${idx}`, f)
-      );
-    });
-    // Common causes
+
+    // Tab Titles
+    formData.append('common_cause_tab_title', JSON.stringify(commonCauseTabTitle));
+    formData.append('symptoms_tab_title', JSON.stringify(symptomsTabTitle));
+    formData.append('prevention_tips_tab_title', JSON.stringify(preventionTipsTabTitle));
+    formData.append('treatment_option_tab_title', JSON.stringify(treatmentOptionTabTitle));
+
+    // Sections
     formData.append('common_cause', JSON.stringify(
-      commonCauses.map(c => ({
-        cause_title: c.cause_title,
-        cause_para: c.cause_para,
-        cause_brief: c.cause_brief,
-        cause_repeat: c.cause_repeat.map(rep => ({
-          cause_repeat_title: rep.cause_repeat_title,
-          cause_repeat_description: rep.cause_repeat_description
-        }))
+      commonCauses.map(item => ({
+        cause_title: item.title,
+        cause_repeater: item.repeater
       }))
     ));
-    commonCauses.forEach((c, idx) => {
-      if (c.cause_icon) formData.append(`cause_icon${idx}`, c.cause_icon);
-      c.cause_repeat.forEach((rep, j) => {
-        if (rep.cause_repeat_icon) {
-          formData.append(`cause_repeat_icon${idx}_${j}`, rep.cause_repeat_icon!)
-        };
-      });
-    });
-    // Symptoms
     formData.append('symptoms', JSON.stringify(
-      symptoms.map(s => ({
-        symptoms_title: s.symptoms_title,
-        symptoms_para: s.symptoms_para,
-        symptoms_brief: s.symptoms_brief,
-        symptoms_repeat: s.symptoms_repeat.map(rep => ({
-          symptoms_repeat_title: rep.symptoms_repeat_title,
-          symptoms_repeat_description: rep.symptoms_repeat_description
-        }))
+      symptoms.map(item => ({
+        symptoms_title: item.title,
+        symptoms_repeater: item.repeater
       }))
     ));
-    symptoms.forEach((s, idx) => {
-      if (s.symptoms_icon) formData.append(`symptoms_icon${idx}`, s.symptoms_icon);
-      s.symptoms_repeat.forEach((rep, j) => {
-        if (rep.symptoms_repeat_icon) { formData.append(`symptoms_repeat_icon${idx}_${j}`, rep.symptoms_repeat_icon!) };
-      });
-    });
-    // Prevention tips
     formData.append('prevention_tips', JSON.stringify(
-      preventionTips.map(t => ({
-        prevention_tips_title: t.prevention_tips_title,
-        prevention_tips_para: t.prevention_tips_para,
-        prevention_tips_brief: t.prevention_tips_brief,
-        prevention_tips_repeat: t.prevention_tips_repeat.map(rep => ({
-          prevention_tips_repeat_title: rep.prevention_tips_repeat_title,
-          prevention_tips_repeat_description: rep.prevention_tips_repeat_description
-        }))
+      preventionTips.map(item => ({
+        prevention_tips_title: item.title,
+        prevention_tips_repeater: item.repeater
       }))
     ));
-    preventionTips.forEach((t, idx) => {
-      if (t.prevention_tips_icon) formData.append(`prevention_tips_icon${idx}`, t.prevention_tips_icon);
-      t.prevention_tips_repeat.forEach((rep, j) => {
-        if (rep.prevention_tips_repeat_icon) {
-          formData.append(`prevention_tips_repeat_icon${idx}_${j}`, rep.prevention_tips_repeat_icon!)
-        };
-      });
-    });
-    // Treatment options
     formData.append('treatment_option', JSON.stringify(
-      treatmentOptions.map(o => ({
-        treatment_option_title: o.treatment_option_title,
-        treatment_option_para: o.treatment_option_para,
-        treatment_option_brief: o.treatment_option_brief,
-        treatment_option_repeat: o.treatment_option_repeat.map(rep => ({
-          treatment_option_repeat_title: rep.treatment_option_repeat_title,
-          treatment_option_repeat_description: rep.treatment_option_repeat_description
-        }))
+      treatmentOptions.map(item => ({
+        treatment_option_title: item.title,
+        treatment_option_repeater: item.repeater
       }))
     ));
-    treatmentOptions.forEach((o, idx) => {
-      if (o.treatment_option_icon) formData.append(`treatment_option_icon${idx}`, o.treatment_option_icon);
-      o.treatment_option_repeat.forEach((rep, j) => {
-        if (rep.treatment_option_repeat_icon) {
-          formData.append(`treatment_option_repeat_icon${idx}_${j}`, rep.treatment_option_repeat_icon!);
-        }
-      });
-    });
 
     try {
       await updateDisease({ id, formData }).unwrap();
+      toast.success('Disease updated successfully');
       router.push('/super-admin/disease');
-    } catch {
+    } catch (error) {
       toast.error('Failed to update disease');
+      console.error('Update error:', error);
     }
   };
 
   if (isLoading) return <Loader />;
   if (error) return <p>Error loading disease data.</p>;
+
+  const renderSection = (
+    sectionType: 'commonCauses' | 'symptoms' | 'preventionTips' | 'treatmentOptions',
+    title: string
+  ) => {
+    const sections = {
+      commonCauses,
+      symptoms,
+      preventionTips,
+      treatmentOptions
+    }[sectionType];
+
+    return (
+      <>
+        <hr />
+        <div className="button-container">
+          <h3>{title}</h3>
+          <button type="button" onClick={() => addSection(sectionType)}>
+            <FaPlus /> Add {title}
+          </button>
+        </div>
+
+        {sections.map((section, index) => (
+          <div key={index} className="repeater">
+            <div className='en_g'>
+              <label>{title} Title (EN):</label>
+              <input
+                type="text"
+                value={section.title.en}
+                onChange={(e) => handleTitleChange(sectionType, index, 'en', e.target.value)}
+              />
+            </div>
+            <div className='kn_g'>
+              <label>{title} Title (KN):</label>
+              <input
+                type="text"
+                value={section.title.kn}
+                onChange={(e) => handleTitleChange(sectionType, index, 'kn', e.target.value)}
+              />
+            </div>
+
+            {section.repeater.map((repeater, repIndex) => (
+              <div key={repIndex} className="nested-repeater">
+                <label>{title} Description (EN):</label>
+                <CKEditorWrapper
+                  
+                  data={repeater.description.en}
+                 
+                  onChange={(data) =>
+                    handleRepeaterChange(sectionType, index, repIndex, 'en', data)
+                  }
+                  
+                />
+                <label>{title} Description (KN):</label>
+                <CKEditorWrapper
+                  
+                  data={repeater.description.kn}
+                
+                  onChange={(data) =>
+                    handleRepeaterChange(sectionType, index, repIndex, 'kn', data)
+                  }
+                   
+                />
+                <button type="button" onClick={() => removeRepeater(sectionType, index, repIndex)}>
+                  Remove {title} Description
+                </button>
+              </div>
+            ))}
+
+            <button type="button" onClick={() => addRepeater(sectionType, index)}>
+              Add {title} Description
+            </button>
+            <button type="button" onClick={() => removeSection(sectionType, index)}>
+              Remove {title}
+            </button>
+          </div>
+        ))}
+      </>
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit} className="form-container">
@@ -424,7 +564,6 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
           ))}
         </select>
       </div>
-
 
       {/* Main Fields */}
       <div className='set_groups'>
@@ -465,7 +604,6 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
         </div>
       </div>
       <div className="set_groups">
-
         <div className="en_g">
           <label>Disease Description (EN):</label>
           <textarea value={diseaseDescription.en}
@@ -496,450 +634,19 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
         {diseaseIconUrl && <img src={diseaseIconUrl} alt="Icon" style={{ width: 100 }} />}
       </div>
 
-      {/* What Is Disease Section */}
-      <hr />
-      <h3>What Is Disease</h3>
-      {whatIsDiseaseRepeats.map((item, i) => (
-        <div key={i} className="repeater">
-          <div className='en_g'>
-            <label>Heading (EN):</label>
-            <input type="text" value={item.what_is_disease_heading.en} onChange={e => {
-              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_heading.en = e.target.value; setWhatIsDiseaseRepeats(a);
+      {/* Sections */}
+      {renderSection('commonCauses', 'Common Cause')}
+      {renderSection('symptoms', 'Symptom')}
+      {renderSection('preventionTips', 'Prevention Tip')}
+      {renderSection('treatmentOptions', 'Treatment Option')}
 
-            }} /></div>
-          <div className='kn_g'>
-            <label>Heading (KN):</label>
-            <input type="text" value={item.what_is_disease_heading.kn} onChange={e => {
-              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_heading.kn = e.target.value; setWhatIsDiseaseRepeats(a);
-            }} /></div>
-          <div className='upload_custom'>
-            <label>Upload Icon:</label>
-            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_icon = f; setWhatIsDiseaseRepeats(a);
-            }, url => {
-              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_icon_url = url; setWhatIsDiseaseRepeats(a);
-            })} />
-            {item.what_is_disease_disease_repeat_icon_url && <img src={item.what_is_disease_disease_repeat_icon_url} alt="Icon" style={{ width: 100 }} />}
-            <label>Upload Images:</label>
-            <input type="file" multiple accept="image/*" onChange={e => {
-              const files = e.target.files ? Array.from(e.target.files) : [];
-              const urls = files.map(f => URL.createObjectURL(f));
-              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_repeat_images = files;
-              a[i].what_is_disease_repeat_images_urls = urls; setWhatIsDiseaseRepeats(a);
-            }} />
-            <div className='image_bundle'>
-              {item.what_is_disease_repeat_images_urls.map((u, j) => <img key={j} src={u} alt="Repeat" style={{ width: 100 }} />)}
-            </div>
-          </div>
-
-          <div className='en_g'>
-            <label>Description (EN):</label>
-            <input type="text" value={item.what_is_disease_disease_repeat_description.en} onChange={e => {
-              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_description.en = e.target.value; setWhatIsDiseaseRepeats(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Description (KN):</label>
-            <input type="text" value={item.what_is_disease_disease_repeat_description.kn} onChange={e => {
-              const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_disease_repeat_description.kn = e.target.value; setWhatIsDiseaseRepeats(a);
-            }} />
-          </div>
-          {item.what_is_disease_description_repeater.map((rep, k) => (
-            <div key={k} className="nested-repeater">
-              <div className='en_g'>
-                <label>Sub-heading (EN):</label>
-                <input type="text" value={rep.what_is_disease_heading_repeat.en} onChange={e => {
-                  const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_heading_repeat.en = e.target.value; setWhatIsDiseaseRepeats(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Sub-heading (KN):</label>
-                <input type="text" value={rep.what_is_disease_heading_repeat.kn} onChange={e => {
-                  const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_heading_repeat.kn = e.target.value; setWhatIsDiseaseRepeats(a);
-                }} />
-              </div>
-              <div className='en_g'>
-                <label>Sub-desc (EN):</label>
-                <input type="text" value={rep.what_is_disease_description_repeat.en} onChange={e => {
-                  const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_description_repeat.en = e.target.value; setWhatIsDiseaseRepeats(a);
-                }} />
-              </div>
-              <div className='en_g'>
-                <label>Sub-desc (KN):</label>
-                <input type="text" value={rep.what_is_disease_description_repeat.kn} onChange={e => {
-                  const a = [...whatIsDiseaseRepeats]; a[i].what_is_disease_description_repeater[k].what_is_disease_description_repeat.kn = e.target.value; setWhatIsDiseaseRepeats(a);
-                }} />
-              </div>
-            </div>
-          ))}
-        </div>
-      ))}
-
-      {/* Common Causes */}
-      <hr />
-      <h3>Common Causes</h3>
-      {commonCauses.map((c, i) => (
-        <div key={i} className="repeater">
-          <div className='en_g'>
-            <label>Title (EN):</label>
-            <input type="text" value={c.cause_title.en} onChange={e => {
-              const a = [...commonCauses]; a[i].cause_title.en = e.target.value; setCommonCauses(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Title (KN):</label>
-            <input type="text" value={c.cause_title.kn} onChange={e => {
-              const a = [...commonCauses]; a[i].cause_title.kn = e.target.value; setCommonCauses(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Paragraph (EN):</label>
-            <input type="text" value={c.cause_para.en} onChange={e => {
-              const a = [...commonCauses]; a[i].cause_para.en = e.target.value; setCommonCauses(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Paragraph (KN):</label>
-            <input type="text" value={c.cause_para.kn} onChange={e => {
-              const a = [...commonCauses]; a[i].cause_para.kn = e.target.value; setCommonCauses(a);
-            }} />
-          </div>
-
-          <div className='en_g'>
-            <label>Brief (EN):</label>
-            <input type="text" value={c.cause_brief.en} onChange={e => {
-              const a = [...commonCauses]; a[i].cause_brief.en = e.target.value; setCommonCauses(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Brief (KN):</label>
-            <input type="text" value={c.cause_brief.kn} onChange={e => {
-              const a = [...commonCauses]; a[i].cause_brief.kn = e.target.value; setCommonCauses(a);
-            }} />
-          </div>
-          <div className='upload_custom'>
-            <label>Upload Icon:</label>
-            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-              const a = [...commonCauses]; a[i].cause_icon = f; setCommonCauses(a);
-            }, url => {
-              const a = [...commonCauses]; a[i].cause_icon_url = url; setCommonCauses(a);
-            })} />
-
-            {c.cause_icon_url && <img src={c.cause_icon_url} alt="Cause" style={{ width: 100 }} />}
-          </div>
-          {c.cause_repeat.map((rep, j) => (
-            <div key={j} className="nested-repeater">
-              <div className='en_g'>
-                <label>Repeat Title (EN):</label>
-                <input type="text" value={rep.cause_repeat_title.en} onChange={e => {
-                  const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_title.en = e.target.value; setCommonCauses(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Title (KN):</label>
-                <input type="text" value={rep.cause_repeat_title.kn} onChange={e => {
-                  const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_title.kn = e.target.value; setCommonCauses(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Desc (EN):</label>
-                <input type="text" value={rep.cause_repeat_description.en} onChange={e => {
-                  const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_description.en = e.target.value; setCommonCauses(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Desc (KN):</label>
-                <input type="text" value={rep.cause_repeat_description.kn} onChange={e => {
-                  const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_description.kn = e.target.value; setCommonCauses(a);
-                }} />
-              </div>
-              <label>Upload Repeat Icon:</label>
-              <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-                const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_icon = f; setCommonCauses(a);
-              }, url => {
-                const a = [...commonCauses]; a[i].cause_repeat[j].cause_repeat_icon_url = url; setCommonCauses(a);
-              })} />
-              {/* { rep.cause_repeat_icon_url && <img src={rep.cause_repeat_icon_url} alt="Repeat" style={{ width: 100 }} />}  */}
-            </div>
-          ))}
-        </div>
-      ))}
-
-      {/* Symptoms */}
-      <hr />
-      <h3>Symptoms</h3>
-      {symptoms.map((s, i) => (
-        <div key={i} className="repeater">
-          <div className='en_g'>
-            <label>Title (EN):</label>
-            <input type="text" value={s.symptoms_title.en} onChange={e => {
-              const a = [...symptoms]; a[i].symptoms_title.en = e.target.value; setSymptoms(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Title (KN):</label>
-            <input type="text" value={s.symptoms_title.kn} onChange={e => {
-              const a = [...symptoms]; a[i].symptoms_title.kn = e.target.value; setSymptoms(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Paragraph (EN):</label>
-            <input type="text" value={s.symptoms_para.en} onChange={e => {
-              const a = [...symptoms]; a[i].symptoms_para.en = e.target.value; setSymptoms(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Paragraph (KN):</label>
-            <input type="text" value={s.symptoms_para.kn} onChange={e => {
-              const a = [...symptoms]; a[i].symptoms_para.kn = e.target.value; setSymptoms(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Brief (EN):</label>
-            <input type="text" value={s.symptoms_brief.en} onChange={e => {
-              const a = [...symptoms]; a[i].symptoms_brief.en = e.target.value; setSymptoms(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Brief (KN):</label>
-            <input type="text" value={s.symptoms_brief.kn} onChange={e => {
-              const a = [...symptoms]; a[i].symptoms_brief.kn = e.target.value; setSymptoms(a);
-            }} />
-          </div>
-          <div className='upload_custom'>
-            <label>Upload Icon:</label>
-            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-              const a = [...symptoms]; a[i].symptoms_icon = f; setSymptoms(a);
-            }, url => {
-              const a = [...symptoms]; a[i].symptoms_icon_url = url; setSymptoms(a);
-            })} />
-            {s.symptoms_icon_url && <img src={s.symptoms_icon_url} alt="Symptom" style={{ width: 100 }} />}
-          </div>
-          {s.symptoms_repeat.map((rep, j) => (
-            <div key={j} className="nested-repeater">
-              <div className='en_g'>
-                <label>Repeat Title (EN):</label>
-                <input type="text" value={rep.symptoms_repeat_title.en} onChange={e => {
-                  const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_title.en = e.target.value; setSymptoms(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Title (KN):</label>
-                <input type="text" value={rep.symptoms_repeat_title.kn} onChange={e => {
-                  const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_title.kn = e.target.value; setSymptoms(a);
-                }} />
-              </div>
-              <div className='en_g'>
-                <label>Repeat Desc (EN):</label>
-                <input type="text" value={rep.symptoms_repeat_description.en} onChange={e => {
-                  const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_description.en = e.target.value; setSymptoms(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Desc (KN):</label>
-                <input type="text" value={rep.symptoms_repeat_description.kn} onChange={e => {
-                  const a = [...symptoms]; a[i].symptoms_repeat[j].symptoms_repeat_description.kn = e.target.value; setSymptoms(a);
-                }} />
-              </div>
-
-              <label>Upload Repeat Icon:</label>
-              <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-                const a = [...symptoms]; (a[i].symptoms_repeat[j]).symptoms_repeat_icon = f; setSymptoms(a);
-              }, url => {
-                const a = [...symptoms]; (a[i].symptoms_repeat[j]).symptoms_repeat_icon_url = url; setSymptoms(a);
-              })} />
-              {/* { (rep as any).symptoms_repeat_icon_url && <img src={(rep as any).symptoms_repeat_icon_url} alt="Repeat" style={{ width: 100 }} />}  */}
-            </div>
-          ))}
-        </div>
-      ))}
-
-      {/* Prevention Tips */}
-      <hr />
-      <h3>Prevention Tips</h3>
-      {preventionTips.map((t, i) => (
-        <div key={i} className="repeater">
-          <div className='en_g'>
-            <label>Title (EN):</label>
-            <input type="text" value={t.prevention_tips_title.en} onChange={e => {
-              const a = [...preventionTips]; a[i].prevention_tips_title.en = e.target.value; setPreventionTips(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Title (KN):</label>
-            <input type="text" value={t.prevention_tips_title.kn} onChange={e => {
-              const a = [...preventionTips]; a[i].prevention_tips_title.kn = e.target.value; setPreventionTips(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Paragraph (EN):</label>
-            <input type="text" value={t.prevention_tips_para.en} onChange={e => {
-              const a = [...preventionTips]; a[i].prevention_tips_para.en = e.target.value; setPreventionTips(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Paragraph (KN):</label>
-            <input type="text" value={t.prevention_tips_para.kn} onChange={e => {
-              const a = [...preventionTips]; a[i].prevention_tips_para.kn = e.target.value; setPreventionTips(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Brief (EN):</label>
-            <input type="text" value={t.prevention_tips_brief.en} onChange={e => {
-              const a = [...preventionTips]; a[i].prevention_tips_brief.en = e.target.value; setPreventionTips(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Brief (KN):</label>
-            <input type="text" value={t.prevention_tips_brief.kn} onChange={e => {
-              const a = [...preventionTips]; a[i].prevention_tips_brief.kn = e.target.value; setPreventionTips(a);
-            }} />
-          </div>
-          <div className='upload_custom'>
-            <label>Upload Icon:</label>
-            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-              const a = [...preventionTips]; a[i].prevention_tips_icon = f; setPreventionTips(a);
-            }, url => {
-              const a = [...preventionTips]; a[i].prevention_tips_icon_url = url; setPreventionTips(a);
-            })} />
-            {t.prevention_tips_icon_url && <img src={t.prevention_tips_icon_url} alt="Tip" style={{ width: 100 }} />}
-          </div>
-          {t.prevention_tips_repeat.map((rep, j) => (
-            <div key={j} className="nested-repeater">
-              <div className='en_g'>
-                <label>Repeat Title (EN):</label>
-                <input type="text" value={rep.prevention_tips_repeat_title.en} onChange={e => {
-                  const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_title.en = e.target.value; setPreventionTips(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Title (KN):</label>
-                <input type="text" value={rep.prevention_tips_repeat_title.kn} onChange={e => {
-                  const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_title.kn = e.target.value; setPreventionTips(a);
-                }} />
-              </div>
-              <div className='en_g'>
-                <label>Repeat Desc (EN):</label>
-                <input type="text" value={rep.prevention_tips_repeat_description.en} onChange={e => {
-                  const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_description.en = e.target.value; setPreventionTips(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Desc (KN):</label>
-                <input type="text" value={rep.prevention_tips_repeat_description.kn} onChange={e => {
-                  const a = [...preventionTips]; a[i].prevention_tips_repeat[j].prevention_tips_repeat_description.kn = e.target.value; setPreventionTips(a);
-                }} />
-              </div>
-
-              <label>Upload Repeat Icon:</label>
-              <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-                const a = [...preventionTips]; (a[i].prevention_tips_repeat[j]).prevention_tips_repeat_icon = f; setPreventionTips(a);
-              }, url => {
-                const a = [...preventionTips]; (a[i].prevention_tips_repeat[j]).prevention_tips_repeat_icon_url = url; setPreventionTips(a);
-              })} />
-              {/* { (rep as any).prevention_tips_repeat_icon_url && <img src={(rep as any).prevention_tips_repeat_icon_url} alt="Repeat" style={{ width: 100 }} />}  */}
-            </div>
-          ))}
-        </div>
-      ))}
-
-      {/* Treatment Options */}
-      <hr />
-      <h3>Treatment Options</h3>
-      {treatmentOptions.map((o, i) => (
-        <div key={i} className="repeater">
-          <div className='en_g'>
-            <label>Title (EN):</label>
-            <input type="text" value={o.treatment_option_title.en} onChange={e => {
-              const a = [...treatmentOptions]; a[i].treatment_option_title.en = e.target.value; setTreatmentOptions(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Title (KN):</label>
-            <input type="text" value={o.treatment_option_title.kn} onChange={e => {
-              const a = [...treatmentOptions]; a[i].treatment_option_title.kn = e.target.value; setTreatmentOptions(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Paragraph (EN):</label>
-            <input type="text" value={o.treatment_option_para.en} onChange={e => {
-              const a = [...treatmentOptions]; a[i].treatment_option_para.en = e.target.value; setTreatmentOptions(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Paragraph (KN):</label>
-            <input type="text" value={o.treatment_option_para.kn} onChange={e => {
-              const a = [...treatmentOptions]; a[i].treatment_option_para.kn = e.target.value; setTreatmentOptions(a);
-            }} />
-          </div>
-          <div className='en_g'>
-            <label>Brief (EN):</label>
-            <input type="text" value={o.treatment_option_brief.en} onChange={e => {
-              const a = [...treatmentOptions]; a[i].treatment_option_brief.en = e.target.value; setTreatmentOptions(a);
-            }} />
-          </div>
-          <div className='kn_g'>
-            <label>Brief (KN):</label>
-            <input type="text" value={o.treatment_option_brief.kn} onChange={e => {
-              const a = [...treatmentOptions]; a[i].treatment_option_brief.kn = e.target.value; setTreatmentOptions(a);
-            }} />
-          </div>
-          <div className='upload_custom'>
-            <label>Upload Icon:</label>
-            <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-              const a = [...treatmentOptions]; a[i].treatment_option_icon = f; setTreatmentOptions(a);
-            }, url => {
-              const a = [...treatmentOptions]; a[i].treatment_option_icon_url = url; setTreatmentOptions(a);
-            })} />
-            {o.treatment_option_icon_url && <img src={o.treatment_option_icon_url} alt="Option" style={{ width: 100 }} />}
-          </div>
-          {o.treatment_option_repeat.map((rep, j) => (
-            <div key={j} className="nested-repeater">
-              <div className='kn_g'>
-                <label>Repeat Title (EN):</label>
-                <input type="text" value={rep.treatment_option_repeat_title.en} onChange={e => {
-                  const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_title.en = e.target.value; setTreatmentOptions(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Title (KN):</label>
-                <input type="text" value={rep.treatment_option_repeat_title.kn} onChange={e => {
-                  const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_title.kn = e.target.value; setTreatmentOptions(a);
-                }} />
-              </div>
-              <div className='en_g'>
-                <label>Repeat Desc (EN):</label>
-                <input type="text" value={rep.treatment_option_repeat_description.en} onChange={e => {
-                  const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_description.en = e.target.value; setTreatmentOptions(a);
-                }} />
-              </div>
-              <div className='kn_g'>
-                <label>Repeat Desc (KN):</label>
-                <input type="text" value={rep.treatment_option_repeat_description.kn} onChange={e => {
-                  const a = [...treatmentOptions]; a[i].treatment_option_repeat[j].treatment_option_repeat_description.kn = e.target.value; setTreatmentOptions(a);
-                }} />
-              </div>
-              <label>Upload Repeat Icon:</label>
-              <input type="file" accept="image/*" onChange={e => handleFileChange(e, f => {
-                const a = [...treatmentOptions]; (a[i].treatment_option_repeat[j]).treatment_option_repeat_icon = f; setTreatmentOptions(a);
-              }, url => {
-                const a = [...treatmentOptions]; (a[i].treatment_option_repeat[j]).treatment_option_repeat_icon_url = url; setTreatmentOptions(a);
-              })} />
-              {/* { (rep as any).treatment_option_repeat_icon_url && <img src={(rep as any).treatment_option_repeat_icon_url} alt="Repeat" style={{ width: 100 }} />}  */}
-            </div>
-          ))}
-
-
-        </div>
-
-      ))}
       <hr />
       <button
         type="submit"
         className="submit-button"
-        disabled={isLoading}
+        disabled={isUpdating}
       >
-        {isLoading ? (
+        {isUpdating ? (
           <>
             Updating
             <BeatLoader color="#ffffff" size={10} />

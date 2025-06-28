@@ -8,7 +8,7 @@ import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import Loader from "@/(common)/Loader";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { useDeleteHabitHealthMutation, useGetHabitHealthQuery } from "@/(store)/services/habit-health/habitHealthApi";
-import { IHabitHealthTypes } from "@/utils/Types";
+import { HabitsHealthType } from "@/utils/Types";
 
 const HabitHealthList = () => {
     const { setRightContent } = useBreadcrumb();
@@ -55,6 +55,9 @@ const HabitHealthList = () => {
     const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
     const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
+    console.log(`diseasesData`)
+    console.log(diseasesData)
+
 
     return (
         <div className="disease-main-container">
@@ -64,23 +67,25 @@ const HabitHealthList = () => {
                 <p>No diseases found.</p>
             ) : (
                 <div className="disease-list-container">
-                    {diseasesData?.result?.map((disease: IHabitHealthTypes) => (
+                    {diseasesData?.result?.map((disease: HabitsHealthType) => (
                         <div key={disease._id} className="disease-card">
                             <div className="disease-image">
-                                <img src={disease.habits_health_main_image} alt={disease.habits_health_main_title.en} />
+                                <img src={disease.habit_health_main_image} alt={disease.habit_health_main_title.en} />
                             </div>
                             <div className="disease-info">
-                                <p><b>Main Title:</b> {disease.habits_health_main_title.en}</p>
+                                <p><b>Main Title:</b> {disease.habit_health_main_title.en}</p>
                             </div>
                             <div className="disease-actions">
-                                <Link href={`/super-admin/disease/update-disease/${disease._id}`} className="edit-button">
+                                <Link href={`/super-admin/habit-health/update-habit-health/${disease._id}`} className="edit-button">
                                     <span className="iconsss">
                                         <FaEdit /> Edit
                                     </span>
                                 </Link>
                                 <button
                                     onClick={() => {
-                                        setSelectedDiseaseId(disease._id);
+                                        if(disease._id){
+                                            setSelectedDiseaseId(disease._id);
+                                        }
                                         setShowModal(true);
                                     }}
                                     className="delete-button"

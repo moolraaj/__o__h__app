@@ -196,274 +196,57 @@ export async function DELETE(
   }
 }
 
-
-
-
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await dbConnect();
-    const id = (await params).id;
+    const  id  = (await params).id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { success: false, message: 'Invalid ID' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
     }
-
     const disease = await Disease.findById(id);
     if (!disease) {
-      return NextResponse.json(
-        { success: false, message: 'Disease not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 });
     }
 
     const formData = await req.formData();
-
-
-    const parseField = (key: string) => {
+    const parseML = (key: string) => {
       const raw = formData.get(key)?.toString();
-      if (raw) return JSON.parse(raw);
-      return null;
+      return raw ? JSON.parse(raw) : undefined;
+    };
+    const parseArray = (key: string) => {
+      const raw = formData.get(key)?.toString();
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { throw new Error(`Invalid JSON for ${key}`); }
     };
 
 
-    const disease_main_image_file = formData.get('disease_main_image') as File | null;
-    if (disease_main_image_file && disease_main_image_file.size > 0) {
-      const imageUrl = await uploadPhotoToCloudinary(disease_main_image_file);
-      disease.disease_main_image = imageUrl;
+    const fields = ['disease_main_title', 'disease_slug', 'disease_title', 'disease_description',
+      'common_cause_tab_title', 'symptoms_tab_title', 'prevention_tips_tab_title', 'treatment_option_tab_title'];
+    for (const key of fields) {
+      const val = parseML(key);
+      if (val !== undefined) (disease)[key] = val;
     }
 
-
-    const disease_main_title = parseField('disease_main_title');
-    if (disease_main_title) disease.disease_main_title = disease_main_title;
-
-    const disease_slug = parseField('disease_slug');
-    if (disease_slug) disease.disease_slug = disease_slug;
-
-    const disease_title = parseField('disease_title');
-    if (disease_title) disease.disease_title = disease_title;
-
-    const disease_description = parseField('disease_description');
-    if (disease_description) disease.disease_description = disease_description;
+    const mainImg = formData.get('disease_main_image') as File;
+    if (mainImg?.size) disease.disease_main_image = await uploadPhotoToCloudinary(mainImg);
+    const iconFile = formData.get('disease_icon') as File;
+    if (iconFile?.size) disease.disease_icon = await uploadPhotoToCloudinary(iconFile);
 
 
-    const disease_icon_file = formData.get('disease_icon') as File | null;
-    if (disease_icon_file && disease_icon_file.size > 0) {
-      const iconUrl = await uploadPhotoToCloudinary(disease_icon_file);
-      disease.disease_icon = iconUrl;
+    const repeaterKeys = ['common_cause', 'symptoms', 'prevention_tips', 'treatment_option'];
+    for (const key of repeaterKeys) {
+      const arr = parseArray(key);
+      if (Array.isArray(arr)) (disease)[key] = arr;
     }
-
-
-    const what_is_disease_tab_title = parseField('what_is_disease_tab_title');
-    if (what_is_disease_tab_title) disease.what_is_disease_tab_title = what_is_disease_tab_title;
-
-    let what_is_disease_repeat = parseField('what_is_disease_repeat');
-    if (what_is_disease_repeat) {
-      what_is_disease_repeat = await Promise.all(
-        what_is_disease_repeat.map(async (item: WhatIsDiseaseRepeat, index: number) => {
-
-          let imageUrls: string[] = [];
-
-          if (Array.isArray(item.what_is_disease_repeat_images)) {
-            imageUrls = item.what_is_disease_repeat_images
-              .filter((img): img is string => typeof img === 'string' && img.trim() !== '')
-              .map(img => img.trim());
-          }
-          
-
-          if (imageUrls.length === 0) {
-            const files = formData.getAll(`what_is_disease_repeat_images${index}`) as File[];
-            if (files.length) {
-              imageUrls = await Promise.all(
-                files.map(async (file) => (file && file.name) ? await uploadPhotoToCloudinary(file) : '')
-              );
-              imageUrls = imageUrls.filter(url => url !== '');
-            }
-          }
-          return {
-            ...item,
-            what_is_disease_repeat_images: imageUrls,
-          };
-        })
-      );
-      disease.what_is_disease_repeat = what_is_disease_repeat;
-    }
-
-
-    const common_cause_tab_title = parseField('common_cause_tab_title');
-    if (common_cause_tab_title) disease.common_cause_tab_title = common_cause_tab_title;
-
-    let common_cause = parseField('common_cause');
-    if (common_cause) {
-      common_cause = await Promise.all(
-        common_cause.map(async (item: Cause, index: number) => {
-          let iconUrl = item.cause_icon;
-          if (!iconUrl || typeof iconUrl !== 'string' || iconUrl.trim() === '') {
-            const file = formData.get(`cause_icon${index}`) as File;
-            if (file && file.size > 0) {
-              iconUrl = await uploadPhotoToCloudinary(file);
-            } else {
-              iconUrl = '';
-            }
-          }
-          let cause_repeat = item.cause_repeat || [];
-          cause_repeat = await Promise.all(
-            cause_repeat.map(async (rep: CauseRepeat, repIndex: number) => {
-              let repIconUrl = rep.cause_repeat_icon;
-              if (!repIconUrl || typeof repIconUrl !== 'string' || repIconUrl.trim() === '') {
-                const file = formData.get(`cause_repeat_icon${index}_${repIndex}`) as File;
-                if (file && file.size > 0) {
-                  repIconUrl = await uploadPhotoToCloudinary(file);
-                } else {
-                  repIconUrl = '';
-                }
-              }
-              return { ...rep, cause_repeat_icon: repIconUrl };
-            })
-          );
-          return { ...item, cause_icon: iconUrl, cause_repeat };
-        })
-      );
-      disease.common_cause = common_cause;
-    }
-
-
-    const symptoms_tab_title = parseField('symptoms_tab_title');
-    if (symptoms_tab_title) disease.symptoms_tab_title = symptoms_tab_title;
-
-    let symptoms = parseField('symptoms');
-    if (symptoms) {
-      symptoms = await Promise.all(
-        symptoms.map(async (item: Symptom, index: number) => {
-          let iconUrl = item.symptoms_icon;
-          if (!iconUrl || typeof iconUrl !== 'string' || iconUrl.trim() === '') {
-            const file = formData.get(`symptoms_icon${index}`) as File;
-            if (file && file.size > 0) {
-              iconUrl = await uploadPhotoToCloudinary(file);
-            } else {
-              iconUrl = '';
-            }
-          }
-          let symptoms_repeat = item.symptoms_repeat || [];
-          symptoms_repeat = await Promise.all(
-            symptoms_repeat.map(async (rep: SymptomRepeat, repIndex: number) => {
-              let repIconUrl = rep.symptoms_repeat_icon;
-              if (!repIconUrl || typeof repIconUrl !== 'string' || repIconUrl.trim() === '') {
-                const file = formData.get(`symptoms_repeat_icon${index}_${repIndex}`) as File;
-                if (file && file.size > 0) {
-                  repIconUrl = await uploadPhotoToCloudinary(file);
-                } else {
-                  repIconUrl = '';
-                }
-              }
-              return { ...rep, symptoms_repeat_icon: repIconUrl };
-            })
-          );
-          return { ...item, symptoms_icon: iconUrl, symptoms_repeat };
-        })
-      );
-      disease.symptoms = symptoms;
-    }
-
-
-    const prevention_tips_tab_title = parseField('prevention_tips_tab_title');
-    if (prevention_tips_tab_title) disease.prevention_tips_tab_title = prevention_tips_tab_title;
-
-    let prevention_tips = parseField('prevention_tips');
-    if (prevention_tips) {
-      prevention_tips = await Promise.all(
-        prevention_tips.map(async (item: PreventionTip, index: number) => {
-          let iconUrl = item.prevention_tips_icon;
-          if (!iconUrl || typeof iconUrl !== 'string' || iconUrl.trim() === '') {
-            const file = formData.get(`prevention_tips_icon${index}`) as File;
-            if (file && file.size > 0) {
-              iconUrl = await uploadPhotoToCloudinary(file);
-            } else {
-              iconUrl = '';
-            }
-          }
-          let prevention_tips_repeat = item.prevention_tips_repeat || [];
-          prevention_tips_repeat = await Promise.all(
-            prevention_tips_repeat.map(async (rep: PreventionTipRepeat, repIndex: number) => {
-              let repIconUrl = rep.prevention_tips_repeat_icon;
-              if (!repIconUrl || typeof repIconUrl !== 'string' || repIconUrl.trim() === '') {
-                const file = formData.get(`prevention_tips_repeat_icon${index}_${repIndex}`) as File;
-                if (file && file.size > 0) {
-                  repIconUrl = await uploadPhotoToCloudinary(file);
-                } else {
-                  repIconUrl = '';
-                }
-              }
-              return { ...rep, prevention_tips_repeat_icon: repIconUrl };
-            })
-          );
-          return { ...item, prevention_tips_icon: iconUrl, prevention_tips_repeat };
-        })
-      );
-      disease.prevention_tips = prevention_tips;
-    }
-
-
-    const treatment_option_tab_title = parseField('treatment_option_tab_title');
-    if (treatment_option_tab_title) disease.treatment_option_tab_title = treatment_option_tab_title;
-
-    let treatment_option = parseField('treatment_option');
-    if (treatment_option) {
-      treatment_option = await Promise.all(
-        treatment_option.map(async (item: TreatmentOption, index: number) => {
-          let iconUrl = item.treatment_option_icon;
-          if (!iconUrl || typeof iconUrl !== 'string' || iconUrl.trim() === '') {
-            const file = formData.get(`treatment_option_icon${index}`) as File;
-            if (file && file.size > 0) {
-              iconUrl = await uploadPhotoToCloudinary(file);
-            } else {
-              iconUrl = '';
-            }
-          }
-          let treatment_option_repeat = item.treatment_option_repeat || [];
-          treatment_option_repeat = await Promise.all(
-            treatment_option_repeat.map(async (rep: TreatmentOptionRepeat, repIndex: number) => {
-              let repIconUrl = rep.treatment_option_repeat_icon;
-              if (!repIconUrl || typeof repIconUrl !== 'string' || repIconUrl.trim() === '') {
-                const file = formData.get(`treatment_option_repeat_icon${index}_${repIndex}`) as File;
-                if (file && file.size > 0) {
-                  repIconUrl = await uploadPhotoToCloudinary(file);
-                } else {
-                  repIconUrl = '';
-                }
-              }
-              return { ...rep, treatment_option_repeat_icon: repIconUrl };
-            })
-          );
-          return { ...item, treatment_option_icon: iconUrl, treatment_option_repeat };
-        })
-      );
-      disease.treatment_option = treatment_option;
-    }
-
 
     await disease.save();
-
-    return NextResponse.json({
-      status: 200,
-      success: true,
-      message: 'Disease updated successfully',
-      data: disease,
-    });
+    return NextResponse.json({ success: true, status: 200, message: 'Disease updated', data: disease });
   } catch (err) {
-    if (err instanceof Error) {
-      return NextResponse.json(
-        { success: false, message: (err instanceof Error ? err.message : 'Failed to update disease') },
-        { status: 500 }
-      );
-
-    }
+    return NextResponse.json({ success: false, message: err instanceof Error ? err.message : 'Update failed' }, { status: 500 });
   }
 }
+
+
 
 
 

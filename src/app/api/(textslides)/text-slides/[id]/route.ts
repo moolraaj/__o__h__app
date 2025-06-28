@@ -41,7 +41,7 @@ export async function GET(
                 updatedAt: textSlider.updatedAt,
             };
         }
-        return NextResponse.json({ success: true, data: localizedTextSlider });
+        return NextResponse.json({ success: true, result: localizedTextSlider });
     } catch (error) {
         if (error instanceof Error) {
             return NextResponse.json(

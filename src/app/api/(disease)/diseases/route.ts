@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const lang = getLanguage(request);
     const { page, skip, limit } = ReusePaginationMethod(request);
 
-    const allDiseases = await Disease.find().limit(limit).skip(skip).lean();
+    const allDiseases = await Disease.find().limit(limit).skip(skip).sort({ createdAt: -1 }).lean();
     const totalResults = await Disease.countDocuments();
 
     const localizedData = allDiseases.map((item) => {

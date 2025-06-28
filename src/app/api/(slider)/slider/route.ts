@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     await dbConnect();
 
     const { page, skip, limit } = ReusePaginationMethod(request);
-    const sliders = await Slider.find().limit(limit).skip(skip).lean();
+    const sliders = await Slider.find().limit(limit).skip(skip).sort({ createdAt: -1 }).lean();
     const totalResults = await Slider.countDocuments();
 
  

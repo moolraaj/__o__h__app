@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
       .populate('assignTo', 'name phoneNumber')
       .populate('submitted_by', 'name phoneNumber')
       .skip(skip)
+      .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
 

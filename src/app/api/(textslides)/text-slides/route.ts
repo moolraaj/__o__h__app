@@ -3,12 +3,14 @@ import TextSlider from '@/models/TextSlider';
 import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { dbConnect } from '@/database/database';
+import { ReusePaginationMethod } from '@/utils/Pagination';
 
 export async function GET(request: NextRequest) {
     try {
         await dbConnect();
+        const { page, skip, limit } = ReusePaginationMethod(request);
         const lang = getLanguage(request);
-        const textSliders = await TextSlider.find().lean();
+        const textSliders = await TextSlider.find().skip(skip).limit(limit).sort({ createdAt: -1 }).lean();
         const totalResults = await TextSlider.countDocuments();
 
         const localizedData = textSliders.map((doc) => {
@@ -27,8 +29,10 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
             status: 200,
             success: true,
-            data: localizedData,
+            result: localizedData,
             totalResults,
+            page,
+            limit,
         });
     } catch (error) {
         if (error instanceof Error) {

@@ -3,7 +3,7 @@ import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { dbConnect } from '@/database/database';
 import HabitsHealth from '@/models/HabitsHealth';
-import { IHabitHealthTypes } from '@/utils/Types';
+import { HabitsHealthType } from '@/utils/Types';
 import mongoose from 'mongoose';
 import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
 
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         await dbConnect();
         const lang = getLanguage(request);
         const id = (await params).id;
-        const doc = (await HabitsHealth.findById(id).lean()) as IHabitHealthTypes | null;
+        const doc = (await HabitsHealth.findById(id).lean()) as HabitsHealthType | null;
         if (!doc) {
             return NextResponse.json({ success: false, message: 'Document not found' }, { status: 404 });
         }
@@ -21,28 +21,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         if (lang === EN || lang === KN) {
             localizedData = {
                 _id: doc._id,
-                habits_health_main_title: { [lang]: doc.habits_health_main_title?.[lang] || '' },
-                habits_health_main_image: doc.habits_health_main_image,
-                habits_health_heading: { [lang]: doc.habits_health_heading?.[lang] || '' },
-                habits_health_para: { [lang]: doc.habits_health_para?.[lang] || '' },
-                habits_health_icon: doc.habits_health_icon,
-                habit_health_inner_title: { [lang]: doc.habit_health_inner_title?.[lang] || '' },
-                habit_health_inner_repeater: doc.habit_health_inner_repeater,
-                bad_habits_health_title: { [lang]: doc.bad_habits_health_title?.[lang] || '' },
-                bad_habits_health_para: { [lang]: doc.bad_habits_health_para?.[lang] || '' },
-                bad_habits_health_icon: doc.bad_habits_health_icon,
-                bad_habits_health_repeater: doc.bad_habits_health_repeater,
-                improve_health_habits_title: { [lang]: doc.improve_health_habits_title?.[lang] || '' },
-                improve_health_habits_description: { [lang]: doc.improve_health_habits_description?.[lang] || '' },
-                improve_health_habits_icon: doc.improve_health_habits_icon,
-                improve_habits_health_repeater: doc.improve_habits_health_repeater,
+                habit_health_main_title: { [lang]: doc.habit_health_main_title?.[lang] || '' },
+                habit_health_main_image: doc.habit_health_main_image,
+                habit_health_repeater: doc.habit_health_repeater,
                 createdAt: doc.createdAt,
                 updatedAt: doc.updatedAt,
             };
         } else {
             localizedData = doc;
         }
-        return NextResponse.json({ status: 200, success: true, data: localizedData });
+        return NextResponse.json({ status: 200, success: true, result: localizedData });
     } catch (error) {
         if (error instanceof Error) {
             return NextResponse.json(
@@ -81,131 +69,105 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
 
 
+
+
 export async function PUT(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await dbConnect();
-        const id = (await params).id;
+        await dbConnect()
+        const id = (await params).id
+
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return NextResponse.json(
                 { success: false, message: 'Invalid HabitsHealth ID' },
-                { status: 400 }
-            );
+
+            )
         }
-        const habitsDoc = await HabitsHealth.findById(id);
+
+        const habitsDoc = await HabitsHealth.findById(id)
         if (!habitsDoc) {
             return NextResponse.json(
-                { success: false, message: 'habithealth document not found' },
-                { status: 404 }
-            );
+                { success: false, message: 'Habit health document not found' },
+
+            )
         }
 
-        const formData = await req.formData();
+
+        const formData = await req.formData()
 
 
-        const updateBilingualField = (fieldName: string) => {
-            const fieldValue = formData.get(fieldName)?.toString();
-            if (fieldValue) {
-                try {
-                    const parsed = JSON.parse(fieldValue);
-                    if (parsed.en !== undefined) {
-                      
-                        habitsDoc[fieldName].en = parsed.en;
-                    }
-                    if (parsed.kn !== undefined) {
-                      
-                        habitsDoc[fieldName].kn = parsed.kn;
-                    }
-                } catch (err) {
-                    throw new Error(`Invalid ${err} - ${fieldName} JSON`);
+        const parseJsonField = (fieldName: string) => {
+            const fieldValue = formData.get(fieldName)?.toString()
+            if (!fieldValue) return null
+            try {
+                return JSON.parse(fieldValue)
+            } catch (err) {
+                if(err instanceof Error){
+                    throw new Error(`Invalid JSON in ${fieldName}`)
                 }
             }
-        };
+        }
 
 
-        const updateRepeaterField = (fieldName: string) => {
-            const fieldValue = formData.get(fieldName)?.toString();
-            if (fieldValue) {
-                try {
-                    const parsedArray = JSON.parse(fieldValue);
-                    if (!Array.isArray(parsedArray)) {
-                        throw new Error(`${fieldName} must be an array`);
-                    }
-                  
-                    habitsDoc[fieldName] = parsedArray;
-                } catch (err) {
-                    throw new Error(`Invalid ${err} - ${fieldName} JSON`);
+        const mainTitle = parseJsonField('habit_health_main_title')
+        if (mainTitle) {
+            if (typeof mainTitle.en === 'string') {
+                habitsDoc.habit_health_main_title.en = mainTitle.en
+            }
+            if (typeof mainTitle.kn === 'string') {
+                habitsDoc.habit_health_main_title.kn = mainTitle.kn
+            }
+        }
+
+
+        const imageFile = formData.get('habit_health_main_image')
+        const imageUrl = formData.get('habit_health_main_image_url')
+
+        if (imageFile instanceof Blob) {
+            habitsDoc.habit_health_main_image = await uploadPhotoToCloudinary(imageFile)
+        } else if (typeof imageUrl === 'string' && imageUrl) {
+            habitsDoc.habit_health_main_image = imageUrl
+        }
+
+
+        const repeaterData = parseJsonField('habit_health_repeater')
+        if (Array.isArray(repeaterData)) {
+            habitsDoc.habit_health_repeater = repeaterData.map(item => {
+                if (!item.description || !Array.isArray(item.description)) {
+                    return { description: [{ en: '', kn: '' }] }
                 }
-            }
-        };
+                return {
+                    //@ts-expect-error ignore this message
+                    description: item.description.map(desc => ({
+                        en: typeof desc.en === 'string' ? desc.en : '',
+                        kn: typeof desc.kn === 'string' ? desc.kn : ''
+                    }))
+                }
+            })
+        }
 
-        const updateImageField = async (
-            fileFieldKey: string,
-            textFieldKey: string,
-            docFieldKey: string
-        ) => {
-            const fileField = formData.get(fileFieldKey);
-            const textField = formData.get(textFieldKey);
-            if (fileField && fileField instanceof File) {
-           
-                habitsDoc[docFieldKey] = await uploadPhotoToCloudinary(fileField);
-            } else if (textField) {
-              
-                habitsDoc[docFieldKey] = textField.toString();
-            }
-        };
-
-        updateBilingualField('habits_health_main_title');
-        updateBilingualField('habits_health_heading');
-        updateBilingualField('habits_health_para');
-        updateBilingualField('habit_health_inner_title');
-        updateBilingualField('bad_habits_health_title');
-        updateBilingualField('bad_habits_health_para');
-        updateBilingualField('improve_health_habits_title');
-        updateBilingualField('improve_health_habits_description');
-
-        updateRepeaterField('habit_health_inner_repeater');
-        updateRepeaterField('bad_habits_health_repeater');
-        updateRepeaterField('improve_habits_health_repeater');
-
-        await updateImageField(
-            'habits_health_main_image_file',
-            'habits_health_main_image',
-            'habits_health_main_image'
-        );
-        await updateImageField(
-            'habits_health_icon_file',
-            'habits_health_icon',
-            'habits_health_icon'
-        );
-        await updateImageField(
-            'bad_habits_health_icon_file',
-            'bad_habits_health_icon',
-            'bad_habits_health_icon'
-        );
-        await updateImageField(
-            'improve_health_habits_icon_file',
-            'improve_health_habits_icon',
-            'improve_health_habits_icon'
-        );
-
-        await habitsDoc.save();
+        await habitsDoc.save()
 
         return NextResponse.json({
-            status: 200,
             success: true,
-            message: 'habithealth updated successfully',
-            data: habitsDoc,
-        });
+            message: 'Habit health updated successfully',
+            data: habitsDoc
+        }, { status: 200 })
+
     } catch (err) {
-        if (err instanceof Error) {
-            return NextResponse.json(
-                { success: false, message: err.message || 'Failed to update habithealth document' },
-                { status: 500 }
-            );
-        }
+        console.error('Update error:', err)
+        return NextResponse.json(
+            {
+                success: false,
+                message: err instanceof Error ? err.message : 'Server error'
+            },
+            { status: 500 }
+        )
     }
 }
+
+
 

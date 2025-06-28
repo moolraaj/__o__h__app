@@ -41,6 +41,9 @@ export interface GetUsersQueryParams {
   role?: "admin" | "user" | "dantasurakshaks" | "super-admin";
 }
 
+
+
+
 export interface SBody {
   image: string;
   text: Language;
@@ -81,6 +84,25 @@ export interface FaqsWrongFacts {
 export interface FaqsRightFacts {
   en: string; kn: string
 }
+
+
+export type LocalizedString = {
+  [key: string]: string;
+};
+
+export type FAQRepeater = {
+  faqs_repeat_question?: LocalizedString;
+  faqs_repeat_answer?: LocalizedString;
+};
+
+export type FAQ = {
+  _id: string;
+  faqs_title?: LocalizedString;
+  faqs_repeater?: FAQRepeater[];
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 
 export interface Faqs {
   _id: string,
@@ -347,6 +369,12 @@ export interface DiseaseTypes {
   __v: number;
 }
 
+export type SingleDiseaseResponse = {
+  data: DiseaseTypes;
+  success: boolean;
+};
+
+
 export interface MythOrFactItem {
   para: Language;
   icon: string;
@@ -436,20 +464,34 @@ export interface TextSlide {
   [lang: string]: string;
 }
 
-export interface TextSlideType {
+export interface AppTextSlider {
   _id: string;
-  slider_text: TextSlide;
+  slider_text: TextSlide
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 
-// habit health
-
-export interface HabitHealthRepeaterItem {
-  habit_health_suggesion_para: Language;
-  habit_health_suggesion_icon: string;
+export interface TextSlideType {
+  _id: string;
+  slider_text: TextSlide
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+export interface GetSlidersQueryParams {
+  page?: number;
+  limit?: number;
+  lang?: string;
+}
+
+export interface TextSliderResponse {
+  success: boolean;
+  result: AppTextSlider[];
+  totalResults: number;
+}
+
+
+
 
 export interface BadHabitsRepeaterItem {
   bad_habits_repeater_heading: Language;
@@ -463,13 +505,13 @@ export interface ImproveHabitsRepeaterItem {
 }
 export interface IHabitHealthTypes {
   _id: string;
-  habits_health_main_title: Language;
+  habit_health_main_title: Language;
   habits_health_main_image: string;
   habits_health_heading: Language;
   habits_health_para: Language;
   habits_health_icon: string;
   habit_health_inner_title: Language;
-  habit_health_inner_repeater: HabitHealthRepeaterItem[];
+
   bad_habits_health_title: Language;
   bad_habits_health_para: Language;
   bad_habits_health_icon: string;
@@ -511,6 +553,158 @@ export interface DentalEmergencyTypes {
   updatedAt: Date;
   __v: number;
 }
+
+
+
+
+
+
+// new types created 
+
+export interface FaqRepeaterEntry {
+  faqs_repeat_question?: { [lang: string]: string };
+  faqs_repeat_answer?: { [lang: string]: string };
+}
+
+export interface ReplacedFaqType {
+  _id: string;
+  faqs_title?: { [lang: string]: string };
+  faqs_repeater?: FaqRepeaterEntry[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number
+}
+
+
+export interface CauseRepeater {
+  description?: Language;
+}
+
+export interface SymptomsRepeater {
+  description?: Language;
+}
+
+export interface PreventionTipsRepeater {
+  description?: Language;
+}
+
+export interface TreatmentOptionRepeater {
+  description?: Language;
+}
+
+
+export interface CauseItem {
+  cause_title?: Language;
+  cause_repeater?: CauseRepeater[];
+}
+
+export interface SymptomsItem {
+  symptoms_title?: Language;
+  symptoms_repeater?: SymptomsRepeater[];
+}
+
+export interface PreventionTipsItem {
+  prevention_tips_title?: Language;
+  prevention_tips_repeater?: PreventionTipsRepeater[];
+}
+
+export interface TreatmentOptionItem {
+  treatment_option_title?: Language;
+  treatment_option_repeater?: TreatmentOptionRepeater[];
+}
+
+
+export interface DiseaseFormData {
+  disease_main_title?: Language;
+  disease_main_image?: string;
+  disease_slug?: Language;
+
+  disease_title?: Language;
+  disease_description?: Language;
+  disease_icon?: string;
+
+  common_cause_tab_title?: Language;
+  common_cause?: CauseItem[];
+
+  symptoms_tab_title?: Language;
+  symptoms?: SymptomsItem[];
+
+  prevention_tips_tab_title?: Language;
+  prevention_tips?: PreventionTipsItem[];
+
+  treatment_option_tab_title?: Language;
+  treatment_option?: TreatmentOptionItem[];
+
+  category?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TermsRepeater {
+  term_heading: Language;
+  term_description: Language;
+}
+
+export interface TermsAndConditionsType {
+  _id?: string;
+  terms_repeater: TermsRepeater[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  __v?: number;
+}
+export interface PrivacyPolicyRepeater {
+  privacy_heading: Language;
+  privacy_description: Language;
+}
+export interface PrivacyPolicyType {
+  _id?: string;
+  privacy_policy_repeater: PrivacyPolicyRepeater[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  __v?: number;
+}
+
+
+export interface HabitHealthRepeaterItem {
+  description: Language[];
+}
+
+export interface HabitsHealthType {
+  _id?: string;
+  habit_health_main_title: Language;
+  habit_health_main_image: string;
+  habit_health_repeater: HabitHealthRepeaterItem[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+
+
+export interface IFactsSection {
+  heading: Language;
+  myths_facts_wrong_fact: Language[];
+  myths_facts_right_fact: Language[];
+}
+
+export interface IMythFact{
+  _id:string;
+  myth_fact_image: string;
+  myth_fact_title: Language;
+  myth_fact_body: Language;
+  myth_fact_heading: Language;
+  myth_fact_description: Language;
+  facts: IFactsSection[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Section {
+  heading: Record<string, string>;
+  myths_facts_wrong_fact: Record<string, string>[];
+  myths_facts_right_fact: Record<string, string>[];
+};
+
+
 
 
 

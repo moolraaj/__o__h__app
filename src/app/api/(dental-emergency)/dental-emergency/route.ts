@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const totalResults = await DentalEmergency.countDocuments();
 
     const localizedData = allDocs.map((item) => {
+ 
     
       if (lang === EN || lang === KN) {
         return {

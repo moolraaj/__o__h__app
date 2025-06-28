@@ -1,4 +1,4 @@
-import { DiseaseTypes} from "@/utils/Types";
+import { DiseaseTypes, SingleDiseaseResponse} from "@/utils/Types";
  
 import { rootApi } from "../apiSlice";
  
@@ -11,7 +11,7 @@ export const diseaseApi = rootApi.injectEndpoints({
       }),
       providesTags: ['Disease'],
     }),
-    getSingleDiseases: builder.query<DiseaseTypes, { id: string; lang?: string }>({
+    getSingleDiseases: builder.query<SingleDiseaseResponse, { id: string; lang?: string }>({
       query: ({ id, lang }) => ({
         url: `/api/disease/${id}`,
         params: lang ? { lang } : {},

@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
     const lesions = await LesionModel.find()
       .skip(skip)
       .limit(limit)
+      .sort({ createdAt: -1 })
       .lean();
     const totalLesions = await LesionModel.countDocuments()
     return NextResponse.json({

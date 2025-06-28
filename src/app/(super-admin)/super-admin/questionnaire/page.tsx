@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { FaBook } from 'react-icons/fa';
 import { FeedbackButton } from './ShowFeedback';
 import { Questionnaire } from '@/utils/Types';
- 
+
 
 export default function QuestionnaireList() {
     const [page, setPage] = useState(1)
@@ -56,11 +56,11 @@ export default function QuestionnaireList() {
 
                         </tr>
                     </thead>
-                        
+
                     <tbody>
-                        
-                        {questionnaire.map((el:Questionnaire) => (
-                            
+
+                        {questionnaire.map((el: Questionnaire) => (
+
                             <tr key={el._id}>
                                 <td>{el.submitted_by ? el.submitted_by.name : 'Not found'} ({el.submitted_by ? el.submitted_by?.phoneNumber : 'Not found'})</td>
                                 <td>{el.assignTo ? el.assignTo?.name : 'Not found'} ({el.assignTo ? el.assignTo?.phoneNumber : 'Not found'})</td>
@@ -72,7 +72,7 @@ export default function QuestionnaireList() {
                                 <td>{el.age}</td>
                                 <td>{new Date(el.createdAt).toLocaleString()}</td>
                             </tr>
-                            
+
                         ))}
                     </tbody>
                 </table>

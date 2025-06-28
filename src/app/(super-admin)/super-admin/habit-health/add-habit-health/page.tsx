@@ -1,605 +1,229 @@
-"use client";
+"use client"
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { FaPlus } from 'react-icons/fa';
-import { BeatLoader } from 'react-spinners';
-import { useCreateHabitHealthMutation } from '@/(store)/services/habit-health/habitHealthApi';
+import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+ 
 
-type BilingualField = {
-  en: string;
-  kn: string;
-};
+import { FaPlus } from 'react-icons/fa'
+import { BeatLoader } from 'react-spinners'
+import { useCreateHabitHealthMutation } from '@/(store)/services/habit-health/habitHealthApi'
+import CKEditorWrapper from '@/app/(super-admin)/(common)/editor/CKEditorWrapper'
 
-type HabitHealthRepeaterItem = {
-  habit_health_suggestion_heading: BilingualField;
-  habit_health_suggestion_para: BilingualField;
-  habit_health_suggestion_icon: File | null;
-};
+// Types
+interface BilingualField { en: string; kn: string }
+interface RepeaterItem {
+  description: BilingualField[]
+}
 
-type BadHabitsRepeaterItem = {
-  bad_habits_repeater_heading: BilingualField;
-  bad_habits_repeater_description: BilingualField;
-  bad_habits_repeater_icon: File | null;
-};
+export default function AddHabitsHealth() {
+  const [createHabit, { isLoading }] = useCreateHabitHealthMutation()
+  const router = useRouter()
 
-type ImproveHabitsRepeaterItem = {
-  improve_habits_repeater_heading: BilingualField;
-  improve_habits_repeater_description: BilingualField;
-  improve_habits_repeater_icon: File | null;
-};
+  // State
+  const [mainTitle, setMainTitle] = useState<BilingualField>({ en: '', kn: '' })
+  const [mainImage, setMainImage] = useState<File | null>(null)
+  const [repeater, setRepeater] = useState<RepeaterItem[]>([])
 
-const AddHabitsHealth: React.FC = () => {
-  const [createHabitsHealth, { isLoading }] = useCreateHabitHealthMutation();
-  const router = useRouter();
+  // Enhanced CKEditor configuration
+ 
 
-  // Main Fields
-  const [habitsHealthMainTitle, setHabitsHealthMainTitle] = useState<BilingualField>({ en: '', kn: '' });
-  const [habitsHealthMainImage, setHabitsHealthMainImage] = useState<File | null>(null);
-  const [habitsHealthHeading, setHabitsHealthHeading] = useState<BilingualField>({ en: '', kn: '' });
-  const [habitsHealthPara, setHabitsHealthPara] = useState<BilingualField>({ en: '', kn: '' });
-  const [habitsHealthIcon, setHabitsHealthIcon] = useState<File | null>(null);
-
-  // Inner Section
-  const [habitHealthInnerTitle, setHabitHealthInnerTitle] = useState<BilingualField>({ en: '', kn: '' });
-  const [habitHealthInnerRepeater, setHabitHealthInnerRepeater] = useState<HabitHealthRepeaterItem[]>([]);
-
-  // Bad Habits Section
-  const [badHabitsHealthTitle, setBadHabitsHealthTitle] = useState<BilingualField>({ en: '', kn: '' });
-  const [badHabitsHealthPara, setBadHabitsHealthPara] = useState<BilingualField>({ en: '', kn: '' });
-  const [badHabitsHealthIcon, setBadHabitsHealthIcon] = useState<File | null>(null);
-  const [badHabitsHealthRepeater, setBadHabitsHealthRepeater] = useState<BadHabitsRepeaterItem[]>([]);
-
-  // Improve Section
-  const [improveHealthHabitsTitle, setImproveHealthHabitsTitle] = useState<BilingualField>({ en: '', kn: '' });
-  const [improveHealthHabitsDescription, setImproveHealthHabitsDescription] = useState<BilingualField>({ en: '', kn: '' });
-  const [improveHealthHabitsIcon, setImproveHealthHabitsIcon] = useState<File | null>(null);
-  const [improveHabitsHealthRepeater, setImproveHabitsHealthRepeater] = useState<ImproveHabitsRepeaterItem[]>([]);
-
-  const handleBilingualFieldChange = (
+  // Handlers
+  const handleField = (
     setter: React.Dispatch<React.SetStateAction<BilingualField>>,
-    lang: 'en' | 'kn',
+    lang: keyof BilingualField,
     value: string
-  ) => setter(prev => ({ ...prev, [lang]: value }));
+  ) => setter(prev => ({ ...prev, [lang]: value }))
 
-  // --------- Inner Repeater ---------
-  const addHabitHealthInnerRepeat = () => {
-    setHabitHealthInnerRepeater(prev => [
-      ...prev,
-      { habit_health_suggestion_heading: { en: '', kn: '' }, habit_health_suggestion_para: { en: '', kn: '' }, habit_health_suggestion_icon: null }
-    ]);
-  };
+  const addRepeater = () =>
+    setRepeater(prev => [...prev, {
+      description: [{ en: '', kn: '' }]
+    }])
 
-  const removeHabitHealthInnerRepeat = (idx: number) => setHabitHealthInnerRepeater(prev => prev.filter((_, i) => i !== idx));
+  const removeRepeater = (index: number) =>
+    setRepeater(prev => prev.filter((_, i) => i !== index))
 
-  const handleHabitHealthInnerFieldChange = (
-    idx: number,
-    field: 'habit_health_suggestion_heading' | 'habit_health_suggestion_para',
-    lang: 'en' | 'kn',
-    val: string
-  ) => setHabitHealthInnerRepeater(prev => {
-    const arr = [...prev]; 
-    arr[idx][field][lang] = val; 
-    return arr;
-  });
-
-  const handleHabitHealthInnerIconChange = (idx: number, file: File | null) => setHabitHealthInnerRepeater(prev => {
-    const arr = [...prev]; 
-    arr[idx].habit_health_suggestion_icon = file; 
-    return arr;
-  });
-
-  // --------- Bad Habits Repeater ---------
-  const addBadHabitsHealthRepeat = () => {
-    setBadHabitsHealthRepeater(prev => [
-      ...prev,
-      { bad_habits_repeater_heading: { en: '', kn: '' }, bad_habits_repeater_description: { en: '', kn: '' }, bad_habits_repeater_icon: null }
-    ]);
-  };
-
-  const removeBadHabitsHealthRepeat = (idx: number) => setBadHabitsHealthRepeater(prev => prev.filter((_, i) => i !== idx));
-
-  const handleBadHabitsHealthFieldChange = (
-    idx: number,
-    field: 'bad_habits_repeater_heading' | 'bad_habits_repeater_description',
-    lang: 'en' | 'kn',
-    val: string
-  ) => setBadHabitsHealthRepeater(prev => {
-    const arr = [...prev]; 
-    arr[idx][field][lang] = val; 
-    return arr;
-  });
-
-  const handleBadHabitsHealthIconChange = (idx: number, file: File | null) => setBadHabitsHealthRepeater(prev => {
-    const arr = [...prev]; 
-    arr[idx].bad_habits_repeater_icon = file; 
-    return arr;
-  });
-
-  // --------- Improve Habits Repeater ---------
-  const addImproveHabitsHealthRepeat = () => {
-    setImproveHabitsHealthRepeater(prev => [
-      ...prev,
-      { improve_habits_repeater_heading: { en: '', kn: '' }, improve_habits_repeater_description: { en: '', kn: '' }, improve_habits_repeater_icon: null }
-    ]);
-  };
-
-  const removeImproveHabitsHealthRepeat = (idx: number) => setImproveHabitsHealthRepeater(prev => prev.filter((_, i) => i !== idx));
-
-  const handleImproveHabitsHealthFieldChange = (
-    idx: number,
-    field: 'improve_habits_repeater_heading' | 'improve_habits_repeater_description',
-    lang: 'en' | 'kn',
-    val: string
-  ) => setImproveHabitsHealthRepeater(prev => {
-    const arr = [...prev]; 
-    arr[idx][field][lang] = val; 
-    return arr;
-  });
-
-  const handleImproveHabitsHealthIconChange = (idx: number, file: File | null) => setImproveHabitsHealthRepeater(prev => {
-    const arr = [...prev]; 
-    arr[idx].improve_habits_repeater_icon = file; 
-    return arr;
-  });
+  const updateRepeaterDescription = (
+    index: number,
+    lang: keyof BilingualField,
+    value: string
+  ) => setRepeater(prev =>
+    prev.map((item, i) =>
+      i === index
+        ? {
+          ...item,
+          description: [{
+            ...item.description[0],
+            [lang]: value
+          }]
+        }
+        : item
+    )
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate required fields
-    if (!habitsHealthMainTitle.en || !habitsHealthMainTitle.kn) {
-      toast.error('Main title in both languages is required');
-      return;
-    }
-    
-    if (!habitsHealthMainImage) {
-      toast.error('Main image is required');
-      return;
-    }
-
-    // Validate repeater items
-    for (const item of habitHealthInnerRepeater) {
-      if (!item.habit_health_suggestion_heading.en || !item.habit_health_suggestion_heading.kn) {
-        toast.error('All suggestion headings in repeaters must be filled');
-        return;
-      }
-    }
-
-    const fd = new FormData();
-    
-    // Append main fields
-    fd.append('habits_health_main_title', JSON.stringify(habitsHealthMainTitle));
-    fd.append('habits_health_main_image_file', habitsHealthMainImage);
-    fd.append('habits_health_heading', JSON.stringify(habitsHealthHeading));
-    fd.append('habits_health_para', JSON.stringify(habitsHealthPara));
-    if (habitsHealthIcon) fd.append('habits_health_icon_file', habitsHealthIcon);
-
-    // Append inner section
-    fd.append('habit_health_inner_title', JSON.stringify(habitHealthInnerTitle));
-    fd.append('habit_health_inner_repeater', JSON.stringify(habitHealthInnerRepeater));
-    habitHealthInnerRepeater.forEach((item, index) => {
-      if (item.habit_health_suggestion_icon) {
-        fd.append(`habit_health_suggestion_icon_${index}`, item.habit_health_suggestion_icon);
-      }
-    });
-
-    // Append bad habits section
-    fd.append('bad_habits_health_title', JSON.stringify(badHabitsHealthTitle));
-    fd.append('bad_habits_health_para', JSON.stringify(badHabitsHealthPara));
-    if (badHabitsHealthIcon) fd.append('bad_habits_health_icon_file', badHabitsHealthIcon);
-    fd.append('bad_habits_health_repeater', JSON.stringify(badHabitsHealthRepeater));
-    badHabitsHealthRepeater.forEach((item, index) => {
-      if (item.bad_habits_repeater_icon) {
-        fd.append(`bad_habits_repeater_icon_${index}`, item.bad_habits_repeater_icon);
-      }
-    });
-
-    // Append improve section
-    fd.append('improve_health_habits_title', JSON.stringify(improveHealthHabitsTitle));
-    fd.append('improve_health_habits_description', JSON.stringify(improveHealthHabitsDescription));
-    if (improveHealthHabitsIcon) fd.append('improve_health_habits_icon_file', improveHealthHabitsIcon);
-    fd.append('improve_habits_health_repeater', JSON.stringify(improveHabitsHealthRepeater));
-    improveHabitsHealthRepeater.forEach((item, index) => {
-      if (item.improve_habits_repeater_icon) {
-        fd.append(`improve_habits_repeater_icon_${index}`, item.improve_habits_repeater_icon);
-      }
-    });
+    e.preventDefault()
 
     try {
-      // Log FormData for debugging
-      for (const [key, value] of fd.entries()) {
-        console.log(key, value);
+      if (!mainTitle.en.trim() || !mainTitle.kn.trim()) {
+        throw new Error('Main title in both languages is required')
+      }
+      if (!mainImage) {
+        throw new Error('Main image is required')
       }
 
-      const res = await createHabitsHealth(fd).unwrap();
-      if(res){
-          toast.success('Habits Health created successfully');
-          router.push('/super-admin/habits-health');
+      for (const [index, item] of repeater.entries()) {
+        const desc = item.description[0]
+        if (!desc.en.trim() || !desc.kn.trim()) {
+          throw new Error(`Description in both languages is required for item ${index + 1}`)
+        }
+      }
+
+      const formData = new FormData()
+      formData.append('habit_health_main_title', JSON.stringify(mainTitle))
+      formData.append('habit_health_main_image', mainImage)
+      formData.append('habit_health_repeater', JSON.stringify(repeater))
+
+      const result = await createHabit(formData).unwrap()
+      if (result) {
+        toast.success('Habit health created successfully!')
+        router.push('/super-admin/habit-health')
       }
     } catch (err) {
-      if(err instanceof Error){
-        toast.error(err.message || 'Failed to create habits health');
+      if (err instanceof Error) {
+        const errorMessage = err.message || 'Failed to create habit health'
+        toast.error(errorMessage)
       }
     }
-  };
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="form-container">
-      <div className="add-habits-health-grid">
-        {/* Main Title */}
-        <div className='habits-health-fields-grid'>
-          <label>Main Title (EN):*</label>
-          <input
-            type="text"
-            placeholder="en"
-            value={habitsHealthMainTitle.en}
-            onChange={(e) => handleBilingualFieldChange(setHabitsHealthMainTitle, 'en', e.target.value)}
-            required
-          />
-        </div>
-        <div className='habits-health-fields-grid'>
-          <label>Main Title (KN):*</label>
-          <input
-            type="text"
-            placeholder="kn"
-            value={habitsHealthMainTitle.kn}
-            onChange={(e) => handleBilingualFieldChange(setHabitsHealthMainTitle, 'kn', e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Main Image */}
+    <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-white rounded-lg shadow">
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label>Upload Main Image:*</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Main Title (English)*</label>
           <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setHabitsHealthMainImage(e.target.files?.[0] || null)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            type="text"
+            value={mainTitle.en}
+            onChange={e => handleField(setMainTitle, 'en', e.target.value)}
             required
           />
         </div>
-
-        {/* Heading */}
-        <div className='habits-health-fields-grid'>
-          <label>Heading (EN):</label>
-          <input
-            type="text"
-            placeholder="en"
-            value={habitsHealthHeading.en}
-            onChange={(e) => handleBilingualFieldChange(setHabitsHealthHeading, 'en', e.target.value)}
-          />
-        </div>
-        <div className='habits-health-fields-grid'>
-          <label>Heading (KN):</label>
-          <input
-            type="text"
-            placeholder="kn"
-            value={habitsHealthHeading.kn}
-            onChange={(e) => handleBilingualFieldChange(setHabitsHealthHeading, 'kn', e.target.value)}
-          />
-        </div>
-
-        {/* Paragraph */}
-        <div className='habits-health-fields-grid'>
-          <label>Paragraph (EN):</label>
-          <textarea
-            placeholder="en"
-            value={habitsHealthPara.en}
-            onChange={(e) => handleBilingualFieldChange(setHabitsHealthPara, 'en', e.target.value)}
-          />
-        </div>
-        <div className='habits-health-fields-grid'>
-          <label>Paragraph (KN):</label>
-          <textarea
-            placeholder="kn"
-            value={habitsHealthPara.kn}
-            onChange={(e) => handleBilingualFieldChange(setHabitsHealthPara, 'kn', e.target.value)}
-          />
-        </div>
-
-        {/* Icon */}
         <div>
-          <label>Upload Habits Health Icon:</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Main Title (Kannada)*</label>
           <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setHabitsHealthIcon(e.target.files?.[0] || null)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            type="text"
+            value={mainTitle.kn}
+            onChange={e => handleField(setMainTitle, 'kn', e.target.value)}
+            required
           />
         </div>
       </div>
 
-      {/* ---------------- Habit Health Inner Section ---------------- */}
-      <hr />
-      <div className="button-container">
-        <h3>Habit Health Inner Section</h3>
-        <button type="button" onClick={addHabitHealthInnerRepeat}>
-          <FaPlus /> Add Habit Health Inner Item
-        </button>
-      </div>
-
-      {/* Inner Title */}
-      <div className='habits-health-fields-grid'>
-        <label>Inner Title (EN):</label>
-        <input
-          type="text"
-          placeholder="en"
-          value={habitHealthInnerTitle.en}
-          onChange={(e) => handleBilingualFieldChange(setHabitHealthInnerTitle, 'en', e.target.value)}
-        />
-      </div>
-      <div className='habits-health-fields-grid'>
-        <label>Inner Title (KN):</label>
-        <input
-          type="text"
-          placeholder="kn"
-          value={habitHealthInnerTitle.kn}
-          onChange={(e) => handleBilingualFieldChange(setHabitHealthInnerTitle, 'kn', e.target.value)}
-        />
-      </div>
-
-      {habitHealthInnerRepeater.map((item, index) => (
-        <div key={index} className="repeater">
-          <label>Suggestion Heading (EN):*</label>
-          <input
-            type="text"
-            placeholder="en"
-            value={item.habit_health_suggestion_heading.en}
-            onChange={(e) => handleHabitHealthInnerFieldChange(index, 'habit_health_suggestion_heading', 'en', e.target.value)}
-            required
-          />
-          <label>Suggestion Heading (KN):*</label>
-          <input
-            type="text"
-            placeholder="kn"
-            value={item.habit_health_suggestion_heading.kn}
-            onChange={(e) => handleHabitHealthInnerFieldChange(index, 'habit_health_suggestion_heading', 'kn', e.target.value)}
-            required
-          />
-          <label>Suggestion Paragraph (EN):*</label>
-          <textarea
-            placeholder="en"
-            value={item.habit_health_suggestion_para.en}
-            onChange={(e) => handleHabitHealthInnerFieldChange(index, 'habit_health_suggestion_para', 'en', e.target.value)}
-            required
-          />
-          <label>Suggestion Paragraph (KN):*</label>
-          <textarea
-            placeholder="kn"
-            value={item.habit_health_suggestion_para.kn}
-            onChange={(e) => handleHabitHealthInnerFieldChange(index, 'habit_health_suggestion_para', 'kn', e.target.value)}
-            required
-          />
-          <label>Upload Suggestion Icon:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleHabitHealthInnerIconChange(index, e.target.files?.[0] || null)}
-          />
-          <button type="button" onClick={() => removeHabitHealthInnerRepeat(index)}>
-            Remove Habit Health Inner Item
-          </button>
-        </div>
-      ))}
-
-      {/* ---------------- Bad Habits Health Section ---------------- */}
-      <hr />
-      <div className="button-container">
-        <h3>Bad Habits Health Section</h3>
-        <button type="button" onClick={addBadHabitsHealthRepeat}>
-          <FaPlus /> Add Bad Habits Health Item
-        </button>
-      </div>
-
-      {/* Bad Habits Title */}
-      <div className='habits-health-fields-grid'>
-        <label>Bad Habits Title (EN):</label>
-        <input
-          type="text"
-          placeholder="en"
-          value={badHabitsHealthTitle.en}
-          onChange={(e) => handleBilingualFieldChange(setBadHabitsHealthTitle, 'en', e.target.value)}
-        />
-      </div>
-      <div className='habits-health-fields-grid'>
-        <label>Bad Habits Title (KN):</label>
-        <input
-          type="text"
-          placeholder="kn"
-          value={badHabitsHealthTitle.kn}
-          onChange={(e) => handleBilingualFieldChange(setBadHabitsHealthTitle, 'kn', e.target.value)}
-        />
-      </div>
-
-      {/* Bad Habits Paragraph */}
-      <div className='habits-health-fields-grid'>
-        <label>Bad Habits Paragraph (EN):</label>
-        <textarea
-          placeholder="en"
-          value={badHabitsHealthPara.en}
-          onChange={(e) => handleBilingualFieldChange(setBadHabitsHealthPara, 'en', e.target.value)}
-        />
-      </div>
-      <div className='habits-health-fields-grid'>
-        <label>Bad Habits Paragraph (KN):</label>
-        <textarea
-          placeholder="kn"
-          value={badHabitsHealthPara.kn}
-          onChange={(e) => handleBilingualFieldChange(setBadHabitsHealthPara, 'kn', e.target.value)}
-        />
-      </div>
-
-      {/* Bad Habits Icon */}
+      {/* Main Image */}
       <div>
-        <label>Upload Bad Habits Icon:</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Upload Main Image*</label>
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setBadHabitsHealthIcon(e.target.files?.[0] || null)}
+          onChange={e => {
+            const file = e.target.files?.[0]
+            if (file) {
+              setMainImage(file)
+            }
+          }}
+          className="block w-full text-sm text-gray-500
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-md file:border-0
+            file:text-sm file:font-semibold
+            file:bg-blue-50 file:text-blue-700
+            hover:file:bg-blue-100"
+          required
         />
       </div>
 
-      {badHabitsHealthRepeater.map((item, index) => (
-        <div key={index} className="repeater">
-          <label>Bad Habits Repeater Heading (EN):*</label>
-          <input
-            type="text"
-            placeholder="en"
-            value={item.bad_habits_repeater_heading.en}
-            onChange={(e) => handleBadHabitsHealthFieldChange(index, 'bad_habits_repeater_heading', 'en', e.target.value)}
-            required
-          />
-          <label>Bad Habits Repeater Heading (KN):*</label>
-          <input
-            type="text"
-            placeholder="kn"
-            value={item.bad_habits_repeater_heading.kn}
-            onChange={(e) => handleBadHabitsHealthFieldChange(index, 'bad_habits_repeater_heading', 'kn', e.target.value)}
-            required
-          />
-          <label>Bad Habits Repeater Description (EN):</label>
-          <textarea
-            placeholder="en"
-            value={item.bad_habits_repeater_description.en}
-            onChange={(e) => handleBadHabitsHealthFieldChange(index, 'bad_habits_repeater_description', 'en', e.target.value)}
-          />
-          <label>Bad Habits Repeater Description (KN):</label>
-          <textarea
-            placeholder="kn"
-            value={item.bad_habits_repeater_description.kn}
-            onChange={(e) => handleBadHabitsHealthFieldChange(index, 'bad_habits_repeater_description', 'kn', e.target.value)}
-          />
-          <label>Upload Bad Habits Repeater Icon:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleBadHabitsHealthIconChange(index, e.target.files?.[0] || null)}
-          />
-          <button type="button" onClick={() => removeBadHabitsHealthRepeat(index)}>
-            Remove Bad Habits Health Item
-          </button>
-        </div>
-      ))}
-
-      {/* ---------------- Improve Health Habits Section ---------------- */}
-      <hr />
-      <div className="button-container">
-        <h3>Improve Health Habits Section</h3>
-        <button type="button" onClick={addImproveHabitsHealthRepeat}>
-          <FaPlus /> Add Improve Health Habits Item
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Content</h3>
+        <button
+          type="button"
+          onClick={addRepeater}
+          className="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <FaPlus /> Add
         </button>
+
+        {repeater.map((item, idx) => (
+          <div key={idx} className="border border-gray-200 p-4 mb-4 rounded-lg bg-gray-50">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description (English)*</label>
+                <div className="border border-gray-300 rounded-md overflow-hidden">
+                  <CKEditorWrapper
+              
+                    data={item.description[0].en}
+                   
+                    onChange={(data) => {
+                   
+                     
+                      updateRepeaterDescription(idx, 'en', data)
+                    }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description (Kannada)*</label>
+                <div className="border border-gray-300 rounded-md overflow-hidden">
+                  <CKEditorWrapper
+                   
+                    data={item.description[0].kn}
+                    
+                    onChange={(data) => {
+                      
+                     
+                      updateRepeaterDescription(idx, 'kn', data)
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                toast('Description removed', {
+                  action: {
+                    label: 'Undo',
+                    onClick: () => {
+                      setRepeater(prev => [...prev, item])
+                      toast.success('Description restored')
+                    }
+                  }
+                })
+                removeRepeater(idx)
+              }}
+              className="mt-3 px-3 py-1 bg-red-100 text-red-700 rounded-md text-sm hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+            >
+              Remove
+            </button>
+          </div>
+        ))}
       </div>
 
-      {/* Improve Health Habits Title */}
-      <div className='habits-health-fields-grid'>
-        <label>Improve Health Habits Title (EN):</label>
-        <input
-          type="text"
-          placeholder="en"
-          value={improveHealthHabitsTitle.en}
-          onChange={(e) => handleBilingualFieldChange(setImproveHealthHabitsTitle, 'en', e.target.value)}
-        />
-      </div>
-      <div className='habits-health-fields-grid'>
-        <label>Improve Health Habits Title (KN):</label>
-        <input
-          type="text"
-          placeholder="kn"
-          value={improveHealthHabitsTitle.kn}
-          onChange={(e) => handleBilingualFieldChange(setImproveHealthHabitsTitle, 'kn', e.target.value)}
-        />
-      </div>
-
-      {/* Improve Health Habits Description */}
-      <div className='habits-health-fields-grid'>
-        <label>Improve Health Habits Description (EN):</label>
-        <textarea
-          placeholder="en"
-          value={improveHealthHabitsDescription.en}
-          onChange={(e) => handleBilingualFieldChange(setImproveHealthHabitsDescription, 'en', e.target.value)}
-        />
-      </div>
-      <div className='habits-health-fields-grid'>
-        <label>Improve Health Habits Description (KN):</label>
-        <textarea
-          placeholder="kn"
-          value={improveHealthHabitsDescription.kn}
-          onChange={(e) => handleBilingualFieldChange(setImproveHealthHabitsDescription, 'kn', e.target.value)}
-        />
-      </div>
-
-      {/* Improve Health Habits Icon */}
-      <div>
-        <label>Upload Improve Health Habits Icon:</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImproveHealthHabitsIcon(e.target.files?.[0] || null)}
-        />
-      </div>
-
-      {improveHabitsHealthRepeater.map((item, index) => (
-        <div key={index} className="repeater">
-          <label>Improve Habits Repeater Heading (EN):*</label>
-          <input
-            type="text"
-            placeholder="en"
-            value={item.improve_habits_repeater_heading.en}
-            onChange={(e) => handleImproveHabitsHealthFieldChange(index, 'improve_habits_repeater_heading', 'en', e.target.value)}
-            required
-          />
-          <label>Improve Habits Repeater Heading (KN):*</label>
-          <input
-            type="text"
-            placeholder="kn"
-            value={item.improve_habits_repeater_heading.kn}
-            onChange={(e) => handleImproveHabitsHealthFieldChange(index, 'improve_habits_repeater_heading', 'kn', e.target.value)}
-            required
-          />
-          <label>Improve Habits Repeater Description (EN):</label>
-          <textarea
-            placeholder="en"
-            value={item.improve_habits_repeater_description.en}
-            onChange={(e) => handleImproveHabitsHealthFieldChange(index, 'improve_habits_repeater_description', 'en', e.target.value)}
-          />
-          <label>Improve Habits Repeater Description (KN):</label>
-          <textarea
-            placeholder="kn"
-            value={item.improve_habits_repeater_description.kn}
-            onChange={(e) => handleImproveHabitsHealthFieldChange(index, 'improve_habits_repeater_description', 'kn', e.target.value)}
-          />
-          <label>Upload Improve Habits Repeater Icon:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImproveHabitsHealthIconChange(index, e.target.files?.[0] || null)}
-          />
-          <button type="button" onClick={() => removeImproveHabitsHealthRepeat(index)}>
-            Remove Improve Health Habits Item
-          </button>
-        </div>
-      ))}
-
-      <hr />
-      <div className="button-container">
-        <button 
-          type="submit" 
-          className="habits-health-form-submit-button"
+      <div className="flex justify-end pt-4">
+        <button
+          type="submit"
           disabled={isLoading}
+          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
-            Submit Habits Health
-            <BeatLoader color="#ffffff" size={10} />
-        
+              Creating.. <BeatLoader size={8} color="#ffffff" />
             </>
-          ) : (
-            'Submit Habits Health'
-          )}
+          ) : 'Create'}
         </button>
       </div>
     </form>
-  );
-};
-
-export default AddHabitsHealth;
+  )
+}

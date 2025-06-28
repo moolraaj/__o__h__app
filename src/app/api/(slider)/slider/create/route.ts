@@ -1,85 +1,87 @@
+// pages/api/sliders.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
-import { uploadPhotoToCloudinary, uploadVideoToCloudinary } from '@/utils/Cloudinary';  
+import { uploadPhotoToCloudinary, uploadVideoToCloudinary } from '@/utils/Cloudinary';
 import Slider from '@/models/Slider';
-import { SBody } from '@/utils/Types';
+import { SBody } from '@/app/(super-admin)/super-admin/slider/add-slider/page';
 
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const formData = await req.formData();
 
-   
-    const sliderImageFile = formData.get('sliderImage') as File;
-    const sliderImageUrl = await uploadPhotoToCloudinary(sliderImageFile);
+    // 1) Image
+    const imageFile = formData.get('sliderImage') as File | null;
+    if (!imageFile) {
+      return NextResponse.json({ success: false, message: 'sliderImage is required' }, { status: 400 });
+    }
+    const sliderImage = await uploadPhotoToCloudinary(imageFile);
 
- 
-    let sliderVideoUrl: string | undefined;
-    const sliderVideoFile = formData.get('sliderVideo') as File | null;
-    if (sliderVideoFile && sliderVideoFile.type === 'video/mp4') {
-      sliderVideoUrl = await uploadVideoToCloudinary(sliderVideoFile);
+    // 2) Video (optional)
+    let sliderVideo: string | undefined;
+    const videoFile = formData.get('sliderVideo') as File | null;
+    if (videoFile) {
+      sliderVideo = await uploadVideoToCloudinary(videoFile);
     }
 
-  
-    const textJson = formData.get('text')?.toString();
-    const text = JSON.parse(textJson || '{}');
+    // 3) Localized text & description
+    const parseJSON = <T>(key: string): T => {
+      const raw = formData.get(key)?.toString();
+      if (!raw) throw new Error(`${key} is required`);
+      try { return JSON.parse(raw) as T; }
+      catch { throw new Error(`${key} must be valid JSON`); }
+    };
+    const text = parseJSON<{ en: string; kn: string }>('text');
+    const description = parseJSON<{ en: string; kn: string }>('description');
 
-    const descriptionJson = formData.get('description')?.toString();
-    const description = JSON.parse(descriptionJson || '{}');
-
-  
-    const bodyJson = formData.get('body') as string;
-    let bodyItems = [];
+    // 4) Body array
+    const bodyRaw = formData.get('body')?.toString();
+    if (!bodyRaw) {
+      return NextResponse.json({ success: false, message: 'body is required' }, { status: 400 });
+    }
+    let bodyItems: SBody[];
     try {
-      bodyItems = JSON.parse(bodyJson);
-      if (!Array.isArray(bodyItems)) throw new Error('Body must be an array');
-    } catch (err) {
-      if (err instanceof Error) {
-        return NextResponse.json({ success: false, message: 'Invalid body JSON' }, { status: 400 });
-      }
+      bodyItems = JSON.parse(bodyRaw);
+      if (!Array.isArray(bodyItems)) throw new Error();
+    } catch {
+      return NextResponse.json({ success: false, message: 'Invalid body JSON' }, { status: 400 });
     }
 
-  
-    const bodyWithImages = await Promise.all(
-      bodyItems.map(async (item: SBody, index: number) => {
-        let bodyImageUrl = item.image;
-        if (!bodyImageUrl) {
-          const bodyImageFile = formData.get(`bodyImage${index}`) as File;
-          if (!bodyImageFile) throw new Error(`Missing bodyImage${index}`);
-          bodyImageUrl = await uploadPhotoToCloudinary(bodyImageFile);
+    // 5) Upload body images if provided as files
+    const body = await Promise.all(
+      bodyItems.map(async (item, idx) => {
+        let imageUrl = item.image;
+        if (!imageUrl) {
+          const f = formData.get(`bodyImage${idx}`) as File | null;
+          if (!f) throw new Error(`Missing bodyImage${idx}`);
+          imageUrl = await uploadPhotoToCloudinary(f);
         }
-
         return {
-          image: bodyImageUrl,
+          image: imageUrl,
           text: item.text,
-          description: item.description,
+          description: item.description
         };
       })
     );
 
-  
-    const newSlider = new Slider({
-      sliderImage: sliderImageUrl,
-      ...(sliderVideoUrl && { sliderVideo: sliderVideoUrl }),  
+    // 6) Create
+    const newSlider = await Slider.create({
+      sliderImage,
+      ...(sliderVideo && { sliderVideo }),
       text,
       description,
-      body: bodyWithImages,
+      body
     });
-
-    console.log(`newSlider`)
-    console.log(newSlider)
-
-    await newSlider.save();
 
     return NextResponse.json({
-      message: 'Slide created successfully',
-      status: 201,
       success: true,
-      data: newSlider,
-    });
+      message: 'Slider created successfully',
+      data: newSlider
+    }, { status: 201 });
+
   } catch (err) {
-    if (err instanceof Error) {
-      return NextResponse.json({ success: false, message: 'Failed to create slider' }, { status: 500 });
-    }
+    console.error('Create Slider Error:', err);
+    return NextResponse.json({ success: false, message: (err as Error).message }, { status: 500 });
   }
 }

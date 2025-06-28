@@ -9,7 +9,7 @@ interface IBody {
 export interface ISlider extends Document {
   sliderImage: string;
   text: { en: string; kn: string };
-  sliderVideo: string; 
+  sliderVideo: string;
   description: { en: string; kn: string };
   body: IBody[];
   createdAt: Date;
@@ -26,6 +26,7 @@ const SliderSchema = new Schema<ISlider>({
     en: { type: String, required: true },
     kn: { type: String, required: true },
   },
+  sliderVideo: { type: String, required: false },
   body: [
     {
       image: { type: String, required: true },

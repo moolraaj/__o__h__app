@@ -41,7 +41,7 @@ export const uploadVideoToCloudinary = async (video: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader
       .upload_stream(
-        { folder: process.env.CLOUD_APP_NAME, resource_type: 'video' },
+        { folder: CLOUD_APP_NAME, resource_type: 'video' },
         (error, result) => {
           if (error) return reject(new Error('Failed to upload video'));
           resolve(result!.secure_url);

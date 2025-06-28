@@ -4,7 +4,7 @@ import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import { dbConnect } from '@/database/database';
 import DentalEmergency from '@/models/DentalEmergency';
-import { DentalEmergencyTypes, Language } from '@/utils/Types';
+import { DentalEmergencyTypes, DentalEmerRepeater } from '@/utils/Types';
 import mongoose from 'mongoose';
 import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
 
@@ -20,7 +20,6 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         await dbConnect();
         const id = (await params).id;
         const lang = getLanguage(request);
-
         const doc = (await DentalEmergency.findById(id).lean()) as DentalEmergencyTypes | null;
         if (!doc) {
             return NextResponse.json(
@@ -49,18 +48,18 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         } else {
             localizedDoc = doc;
         }
+        console.log(`localizedDoc`)
+        console.log(localizedDoc)
+
         return NextResponse.json(
             { status: 200, success: true, result: localizedDoc },
-
         );
     } catch (error) {
         if (error instanceof Error) {
             return NextResponse.json(
                 { status: 500, success: false, message: error.message },
-
             );
         }
-
     }
 }
 
@@ -93,86 +92,88 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
 
 
 
-export async function PUT(req: NextRequest, { params }: RouteContext) {
+
+
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         await dbConnect();
         const id = (await params).id;
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json(
-                { success: false, message: 'Invalid DentalEmergency ID' },
-                { status: 400 }
-            );
+            return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
         }
         const formData = await req.formData();
-
         const updateData: Partial<DentalEmergencyTypes> = {};
-
-        const updateBilingualField = (fieldName: keyof DentalEmergencyTypes) => {
-            const fieldValue = formData.get(fieldName as string)?.toString();
-            if (fieldValue) {
-                try {
-                    const parsed = JSON.parse(fieldValue);
-                    const newValue: Language = {
-                        en: parsed.en ?? "",
-                        kn: parsed.kn ?? ""
-                    };
-                    (updateData[fieldName] as Language) = newValue;
-                } catch (error) {
-                    throw new Error(`Invalid JSON for ${fieldName}: ${error}`);
-                }
+        const parseLang = (key: keyof DentalEmergencyTypes) => {
+            const raw = formData.get(key)?.toString();
+            if (!raw) return;
+            try {
+                const { en = '', kn = '' } = JSON.parse(raw);
+                //@ts-expect-error ignore this line of code
+                updateData[key] = { en, kn }
+            } catch (e) {
+                throw new Error(`Invalid JSON for ${key}: ${e}`);
             }
         };
 
 
-        updateBilingualField('dental_emergency_title');
-        updateBilingualField('dental_emergency_heading');
-        updateBilingualField('dental_emergency_para');
-        updateBilingualField('dental_emergency_inner_title');
-        updateBilingualField('dental_emergency_inner_para');
-        updateBilingualField('dental_emer_title');
-        updateBilingualField('dental_emer_sub_title');
+        parseLang('dental_emergency_title');
+        parseLang('dental_emergency_heading');
+        parseLang('dental_emergency_para');
+        parseLang('dental_emergency_inner_title');
+        parseLang('dental_emergency_inner_para');
+        parseLang('dental_emer_title');
+        parseLang('dental_emer_sub_title');
 
-        const updateImageField = async <K extends keyof DentalEmergencyTypes>(
-            fileFieldKey: string,
-            docFieldKey: K
+
+        const repRaw = formData.get('dental_emer_repeater')?.toString();
+        if (repRaw) {
+            try {
+                const arr = JSON.parse(repRaw);
+                if (!Array.isArray(arr)) throw new Error('Must be an array');
+                updateData.dental_emer_repeater = arr as DentalEmerRepeater[];
+            } catch (e) {
+                throw new Error(`Invalid JSON for dental_emer_repeater: ${e}`);
+            }
+        }
+
+
+        const processImg = async <K extends keyof DentalEmergencyTypes>(
+            fileKey: string,
+            docKey: K
         ) => {
-            const fileField = formData.get(fileFieldKey);
-            if (fileField && fileField instanceof File && fileField.size > 0) {
-                updateData[docFieldKey] = (await uploadPhotoToCloudinary(fileField)) as unknown as DentalEmergencyTypes[K];
+            const file = formData.get(fileKey);
+            if (file instanceof File && file.size > 0) {
+                updateData[docKey] = (await uploadPhotoToCloudinary(file)) as  DentalEmergencyTypes[typeof docKey];
             }
         };
 
-        await updateImageField('dental_emergency_image', 'dental_emergency_image');
-        await updateImageField('dental_emergency_icon', 'dental_emergency_icon');
-        await updateImageField('dental_emergency_inner_icon', 'dental_emergency_inner_icon');
 
-        const updatedDoc = await DentalEmergency.findByIdAndUpdate(
+        await processImg('dental_emergency_image_file', 'dental_emergency_image');
+        await processImg('dental_emergency_icon_file', 'dental_emergency_icon');
+        await processImg('dental_emergency_inner_icon_file', 'dental_emergency_inner_icon');
+
+        const updated = await DentalEmergency.findByIdAndUpdate(
             id,
             { $set: updateData },
             { new: true, runValidators: true }
         );
-        if (!updatedDoc) {
-            return NextResponse.json(
-                { success: false, message: 'DentalEmergency not found' },
-                { status: 404 }
-            );
+        if (!updated) {
+            return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 });
         }
+
         return NextResponse.json({
-            status: 200,
             success: true,
-            message: 'DentalEmergency updated successfully',
-            data: updatedDoc,
+            message: 'Updated successfully',
+            data: updated
         });
     } catch (err) {
-        if (err instanceof Error) {
-            return NextResponse.json({
-                status: 500,
-                success: false,
-                message: err.message || 'Failed to update DentalEmergency',
-            });
-        }
+        return NextResponse.json(
+            { success: false, message: err instanceof Error ? err.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
 }
+
 
 
 

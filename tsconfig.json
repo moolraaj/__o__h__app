@@ -11,6 +11,13 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"   
+    ],
+    
+    
+    
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
@@ -19,9 +26,11 @@
       }
     ],
     "paths": {
+      "@ckeditor/ckeditor5-build-classic": ["./types/ckeditor"],
       "@/*": ["./src/*"]
+      
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/api/(lesion)/lesion/verify/[token]", "src/scripts/seedSuperAdmin.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts","global.d.ts", "src/app/api/(lesion)/lesion/verify/[token]", "src/scripts/seedSuperAdmin.ts"],
   "exclude": ["node_modules"]
 }

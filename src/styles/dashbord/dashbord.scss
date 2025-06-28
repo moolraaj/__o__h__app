@@ -323,18 +323,13 @@
 
         }
     }
-
     .sidebar {
-
         max-width: 250px;
         transition: width 0.3s ease-in-out;
-        overflow: hidden;
+        overflow-y: scroll;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-
         background: linear-gradient(180deg, #F7C9FF 8.53%, #FFBDB9 89.35%);
-
     }
-
     .sidebar_wrapper {
         display: flex;
         flex-direction: column;

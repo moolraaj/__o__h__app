@@ -1,32 +1,43 @@
-import mongoose from 'mongoose';
-const { Schema } = mongoose;
+import mongoose, { Schema, Document } from "mongoose";
+export interface IFaq extends Document {
+  faqs_title: {
+    en: string;
+    kn: string;
+  };
+  faqs_repeater: Array<{
+    faqs_repeat_question: {
+      en: string;
+      kn: string;
+    };
+    faqs_repeat_answer: {
+      en: string;  
+      kn: string;
+    };
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-const Language = {
-  en: { type: String, required: true },
-  kn: { type: String, required: true },
-};
+const FaqSchema = new Schema<IFaq>(
+  {
+    faqs_title: {
+      en: { type: String, required: true },
+      kn: { type: String, required: true },
+    },
+    faqs_repeater: [
+      {
+        faqs_repeat_question: {
+          en: { type: String, required: true },
+          kn: { type: String, required: true },
+        },
+        faqs_repeat_answer: {
+          en: { type: String, required: true },
+          kn: { type: String, required: true },
+        },
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-const QAEntrySchema = new Schema({
-  question: { ...Language },
-  answer: { ...Language },
-}, { _id: false });
-
-const DentalContentSchema = new Schema({
-
-  dental_caries_title: { ...Language },
-  dental_caries: [QAEntrySchema],
-
-  gum_diseases_title: { ...Language },
-  gum_disease: [QAEntrySchema],
-
-  edentulism_title: { ...Language },
-  edentulism: [QAEntrySchema],
-
-  oral_cancer_title: { ...Language },
-  oral_cancer: [QAEntrySchema],
-
-}, { timestamps: true });
-
-const FaqModel = mongoose.models.faqs || mongoose.model('faqs', DentalContentSchema);
-
-export default FaqModel;
+export default mongoose.models.Faq || mongoose.model<IFaq>("Faq", FaqSchema);
