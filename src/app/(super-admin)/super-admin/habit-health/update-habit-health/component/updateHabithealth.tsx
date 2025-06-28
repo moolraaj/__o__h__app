@@ -169,12 +169,12 @@ export default function EditHabitsHealth({ id }: UpdateDiseaseProps) {
         </label>
 
         {existingImage && (
-          <div className="mb-4">
+          <div className="mb-4 h_image">
             <p className="text-sm text-gray-500 mb-2">Current Image:</p>
             <img
               src={existingImage}
               alt="Current habit health"
-              className="h-40 object-cover rounded-md"
+              className="h_img"
             />
           </div>
         )}
