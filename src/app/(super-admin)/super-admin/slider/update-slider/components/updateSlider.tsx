@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { useGetSingleSliderQuery, useUpdateSliderMutation } from '@/(store)/services/slider/sliderApi'
 import { SBody } from '@/utils/Types'
 import Loader from '@/(common)/Loader'
+import { BeatLoader } from 'react-spinners'
 interface UpdateSliderProps {
   id: string
 }
@@ -17,7 +18,7 @@ interface BodyItem {
 }
 const UpdateSlider: React.FC<UpdateSliderProps> = ({ id }) => {
   const { data, isLoading } = useGetSingleSliderQuery({ id })
-  const [updateSlider] = useUpdateSliderMutation()
+  const [updateSlider,{isLoading:loading}] = useUpdateSliderMutation()
   const router = useRouter()
   const [sliderImage, setSliderImage] = useState<File | null>(null)
   const [existingSliderImage, setExistingSliderImage] = useState<string | null>(null)
@@ -269,9 +270,12 @@ const UpdateSlider: React.FC<UpdateSliderProps> = ({ id }) => {
       </button>
 
       <hr />
-      <button type="submit" className="submit-button">
-        Update Slider
-      </button>
+      
+            <button type="submit" disabled={loading} className="submit-button">
+              {loading ? (<>
+                upadting... <BeatLoader color='#fff' size={8} />
+              </>) : ('Update')}
+            </button>
     </form>
   )
 }
