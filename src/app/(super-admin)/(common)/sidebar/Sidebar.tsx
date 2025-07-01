@@ -17,7 +17,7 @@ interface SidebarProps {
 const links = [
   { href: "/super-admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/super-admin/admin", label: "Admins", icon: ShieldCheck },
-  { href: "/super-admin/ambassador", label: "Ambassadors", icon: UserCheck },
+  { href: "/super-admin/dantasurakshaks", label: "Dantasurakshaks", icon: UserCheck },
   { href: "/super-admin/user", label: "Users", icon: Users },
   { href: "/super-admin/slider", label: "Slider", icon: ImageIcon },
   { href: "/super-admin/disease", label: "Diseases", icon: Thermometer },
