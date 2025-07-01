@@ -6,6 +6,8 @@ import { dbConnect } from '@/database/database';
 import { ValidateQuestionnaireFields } from '@/validators/Validate';
 import { QuestionnaireTypes } from '@/utils/Types';
 import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
+import Joi from 'joi';
+import mongoose from 'mongoose';
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,7 +16,7 @@ export async function POST(req: NextRequest) {
 
 
     const data: Partial<QuestionnaireTypes> = {
-      
+
       demographics: formData.get('demographics')?.toString() || '',
       name: formData.get('name')?.toString() || '',
       age: Number(formData.get('age') || 0),
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
       submitted_by: formData.get('submitted_by')?.toString() || ''
     };
 
-      const blobs = formData.getAll('images') as Blob[];
+    const blobs = formData.getAll('images') as Blob[];
     if (blobs.length) {
       const urls: string[] = [];
       for (const blob of blobs.slice(0, 5)) {
@@ -99,14 +101,29 @@ export async function POST(req: NextRequest) {
     await doc.save();
 
     return NextResponse.json({ status: 201, success: true, data: doc });
-  } catch (err) {
-    if (err instanceof Error) {
-      return NextResponse.json(
-        { success: false, message: err.message || 'Error creating questionnaire' },
-        { status: 400 }
-      );
+  }catch (err: unknown) {
+  const errors = [
+    ...(isJoiError(err) ? err.details.map(d => ({
+      field: String(d.path[0]),
+      message: d.message.replace(/"/g, '')
+    })) : []),
+    ...(isMongooseError(err) ? Object.entries(err.errors).map(([f, e]) => ({
+      field: f,
+      message: e.message
+    })) : []),
+    ...(!isJoiError(err) && !isMongooseError(err) ? [{
+      field: 'server',
+      message: err instanceof Error ? err.message : 'Unknown error'
+    }] : [])
+  ];
 
-    }
-
-  }
+  return NextResponse.json({ success: false, errors }, { status: 400 });
 }
+
+ 
+}
+const isJoiError = (e: unknown): e is Joi.ValidationError => 
+  (e as Joi.ValidationError)?.isJoi === true;
+
+const isMongooseError = (e: unknown): e is mongoose.Error.ValidationError =>
+  (e as mongoose.Error)?.name === 'ValidationError';
