@@ -76,7 +76,7 @@ export default function ManageUsers() {
               <div className="ambassadors dash_holder">
                 <UserCheck size={20} />
                 <div className="inner_dash_holder">
-                  <h1>{ambassadorData?.roles?.ambassador ?? 0}</h1>
+                  <h1>{ambassadorData?.roles?.dantasurakshaks ?? 0}</h1>
                   <h3>Dantasurakshaks</h3>
                 </div>
               </div>
