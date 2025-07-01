@@ -2,8 +2,18 @@
 
 import { QuestionnaireTypes } from '@/utils/Types';
 import mongoose, { Model } from 'mongoose';
+import { Counter } from './Counter';
+
 
 const QuestionnaireSchema = new mongoose.Schema({
+  images: {
+    type: [String],
+    default: [],
+    validate: {
+      validator: (arr: string[]) => arr.length <= 5,
+      message: 'You can upload at most 5 images'
+    }
+  },
   demographics: { type: String },
   name: { type: String, required: true },
   age: { type: Number, required: true },
@@ -60,28 +70,22 @@ const QuestionnaireSchema = new mongoose.Schema({
   comments_or_notes: { type: String, select: false },
   send_email_to_dantasurakshaks: { type: Boolean, select: false, default: false },
   case_number: { type: String, unique: true }
-},{ timestamps: true });
+}, { timestamps: true });
 
 
 
-QuestionnaireSchema.pre<QuestionnaireTypes & Document>('save', async function (next) {
-  if (!this.isNew || this.case_number) return next();
-  try {
-    const model = this.constructor as Model<QuestionnaireTypes & Document>;
-    const lastQuestionnaire = await model.findOne(
-      { case_number: /^Q\d+$/ },
-      {},
-      { sort: { 'case_number': -1 } }
-    );
-    const lastNumber = lastQuestionnaire
-      //@ts-expect-error - while validate the fileds
-      ? parseInt(lastQuestionnaire?.case_number.substring(1))
-      : 0;
-    this.case_number = `Q${lastNumber + 1}`;
-    next();
-  } catch (err) {
-    next(err as Error);
-  }
+QuestionnaireSchema.pre('save', async function (next) {
+  if (!this.isNew) return next();
+
+
+  const counter = await Counter.findByIdAndUpdate(
+    'questionnaire',
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+
+  this.case_number = `Q${counter.seq}`;
+  next();
 });
 
 

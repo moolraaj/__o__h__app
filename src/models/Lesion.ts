@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { Counter } from './Counter';
 
 export interface ILesionRecord extends Document {
   fullname: string;
@@ -15,15 +16,15 @@ export interface ILesionRecord extends Document {
   dental_images: string[];
   status: string;
   adminAction: boolean;
-  assignTo?: mongoose.Types.ObjectId;  
+  assignTo?: mongoose.Types.ObjectId;
 
   // admins fields only
   lesion_type?: string;
   diagnosis_notes?: string;
   recomanded_actions?: string;
   comments_or_notes?: string;
-  send_email_to_dantasurakshaks?:boolean
-  case_number?:string
+  send_email_to_dantasurakshaks?: boolean
+  case_number?: string
 }
 
 const lesionRecordSchema: Schema = new Schema(
@@ -47,15 +48,15 @@ const lesionRecordSchema: Schema = new Schema(
       ref: 'users',
       default: null,
     },
-  
 
 
-   
+
+
     lesion_type: { type: String, select: false },
     diagnosis_notes: { type: String, select: false },
     recomanded_actions: { type: String, select: false },
     comments_or_notes: { type: String, select: false },
-    send_email_to_dantasurakshaks:{ type: Boolean, select: false,default: false},
+    send_email_to_dantasurakshaks: { type: Boolean, select: false, default: false },
     case_number: { type: String, unique: true }
   },
   {
@@ -63,26 +64,18 @@ const lesionRecordSchema: Schema = new Schema(
   }
 );
 
-
-lesionRecordSchema.pre<ILesionRecord & Document>('save', async function (next) {
-  if (!this.isNew || this.case_number) return next();
-  try {
-    const model = this.constructor as Model<ILesionRecord & Document>;
-    const lastQuestionnaire = await model.findOne(
-      { case_number: /^L\d+$/ },
-      {},
-      { sort: { 'case_number': -1 } }
+lesionRecordSchema.pre<ILesionRecord & mongoose.Document>(
+  'save',
+  async function (next) {
+    if (!this.isNew) return next();
+    const counter = await Counter.findByIdAndUpdate(
+      'lesion',
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
     );
-    const lastNumber = lastQuestionnaire
-    //@ts-expect-error - while validate the fileds
-      ? parseInt(lastQuestionnaire.case_number.substring(1))
-      : 0;
-    this.case_number = `L${lastNumber + 1}`;
+    this.case_number = `L${counter.seq}`;
     next();
-  } catch (err) {
-    next(err as Error);
   }
-});
-
+);
 export const LesionModel: Model<ILesionRecord> =
   mongoose.models.LesionRecord || mongoose.model<ILesionRecord>('LesionRecord', lesionRecordSchema);

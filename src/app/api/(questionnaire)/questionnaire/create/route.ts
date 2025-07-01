@@ -5,6 +5,7 @@ import Questionnaire from '@/models/Questionnaire';
 import { dbConnect } from '@/database/database';
 import { ValidateQuestionnaireFields } from '@/validators/Validate';
 import { QuestionnaireTypes } from '@/utils/Types';
+import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function POST(req: NextRequest) {
 
 
     const data: Partial<QuestionnaireTypes> = {
+      
       demographics: formData.get('demographics')?.toString() || '',
       name: formData.get('name')?.toString() || '',
       age: Number(formData.get('age') || 0),
@@ -52,6 +54,16 @@ export async function POST(req: NextRequest) {
       presenceOfFluorosis: formData.get('presenceOfFluorosis')?.toString() || '',
       submitted_by: formData.get('submitted_by')?.toString() || ''
     };
+
+      const blobs = formData.getAll('images') as Blob[];
+    if (blobs.length) {
+      const urls: string[] = [];
+      for (const blob of blobs.slice(0, 5)) {
+        const url = await uploadPhotoToCloudinary(blob);
+        urls.push(url);
+      }
+      (data).images = urls;
+    }
 
 
     const sendToRaw = formData.get('send_to') as string;

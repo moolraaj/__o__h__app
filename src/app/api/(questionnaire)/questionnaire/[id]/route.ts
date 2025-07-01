@@ -5,6 +5,7 @@ import { dbConnect } from '@/database/database';
 import mongoose from 'mongoose';
 import { parseValue } from '@/utils/Constants';
 import { QuestionnaireTypes } from '@/utils/Types';
+import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
 
 
 await dbConnect();
@@ -142,6 +143,16 @@ export async function PUT(
           updateData[field as keyof QuestionnaireTypes] = parseValue(field, rawValue.toString());
         }
       }
+    }
+
+     if (formData.has('images')) {
+      const blobs = formData.getAll('images') as Blob[];
+      const urls: string[] = [];
+      for (const blob of blobs.slice(0, 5)) {
+        const url = await uploadPhotoToCloudinary(blob);
+        urls.push(url);
+      }
+      updateData.images = urls;
     }
 
 
