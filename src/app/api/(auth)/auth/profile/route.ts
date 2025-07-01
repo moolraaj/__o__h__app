@@ -1,22 +1,27 @@
 
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../authOptions";
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getToken } from 'next-auth/jwt'
-import { dbConnect } from '@/database/database'
-import UserModel from '@/models/User'
-const secret = process.env.NEXTAUTH_SECRET!
-export async function GET(req: NextRequest) {
-    const token = await getToken({ req, secret })
-    if (!token) {
-        return NextResponse.json({ status: 401, error: 'Unauthorized' })
+
+export async function GET() {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+        return NextResponse.json(
+            { error: "Not authenticated",status: 401 }
+        );
     }
-    await dbConnect()
-    const user = await UserModel
-        .findById(token.id)
-        .select('-password')
-        .lean()
-    if (!user || user.role !== token.role) {
-        return NextResponse.json({ status: 401, error: 'Session invalidated' })
-    }
-    return NextResponse.json({ status: 200, user })
+    return NextResponse.json({
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        //@ts-expect-error ignore this 
+        phoneNumber: session.phoneNumber.email,
+        //@ts-expect-error ignore this 
+        role: session.role.email,
+        //@ts-expect-error ignore this 
+        status: session.role.email,
+        //@ts-expect-error ignore this 
+        isVerified: session.isVerified.email,
+    });
 }

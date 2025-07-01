@@ -12,9 +12,11 @@ interface CustomUser extends User {
   role: string;
   phoneNumber?: string;
   email?: string;
+  status?:string;
+  isVerified?:boolean
 }
 
-
+    
 interface CustomSession extends Session {
   user: CustomUser;
   accessToken: JWT;
