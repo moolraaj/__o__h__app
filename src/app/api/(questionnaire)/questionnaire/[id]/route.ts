@@ -21,7 +21,7 @@ export async function GET(
 
     const questionnaire = await Questionnaire.findById(id)
       .select('+questionary_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
-      .populate('assignTo', 'name phoneNumber')     
+      .populate('assignTo', 'name phoneNumber')
       .populate('submitted_by', 'name phoneNumber')
       .lean();
 
@@ -79,9 +79,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = (await params).id;
-
-
+    const { id } = await params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: 'Invalid ID' },
@@ -89,109 +87,84 @@ export async function PUT(
       );
     }
 
-
     const formData = await req.formData();
     const updateData: Partial<QuestionnaireTypes> = {};
 
 
     const fields = [
-      'demographics',
-      'name',
-      'age',
-      'gender',
-      'bloodGroup',
-      'idCardAvailable',
-      'cardNumber',
-      'religion',
-      'religion_input',
-      'education',
-      'occupation',
-      'income',
-      'phoneNumber',
-      'address',
-      'familyHistory',
-      'firstDegreeRelativeOralCancer',
-      'height',
-      'diabetes',
-      'hypertension',
-      'dietHistory',
-      'fruitsConsumption',
-      'vegetableConsumption',
-      'habitHistory',
-      'tobaccoChewer',
-      'tobaccoType',
-      'discontinuedHabit',
-      'durationOfDiscontinuingHabit',
-      'otherConsumptionHistory',
-      'alcoholConsumption',
-      'smoking',
-      'oralCavityExamination',
-      'presenceOfLesion',
-      'reductionInMouthOpening',
-      'suddenWeightLoss',
-      'presenceOfSharpTeeth',
-      'presenceOfDecayedTeeth',
-      'presenceOfFluorosis',
-      'submitted_by'
+      'demographics', 'name', 'age', 'gender', 'bloodGroup',
+      'idCardAvailable', 'cardNumber', 'religion', 'religion_input',
+      'education', 'occupation', 'income', 'phoneNumber', 'address',
+      'familyHistory', 'firstDegreeRelativeOralCancer',
+      'height', 'diabetes', 'hypertension', 'dietHistory',
+      'fruitsConsumption', 'vegetableConsumption', 'habitHistory',
+      'tobaccoChewer', 'tobaccoType', 'discontinuedHabit',
+      'durationOfDiscontinuingHabit', 'otherConsumptionHistory',
+      'alcoholConsumption', 'smoking', 'oralCavityExamination',
+      'presenceOfLesion', 'reductionInMouthOpening',
+      'suddenWeightLoss', 'presenceOfSharpTeeth',
+      'presenceOfDecayedTeeth', 'presenceOfFluorosis', 'submitted_by'
     ];
-
 
     for (const field of fields) {
       if (formData.has(field)) {
-        const rawValue = formData.get(field);
-        if (rawValue !== null && rawValue.toString().trim() !== '') {
-          updateData[field as keyof QuestionnaireTypes] = parseValue(field, rawValue.toString());
+        const raw = formData.get(field)?.toString().trim();
+        if (raw) {
+          updateData[field as keyof QuestionnaireTypes] = parseValue(field, raw);
         }
       }
     }
 
-     if (formData.has('images')) {
-      const blobs = formData.getAll('images') as Blob[];
-      const urls: string[] = [];
-      for (const blob of blobs.slice(0, 5)) {
-        const url = await uploadPhotoToCloudinary(blob);
-        urls.push(url);
+
+    let retainedUrls: string[] = [];
+    if (formData.has('existingImages')) {
+      try {
+        retainedUrls = JSON.parse(formData.get('existingImages') as string);
+      } catch {
+        return NextResponse.json(
+          { success: false, message: 'existingImages must be valid JSON array' },
+
+        );
       }
-      updateData.images = urls;
     }
+
+
+    const blobs = formData.getAll('images') as Blob[];
+    const uploadedUrls: string[] = [];
+    for (const blob of blobs.slice(0, 5)) {
+      const url = await uploadPhotoToCloudinary(blob);
+      uploadedUrls.push(url);
+    }
+
+
+    updateData.images = [...retainedUrls, ...uploadedUrls];
 
 
     if (formData.has('presenceOfGumDisease')) {
-      const gumRawValue = formData.get('presenceOfGumDisease');
-      if (gumRawValue) {
-        const strVal = gumRawValue.toString().trim();
-        if (strVal.includes(',')) {
-          updateData.presenceOfGumDisease = strVal
-            .split(',')
-            .map(val => val.trim())
-            .filter(val => val);
-        } else {
-          updateData.presenceOfGumDisease = [strVal];
-        }
-      }
+      const gumRaw = formData.get('presenceOfGumDisease')?.toString().trim() || '';
+      updateData.presenceOfGumDisease = gumRaw
+        ? gumRaw.split(',').map(v => v.trim()).filter(Boolean)
+        : [];
     }
 
 
     const updatedDoc = await Questionnaire.findByIdAndUpdate(id, updateData, {
       new: true,
-      runValidators: true
+      runValidators: true,
     });
 
     if (!updatedDoc) {
       return NextResponse.json(
-        { success: false, message: 'Questionnaire not found' },
-        { status: 404 }
+        { status: 404, success: false, message: 'Questionnaire not found' },
+
       );
     }
 
-    return NextResponse.json({ success: true, data: updatedDoc }, { status: 200 });
+    return NextResponse.json({ success: true, data: updatedDoc, status: 200 });
   } catch (err) {
     if (err instanceof Error) {
-      return NextResponse.json(
-        { success: false, message: err.message || 'Failed to update questionnaire' },
-        { status: 500 }
-      );
-
+      const message = err instanceof Error ? err.message : 'Failed to update questionnaire';
+      return NextResponse.json({ success: false, message });
     }
 
   }
