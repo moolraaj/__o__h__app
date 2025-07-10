@@ -5,7 +5,7 @@ import { EN, KN } from '@/utils/Constants';
 import { getLanguage } from '@/utils/FilterLanguages';
 import mongoose from 'mongoose';
 import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
-import { Cause, CauseRepeat, DiseaseTypes, PreventionTip, PreventionTipRepeat, Symptom, SymptomRepeat, TreatmentOption, TreatmentOptionRepeat, WhatIsDiseaseDescriptionRepeater, WhatIsDiseaseRepeat } from '@/utils/Types';
+import {   DiseaseTypes } from '@/utils/Types';
 
 export async function GET(
   request: NextRequest,
@@ -13,7 +13,7 @@ export async function GET(
 ) {
   try {
     await dbConnect();
-    const id = (await params).id;
+    const  id  = (await params).id;
     const lang = getLanguage(request);
 
     const disease = await Disease.findById(id).lean<DiseaseTypes>();
@@ -23,147 +23,62 @@ export async function GET(
         { status: 404 }
       );
     }
-    let localizedDisease;
-    if (lang === EN || lang === KN) {
-      localizedDisease = {
-        _id: disease._id,
-        disease_main_title: { [lang]: disease.disease_main_title?.[lang] || '' },
-        disease_main_image: disease.disease_main_image,
-        disease_slug: { [lang]: disease.disease_slug?.[lang] || '' },
-        disease_title: { [lang]: disease.disease_title?.[lang] || '' },
-        disease_description: { [lang]: disease.disease_description?.[lang] || '' },
-        disease_icon: disease.disease_icon,
-        what_is_disease_tab_title: {
-          [lang]: disease.what_is_disease_tab_title?.[lang] || '',
-        },
-        what_is_disease_repeat: disease.what_is_disease_repeat?.map(
-          (repeatItem: WhatIsDiseaseRepeat) => ({
-            what_is_disease_repeat_images: repeatItem.what_is_disease_repeat_images,
-            what_is_disease_heading: {
-              [lang]: repeatItem.what_is_disease_heading?.[lang] || '',
-            },
-            what_is_disease_disease_repeat_icon:
-              repeatItem.what_is_disease_disease_repeat_icon,
-            what_is_disease_disease_repeat_description: {
-              [lang]: repeatItem.what_is_disease_disease_repeat_description?.[lang] || ''
-            },
-            what_is_disease_description_repeater:
-              repeatItem.what_is_disease_description_repeater?.map(
-                (descItem: WhatIsDiseaseDescriptionRepeater) => ({
-                  what_is_disease_heading_repeat: {
-                    [lang]:
-                      descItem.what_is_disease_heading_repeat?.[lang] || '',
-                  },
-                  what_is_disease_description_repeat: {
-                    [lang]:
-                      descItem.what_is_disease_description_repeat?.[lang] || '',
-                  },
-                })
-              ),
-          })
-        ),
-        common_cause_tab_title: {
-          [lang]: disease.common_cause_tab_title?.[lang] || '',
-        },
-        common_cause: disease.common_cause?.map((causeItem: Cause) => ({
-          cause_title: { [lang]: causeItem.cause_title?.[lang] || '' },
-          cause_icon: causeItem.cause_icon,
-          cause_para: { [lang]: causeItem.cause_para?.[lang] || '' },
-          cause_brief: { [lang]: causeItem.cause_brief?.[lang] || '' },
-          cause_repeat: causeItem.cause_repeat?.map((repItem: CauseRepeat) => ({
-            cause_repeat_title: { [lang]: repItem.cause_repeat_title?.[lang] || '' },
-            cause_repeat_description: {
-              [lang]: repItem.cause_repeat_description?.[lang] || '',
-            },
-            cause_repeat_icon: repItem.cause_repeat_icon,
-          })),
-        })),
-        symptoms_tab_title: { [lang]: disease.symptoms_tab_title?.[lang] || '' },
-        symptoms: disease.symptoms?.map((sympItem: Symptom) => ({
-          symptoms_title: { [lang]: sympItem.symptoms_title?.[lang] || '' },
-          symptoms_icon: sympItem.symptoms_icon,
-          symptoms_para: { [lang]: sympItem.symptoms_para?.[lang] || '' },
-          symptoms_brief: { [lang]: sympItem.symptoms_brief?.[lang] || '' },
-          symptoms_repeat: sympItem.symptoms_repeat?.map((repItem: SymptomRepeat) => ({
-            symptoms_repeat_title: {
-              [lang]: repItem.symptoms_repeat_title?.[lang] || '',
-            },
-            symptoms_repeat_description: {
-              [lang]: repItem.symptoms_repeat_description?.[lang] || '',
-            },
-            symptoms_repeat_icon: repItem.symptoms_repeat_icon,
-          })),
-        })),
-        prevention_tips_tab_title: {
-          [lang]: disease.prevention_tips_tab_title?.[lang] || '',
-        },
-        prevention_tips: disease.prevention_tips?.map((prevItem: PreventionTip) => ({
-          prevention_tips_title: {
-            [lang]: prevItem.prevention_tips_title?.[lang] || '',
-          },
-          prevention_tips_icon: prevItem.prevention_tips_icon,
-          prevention_tips_para: { [lang]: prevItem.prevention_tips_para?.[lang] || '' },
-          prevention_tips_brief: {
-            [lang]: prevItem.prevention_tips_brief?.[lang] || '',
-          },
-          prevention_tips_repeat: prevItem.prevention_tips_repeat?.map(
-            (repItem: PreventionTipRepeat) => ({
-              prevention_tips_repeat_title: {
-                [lang]: repItem.prevention_tips_repeat_title?.[lang] || '',
-              },
-              prevention_tips_repeat_description: {
-                [lang]:
-                  repItem.prevention_tips_repeat_description?.[lang] || '',
-              },
-              prevention_tips_repeat_icon: repItem.prevention_tips_repeat_icon,
-            })
-          ),
-        })),
-        treatment_option_tab_title: {
-          [lang]: disease.treatment_option_tab_title?.[lang] || '',
-        },
-        treatment_option: disease.treatment_option?.map((treatItem: TreatmentOption) => ({
-          treatment_option_title: {
-            [lang]: treatItem.treatment_option_title?.[lang] || '',
-          },
-          treatment_option_icon: treatItem.treatment_option_icon,
-          treatment_option_para: {
-            [lang]: treatItem.treatment_option_para?.[lang] || '',
-          },
-          treatment_option_brief: {
-            [lang]: treatItem.treatment_option_brief?.[lang] || '',
-          },
-          treatment_option_repeat: treatItem.treatment_option_repeat?.map(
-            (repItem: TreatmentOptionRepeat) => ({
-              treatment_option_repeat_title: {
-                [lang]:
-                  repItem.treatment_option_repeat_title?.[lang] || '',
-              },
-              treatment_option_repeat_description: {
-                [lang]:
-                  repItem.treatment_option_repeat_description?.[lang] || '',
-              },
-              treatment_option_repeat_icon: repItem.treatment_option_repeat_icon,
-            })
-          ),
-        })),
-        category: disease.category,
-        createdAt: disease.createdAt,
-        updatedAt: disease.updatedAt,
-        __v: disease.__v,
-      };
-    } else {
-      localizedDisease = disease;
-    }
 
-    return NextResponse.json({ success: true, data: localizedDisease }, { status: 200 });
+    const localizedDisease = (lang === EN || lang === KN) ? {
+      _id: disease._id,
+      disease_main_title: { [lang]: disease.disease_main_title?.[lang] || '' },
+      disease_main_image: disease.disease_main_image,
+      disease_slug: { [lang]: disease.disease_slug?.[lang] || '' },
+      disease_title: { [lang]: disease.disease_title?.[lang] || '' },
+      disease_description: { [lang]: disease.disease_description?.[lang] || '' },
+      disease_icon: disease.disease_icon,
+      common_cause_tab_title: { [lang]: disease.common_cause_tab_title?.[lang] || '' },
+      common_cause: disease.common_cause?.map(cause => ({
+        cause_title: { [lang]: cause.cause_title?.[lang] || '' },
+        //@ts-expect-error ignore this 
+        cause_repeater: cause.cause_repeater?.map(repeater => ({
+          description: { [lang]: repeater.description?.[lang] || '' }
+        }))
+      })),
+      symptoms_tab_title: { [lang]: disease.symptoms_tab_title?.[lang] || '' },
+      symptoms: disease.symptoms?.map(symptom => ({
+        symptoms_title: { [lang]: symptom.symptoms_title?.[lang] || '' },
+         //@ts-expect-error ignore this
+        symptoms_repeater: symptom.symptoms_repeater?.map(repeater => ({
+          description: { [lang]: repeater.description?.[lang] || '' }
+        }))
+      })),
+      prevention_tips_tab_title: { [lang]: disease.prevention_tips_tab_title?.[lang] || '' },
+      prevention_tips: disease.prevention_tips?.map(tip => ({
+        prevention_tips_title: { [lang]: tip.prevention_tips_title?.[lang] || '' },
+         //@ts-expect-error ignore this
+        prevention_tips_repeater: tip.prevention_tips_repeater?.map(repeater => ({
+          description: { [lang]: repeater.description?.[lang] || '' }
+        }))
+      })),
+      treatment_option_tab_title: { [lang]: disease.treatment_option_tab_title?.[lang] || '' },
+      treatment_option: disease.treatment_option?.map(option => ({
+        treatment_option_title: { [lang]: option.treatment_option_title?.[lang] || '' },
+         //@ts-expect-error ignore this
+        treatment_option_repeater: option.treatment_option_repeater?.map(repeater => ({
+          description: { [lang]: repeater.description?.[lang] || '' }
+        }))
+      })),
+      category: disease.category,
+      createdAt: disease.createdAt,
+      updatedAt: disease.updatedAt,
+      __v: disease.__v
+    } : disease;
+
+    return NextResponse.json({ 
+      success: true, 
+      data: localizedDisease 
+    }, { status: 200 });
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { success: false, message: 'Failed to fetch disease' },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json(
+      { success: false, message: error instanceof Error ? error.message : 'Failed to fetch disease' },
+      { status: 500 }
+    );
   }
 }
 export async function DELETE(
