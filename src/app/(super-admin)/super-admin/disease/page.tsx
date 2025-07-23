@@ -151,6 +151,8 @@ const DiseaseList = () => {
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
   const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
+ 
+
   return (
     <div className="disease-main-container">
       {isLoading ? (
@@ -165,7 +167,7 @@ const DiseaseList = () => {
                 <img src={disease.disease_main_image} alt={disease.disease_slug.en} />
               </div>
               <div className="disease-info">
-                <p><b>Slug:</b> {disease.disease_slug.en}</p>
+        
                 <p><b>Main Title:</b> {disease.disease_main_title.en}</p>
               </div>
               <div className="disease-actions">

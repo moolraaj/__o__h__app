@@ -333,6 +333,14 @@ span.iconsss {
   gap: 20px;
 }
 
+.privacy_card .disease-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: flex-start;
+  height: 100%;
+}
+
 .w_m_f_repeater {
   grid-template-columns: 1fr !important;
   gap: 0px;
