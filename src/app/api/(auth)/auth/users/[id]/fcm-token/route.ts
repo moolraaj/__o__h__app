@@ -6,7 +6,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-    let id=(await params).id
+    const id=(await params).id
   try {
     await dbConnect();
     const { fcmToken } = await request.json();
