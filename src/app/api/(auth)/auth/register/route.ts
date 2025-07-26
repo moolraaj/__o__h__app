@@ -9,7 +9,7 @@ import { Users } from '@/utils/Types'
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, phoneNumber, role } = await req.json()
+    const { name, email, password, phoneNumber, role,fcmToken} = await req.json()
     if (!name || !email || !password || !phoneNumber) {
       return NextResponse.json(
         { status: 400, error: 'All fields are required' },
@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
       phoneNumber,
       role: finalRole,
       status,
-      isVerified: false
+      isVerified: false,
+      fcmToken: fcmToken || "",
     })
 
     const newUserObj = newUser.toObject()

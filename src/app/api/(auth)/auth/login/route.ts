@@ -4,35 +4,37 @@ import { signAppToken } from '@/utils/Jwt';
 import { Users } from '@/utils/Types';
 import { dbConnect } from '@/database/database';
 import bcrypt from 'bcryptjs';
+import User from '@/models/User';
 
 interface LoginRequestBody {
   phoneNumber?: string;
   email?: string;
   password?: string;
+  fcmToken?: string;
 }
 
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    const { phoneNumber, email, password }: LoginRequestBody = await req.json();
+    const { phoneNumber, email, password, fcmToken }: LoginRequestBody = await req.json();
 
     if (!phoneNumber && !(email && password)) {
       return NextResponse.json(
         { status: 404, error: 'Either phone number or email and password required' },
-        
+
       );
     }
 
     const user = await validateCredentials(phoneNumber || email!) as unknown as Users | null;
-    
+
     if (!user) {
       return NextResponse.json(
         { status: 404, error: phoneNumber ? 'Invalid phone number' : 'Invalid credentials' },
-         
+
       );
     }
 
- 
+
     // if (!user.isVerified) {
     //   return NextResponse.json(
     //     { status: 403, error: 'Please verify your email first' },
@@ -57,6 +59,12 @@ export async function POST(req: NextRequest) {
         name: user.name,
         role: 'user',
       });
+
+      if (fcmToken) {
+        await User.findByIdAndUpdate(user._id, { fcmToken });  
+      }
+
+
 
       return NextResponse.json({
         status: 200,

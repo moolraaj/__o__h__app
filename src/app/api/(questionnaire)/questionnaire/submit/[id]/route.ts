@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
 import Questionnaire from '@/models/Questionnaire';
@@ -6,6 +5,8 @@ import User from '@/models/User';
 
 import { sendApprovalEmail } from '@/utils/Email';
 import { createQuestionnaireVerificationToken } from '@/utils/Constants';
+import admin from '@/firebasepusher/firebaseAdmin';
+ 
 
 export async function PATCH(
   request: Request,
@@ -30,35 +31,48 @@ export async function PATCH(
     questionnaire.status = 'submit';
     await questionnaire.save();
 
-
     const questionnaireData = questionnaire.toObject();
-    // @ts-expect-error  findOne may return null but we check below
+    // @ts-expect-error findOne may return null but we check below
     questionnaireData._id = questionnaireData._id.toString();
-
-
 
     const adminUsers = await User.find({ _id: { $in: questionnaire.send_to } });
 
-
-    for (const admin of adminUsers) {
+    for (const adminUser of adminUsers) {
       if (
-        (admin.role === "admin" || admin.role === "dantasurakshaks")
-        && admin.isVerified
+        (adminUser.role === "admin" || adminUser.role === "dantasurakshaks") &&
+        adminUser.isVerified
       ) {
         const token = await createQuestionnaireVerificationToken(
           String(questionnaire._id),
-          String(admin._id)
+          String(adminUser._id)
         );
         try {
+         
           await sendApprovalEmail(
             questionnaireData,
             "questionnaire",
             token,
-            [admin.email]
+            [adminUser.email]
           );
-          console.log(`Approval email sent to: ${admin.email}`);
+          console.log(`Approval email sent to: ${adminUser.email}`);
+
+         
+          if (adminUser.fcmToken) {  
+            const message = {
+              notification: {
+                title: "New Questionnaire Submitted",
+                body: `A questionnaire has been submitted for approval.`,
+              },
+              token: adminUser.fcmToken, 
+            };
+
+            await admin.messaging().send(message);
+            console.log(`Push notification sent to: ${adminUser.name}`);
+          } else {
+            console.log(`No FCM token for ${adminUser.name}`);
+          }
         } catch (err) {
-          console.error(`Failed to send to ${admin.email}:`, err);
+          console.error(`Failed for ${adminUser.email}:`, err);
         }
       }
     }
