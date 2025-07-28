@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
 
     const response = await admin.messaging().send(message);
     return NextResponse.json({ status: 200, message: 'Notification sent!', response });
-  } catch (err: any) {
-    if(err instanceof err){
+  } catch (err) {
+    if(err instanceof Error){
         return NextResponse.json({ status: 500, message: 'Failed to send notification', error: err.message });
     }
     
