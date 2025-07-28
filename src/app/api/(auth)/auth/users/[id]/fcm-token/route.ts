@@ -5,7 +5,7 @@ import User from '@/models/User';
 
 const secret = process.env.NEXTAUTH_SECRET!;
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = await getToken({ req, secret });
 
   if (!token) {
