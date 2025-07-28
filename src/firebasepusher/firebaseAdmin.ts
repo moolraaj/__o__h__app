@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 if (!admin.apps.length) {
-  const serviceAccountPath = process.env.FIREBASE_KEY_PATH!;
+  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT!;
   const absolutePath = path.resolve(serviceAccountPath);
   const serviceAccount = JSON.parse(
     fs.readFileSync(absolutePath, 'utf-8')
