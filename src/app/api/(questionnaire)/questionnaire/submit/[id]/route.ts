@@ -6,7 +6,8 @@ import User from '@/models/User';
 import { sendApprovalEmail } from '@/utils/Email';
 import { createQuestionnaireVerificationToken } from '@/utils/Constants';
 import admin from '@/firebasepusher/firebaseAdmin';
- 
+import Notifications from '@/models/Notifications';
+
 
 export async function PATCH(
   request: Request,
@@ -47,7 +48,7 @@ export async function PATCH(
           String(adminUser._id)
         );
         try {
-         
+
           await sendApprovalEmail(
             questionnaireData,
             "questionnaire",
@@ -56,14 +57,14 @@ export async function PATCH(
           );
           console.log(`Approval email sent to: ${adminUser.email}`);
 
-         
-          if (adminUser.fcmToken) {  
+
+          if (adminUser.fcmToken) {
             const message = {
               notification: {
                 title: "New Questionnaire Submitted",
                 body: `A questionnaire has been submitted for approval.`,
               },
-              token: adminUser.fcmToken, 
+              token: adminUser.fcmToken,
             };
 
             await admin.messaging().send(message);
@@ -71,6 +72,18 @@ export async function PATCH(
           } else {
             console.log(`No FCM token for ${adminUser.name}`);
           }
+
+
+          await Notifications.create({
+            userId: adminUser._id,
+            title: 'New Questionnaire Submitted',
+            message: `A questionnaire has been submitted for your review.`,
+            icon: 'assignment',
+            read: false,
+            createdAt: new Date()
+          });
+
+
         } catch (err) {
           console.error(`Failed for ${adminUser.email}:`, err);
         }
