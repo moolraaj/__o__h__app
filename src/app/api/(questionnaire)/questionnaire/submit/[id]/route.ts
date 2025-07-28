@@ -15,7 +15,9 @@ export async function PATCH(
     await dbConnect();
     const id = (await params).id;
 
-    const questionnaire = await Questionnaire.findOne({ _id: id });
+    const questionnaire = await Questionnaire.findOne({ _id: id }).populate('submitted_by');
+    console.log(`questionnaire`)
+    console.log(questionnaire)
     if (!questionnaire) {
       return NextResponse.json({ error: 'Questionnaire not found', status: 404 });
     }
@@ -58,8 +60,9 @@ export async function PATCH(
           if (adminUser.fcmToken) {
             const message = {
               notification: {
-                title: "📩 New Questionnaire Submitted",
-                body: `A questionnaire from ${questionnaire.userName} has been submitted for your approval.`,
+                title: "New Questionnaire Submitted",
+                //@ts-expect-error ignore this 
+                body: `A questionnaire from ${questionnaire.submitted_by.name} has been submitted for your approval.`,
               },
               token: adminUser.fcmToken,
               android: {
@@ -102,7 +105,8 @@ export async function PATCH(
           await Notifications.create({
             userId: adminUser._id,
             title: 'New Questionnaire Submitted',
-            message: `A questionnaire has been submitted for your review.`,
+            //@ts-expect-error ignore this 
+            message: `A questionnaire from ${questionnaire.submitted_by.name} has been submitted for your approval.`,
             icon: 'assignment',
             read: false,
             createdAt: new Date(),
