@@ -1,16 +1,12 @@
 import * as admin from 'firebase-admin';
-import path from 'path';
-import fs from 'fs';
-
+ 
 if (!admin.apps.length) {
-  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT!;
-  const absolutePath = path.resolve(serviceAccountPath);
-  const serviceAccount = JSON.parse(
-    fs.readFileSync(absolutePath, 'utf-8')
-  );
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!);
+
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
 }
 
 export default admin;
+
