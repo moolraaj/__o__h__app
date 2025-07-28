@@ -2,12 +2,10 @@ import { NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
 import Questionnaire from '@/models/Questionnaire';
 import User from '@/models/User';
-
 import { sendApprovalEmail } from '@/utils/Email';
 import { createQuestionnaireVerificationToken } from '@/utils/Constants';
 import admin from '@/firebasepusher/firebaseAdmin';
 import Notifications from '@/models/Notifications';
-
 
 export async function PATCH(
   request: Request,
@@ -33,7 +31,7 @@ export async function PATCH(
     await questionnaire.save();
 
     const questionnaireData = questionnaire.toObject();
-    // @ts-expect-error findOne may return null but we check below
+    //@ts-expect-error ignore this 
     questionnaireData._id = questionnaireData._id.toString();
 
     const adminUsers = await User.find({ _id: { $in: questionnaire.send_to } });
@@ -47,8 +45,8 @@ export async function PATCH(
           String(questionnaire._id),
           String(adminUser._id)
         );
-        try {
 
+        try {
           await sendApprovalEmail(
             questionnaireData,
             "questionnaire",
@@ -57,22 +55,49 @@ export async function PATCH(
           );
           console.log(`Approval email sent to: ${adminUser.email}`);
 
-
           if (adminUser.fcmToken) {
             const message = {
               notification: {
-                title: "New Questionnaire Submitted",
-                body: `A questionnaire has been submitted for approval.`,
+                title: "📩 New Questionnaire Submitted",
+                body: `A questionnaire from ${questionnaire.userName} has been submitted for your approval.`,
               },
               token: adminUser.fcmToken,
+              android: {
+                priority: "high",
+                notification: {
+                  channelId: "default",
+                  sound: "default",
+                },
+              },
+              apns: {
+                payload: {
+                  aps: {
+                    sound: "default",
+                  },
+                },
+              },
             };
 
-            await admin.messaging().send(message);
-            console.log(`Push notification sent to: ${adminUser.name}`);
+            try {
+              //@ts-expect-error ignore this 
+              await admin.messaging().send(message);
+              console.log(`Push notification sent to: ${adminUser.name}`);
+            } catch (pushError) {
+              //@ts-expect-error ignore this 
+              console.error(`Push notification failed for ${adminUser.email}:`, pushError.message);
+
+              if (
+                //@ts-expect-error ignore this 
+                pushError?.errorInfo?.code === 'messaging/registration-token-not-registered' ||
+                //@ts-expect-error ignore this 
+                pushError?.errorInfo?.code === 'messaging/invalid-argument'
+              ) {
+                console.warn(`Invalid FCM token for ${adminUser.email}. Consider removing it.`);
+              }
+            }
           } else {
             console.log(`No FCM token for ${adminUser.name}`);
           }
-
 
           await Notifications.create({
             userId: adminUser._id,
@@ -80,10 +105,8 @@ export async function PATCH(
             message: `A questionnaire has been submitted for your review.`,
             icon: 'assignment',
             read: false,
-            createdAt: new Date()
+            createdAt: new Date(),
           });
-
-
         } catch (err) {
           console.error(`Failed for ${adminUser.email}:`, err);
         }
@@ -92,12 +115,10 @@ export async function PATCH(
 
     return NextResponse.json({
       status: 200,
-      message: 'Questionnaire submitted for approval successfully.'
+      message: 'Questionnaire submitted for approval successfully.',
     });
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message, status: 500 });
-    }
-    return NextResponse.json({ error: 'Unknown error occurred', status: 500 });
+    console.error('Unexpected server error:', error);
+    return NextResponse.json({ error: 'Server error', status: 500 });
   }
 }
