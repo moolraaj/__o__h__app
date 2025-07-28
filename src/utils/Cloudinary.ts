@@ -6,9 +6,6 @@ cloudinary.config({
   api_key: API_KEY,
   api_secret: API_SECRET,
 });
-
-
-
 export const uploadPhotoToCloudinary = async (photo: Blob) => {
   return new Promise<string>((resolve, reject) => {
 
