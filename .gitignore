@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Firebase Admin Key
+src/firebasepusher/firebase.json
+src/firebasepusher/stringify-service-key.js
+
