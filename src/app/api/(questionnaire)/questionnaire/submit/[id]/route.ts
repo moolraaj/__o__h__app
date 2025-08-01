@@ -15,8 +15,7 @@ export async function PATCH(
     await dbConnect();
     const id = (await params).id;
     const questionnaire = await Questionnaire.findOne({ _id: id }).populate('submitted_by');
-    console.log(`questionnaire`)
-    console.log(questionnaire)
+ 
     if (!questionnaire) {
       return NextResponse.json({ error: 'Questionnaire not found', status: 404 });
     }

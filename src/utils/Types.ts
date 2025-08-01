@@ -19,6 +19,7 @@ export interface Users {
   isPhoneVerified: boolean | undefined
   role: "admin" | "user" | "dantasurakshaks" | "super-admin";
   status: string;
+  fcmToken:string;
   isVerified: boolean
 }
 
