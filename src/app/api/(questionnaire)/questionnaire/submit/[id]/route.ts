@@ -64,7 +64,7 @@ export async function PATCH(
               android: {
                 priority: 'high',
                 notification: {
-                  channelId: 'default',
+                  channelId: 'fcm_default_channel',
                   sound: 'default',
                 },
               },
