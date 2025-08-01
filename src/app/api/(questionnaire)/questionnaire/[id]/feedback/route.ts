@@ -5,9 +5,8 @@ import Questionnaire from '@/models/Questionnaire';
 import { NextRequest, NextResponse } from 'next/server';
 import { sendApprovalEmail } from '@/utils/Email';
 import { LesionEmailData, Users } from '@/utils/Types';
- 
+import Notifications from '@/models/Notifications';
 import admin from '@/firebasepusher/firebaseAdmin';
-import FeedBackNotifications from '@/models/FeedBackNotifications';
 
 export async function PUT(
   request: NextRequest,
@@ -104,7 +103,7 @@ export async function PUT(
     }
 
 
-    await FeedBackNotifications.create({
+    await Notifications.create({
       userId: submitter._id,
       title: 'Questionnaire Feedback Submitted',
       message: `Admin ( ${submitter?.name} )  has responded to your questionnaire with feedback.`,
