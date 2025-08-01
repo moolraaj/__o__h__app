@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
 import Notifications from '@/models/Notifications';
+ 
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -30,3 +31,6 @@ export async function DELETE(
     }
   }
 }
+
+
+

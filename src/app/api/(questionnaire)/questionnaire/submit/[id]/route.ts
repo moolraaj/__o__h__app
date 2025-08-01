@@ -14,30 +14,24 @@ export async function PATCH(
   try {
     await dbConnect();
     const id = (await params).id;
-
     const questionnaire = await Questionnaire.findOne({ _id: id }).populate('submitted_by');
     console.log(`questionnaire`)
     console.log(questionnaire)
     if (!questionnaire) {
       return NextResponse.json({ error: 'Questionnaire not found', status: 404 });
     }
-
     if (questionnaire.status === 'submit') {
       return NextResponse.json({
         status: 200,
         message: "The questionnaire has already been submitted and cannot be sent again."
       });
     }
-
     questionnaire.status = 'submit';
     await questionnaire.save();
-
     const questionnaireData = questionnaire.toObject();
     //@ts-expect-error ignore this 
     questionnaireData._id = questionnaireData._id.toString();
-
     const adminUsers = await User.find({ _id: { $in: questionnaire.send_to } });
-
     for (const adminUser of adminUsers) {
       if (
         (adminUser.role === "admin" || adminUser.role === "dantasurakshaks") &&
@@ -107,6 +101,7 @@ export async function PATCH(
             title: 'New Questionnaire Submitted',
             //@ts-expect-error ignore this 
             message: `A questionnaire from ${questionnaire.submitted_by.name} has been submitted for your approval.`,
+            questionnaire_Id: questionnaire._id, 
             icon: 'assignment',
             read: false,
             createdAt: new Date(),
