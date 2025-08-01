@@ -15,25 +15,23 @@ export async function PATCH(
     await dbConnect();
     const id = (await params).id;
     const questionnaire = await Questionnaire.findOne({ _id: id }).populate('submitted_by');
- 
+
     if (!questionnaire) {
       return NextResponse.json({ error: 'Questionnaire not found', status: 404 });
     }
-    if (questionnaire.status === 'submit') {
-      return NextResponse.json({
-        status: 200,
-        message: "The questionnaire has already been submitted and cannot be sent again."
-      });
+
+    const alreadySubmitted = questionnaire.status === 'submit';
+    if (!alreadySubmitted) {
+      questionnaire.status = 'submit';
+      await questionnaire.save();
     }
-    questionnaire.status = 'submit';
-    await questionnaire.save();
-    const questionnaireData = questionnaire.toObject();
-    //@ts-expect-error ignore this 
-    questionnaireData._id = questionnaireData._id.toString();
+
+    const questionnaireData = JSON.parse(JSON.stringify(questionnaire));
     const adminUsers = await User.find({ _id: { $in: questionnaire.send_to } });
+
     for (const adminUser of adminUsers) {
       if (
-        (adminUser.role === "admin" || adminUser.role === "dantasurakshaks") &&
+        (adminUser.role === 'admin' || adminUser.role === 'dantasurakshaks') &&
         adminUser.isVerified
       ) {
         const token = await createQuestionnaireVerificationToken(
@@ -44,31 +42,36 @@ export async function PATCH(
         try {
           await sendApprovalEmail(
             questionnaireData,
-            "questionnaire",
+            'questionnaire',
             token,
             [adminUser.email]
           );
           console.log(`Approval email sent to: ${adminUser.email}`);
 
+          // 🔔 Push notification
           if (adminUser.fcmToken) {
             const message = {
               notification: {
-                title: "New Questionnaire Submitted",
+                title: 'New Questionnaire Submitted',
                 //@ts-expect-error ignore this 
                 body: `A questionnaire from ${questionnaire.submitted_by.name} has been submitted for your approval.`,
               },
               token: adminUser.fcmToken,
+              data: {
+                id: questionnaire._id.toString(),
+                type: 'questionnaire',
+              },
               android: {
-                priority: "high",
+                priority: 'high',
                 notification: {
-                  channelId: "default",
-                  sound: "default",
+                  channelId: 'default',
+                  sound: 'default',
                 },
               },
               apns: {
                 payload: {
                   aps: {
-                    sound: "default",
+                    sound: 'default',
                   },
                 },
               },
@@ -81,12 +84,11 @@ export async function PATCH(
             } catch (pushError) {
               //@ts-expect-error ignore this 
               console.error(`Push notification failed for ${adminUser.email}:`, pushError.message);
-
+              //@ts-expect-error ignore this 
+              const errorCode = pushError?.errorInfo?.code;
               if (
-                //@ts-expect-error ignore this 
-                pushError?.errorInfo?.code === 'messaging/registration-token-not-registered' ||
-                //@ts-expect-error ignore this 
-                pushError?.errorInfo?.code === 'messaging/invalid-argument'
+                errorCode === 'messaging/registration-token-not-registered' ||
+                errorCode === 'messaging/invalid-argument'
               ) {
                 console.warn(`Invalid FCM token for ${adminUser.email}. Consider removing it.`);
               }
@@ -95,12 +97,13 @@ export async function PATCH(
             console.log(`No FCM token for ${adminUser.name}`);
           }
 
+          // 📥 Create backend notification
           await Notifications.create({
             userId: adminUser._id,
             title: 'New Questionnaire Submitted',
             //@ts-expect-error ignore this 
             message: `A questionnaire from ${questionnaire.submitted_by.name} has been submitted for your approval.`,
-            questionnaire_Id: questionnaire._id, 
+            questionnaire_Id: questionnaire._id,
             icon: 'assignment',
             read: false,
             createdAt: new Date(),
@@ -113,7 +116,9 @@ export async function PATCH(
 
     return NextResponse.json({
       status: 200,
-      message: 'Questionnaire submitted for approval successfully.',
+      message: alreadySubmitted
+        ? 'The questionnaire was already submitted, but notifications have been sent again.'
+        : 'Questionnaire submitted for approval successfully.',
     });
   } catch (error) {
     console.error('Unexpected server error:', error);
