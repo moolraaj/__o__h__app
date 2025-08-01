@@ -66,13 +66,14 @@ export async function PUT(
 
     await updated.populate('submitted_by', 'email fcmToken name _id');
     const submitter = updated.submitted_by as Users;
-
+    //@ts-expect-error ignore this message
     if (submitter?.fcmToken) {
       const message = {
         notification: {
           title: 'Feedback Submitted',
           body: 'Your questionnaire has been reviewed. Please check the feedback.',
         },
+        //@ts-expect-error ignore this message
         token: submitter.fcmToken,
         android: {
           priority: 'high',
