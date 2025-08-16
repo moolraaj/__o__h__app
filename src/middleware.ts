@@ -5,7 +5,6 @@ import { getToken } from 'next-auth/jwt'
 const secret = process.env.NEXTAUTH_SECRET!
 
 const publicApi = [
-  '/api/auth',
   '/api/otpless',
   '/api/lesion/verify',
   '/api/questionnaire/verify',
