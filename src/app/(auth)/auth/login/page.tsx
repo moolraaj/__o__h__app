@@ -90,21 +90,21 @@ export default function SuperAdminLogin() {
               <input type="checkbox" id="remember" />
               <label htmlFor="remember">Remember me</label>
             </div>
-            <a className="forgot-password" href="#">Forgot Password?</a>
+            {/* <a className="forgot-password" href="#">Forgot Password?</a> */}
           </div>
 
           <button className="login-button" type="submit">Login</button>
 
-          <p className="signup-text">
+          {/* <p className="signup-text">
             Don&apos;t have an account? <a href="#">Sign Up</a>
-          </p>
+          </p> */}
         </form>
 
-        <footer className="login-footer-links">
+        {/* <footer className="login-footer-links">
           <a href="#">Terms of Service</a>
           <a href="#">Privacy Policy</a>
           <a href="#">Help</a>
-        </footer>
+        </footer> */}
       </div>
 
       <div className="login-right">
