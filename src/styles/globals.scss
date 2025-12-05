@@ -52,6 +52,15 @@ body {
   display: none;
 }
 
+button.password-toggle {
+    border: unset;
+    background: unset;
+    display: flex;
+    justify-content: center;
+}
+button.password-toggle svg {
+    color: #56235E;
+}
 
 .feedback-popup {
   position: fixed;

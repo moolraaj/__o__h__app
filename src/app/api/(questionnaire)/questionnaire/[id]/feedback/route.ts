@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 import { getToken } from 'next-auth/jwt';
 import { dbConnect } from '@/database/database';

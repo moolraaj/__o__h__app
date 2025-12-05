@@ -1,24 +1,35 @@
- 
 import bcrypt from 'bcryptjs';
 import User from '@/models/User';
+import { dbConnect } from '@/database/database';
 
 export async function validateCredentials(
   phoneOrEmail: string,
-  password?: string         
+  password?: string
 ) {
+  try {
  
-  const filter = phoneOrEmail.includes('@')
-    ? { email: phoneOrEmail }
-    : { phoneNumber: phoneOrEmail };
+    await dbConnect();
+    const filter = phoneOrEmail.includes('@')
+      ? { email: phoneOrEmail.toLowerCase().trim() }
+      : { phoneNumber: phoneOrEmail.trim() };
+    const user = await User.findOne(filter).select('+password').lean();
+  
+    if (!user) {
+     
+      return null;
+    }
+    if (password) {
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      
+      if (!isPasswordValid) {
+       
+        return null;
+      }
 
- 
-  const user = await User.findOne(filter).select('+password');
-  if (!user) return null;
-
- 
-  if (!password) return user;
-
- 
-  const ok = await bcrypt.compare(password, user.password);
-  return ok ? user : null;
+    }
+    return user;
+  } catch (error) {
+    console.error('validateCredentials error:', error);
+    return null;
+  }
 }

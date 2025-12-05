@@ -14,8 +14,8 @@ interface LoginRequestBody {
 }
 
 export async function POST(req: NextRequest) {
+  await dbConnect();
   try {
-    await dbConnect();
     const { phoneNumber, email, password, fcmToken }: LoginRequestBody = await req.json();
 
     if (!phoneNumber && !(email && password)) {

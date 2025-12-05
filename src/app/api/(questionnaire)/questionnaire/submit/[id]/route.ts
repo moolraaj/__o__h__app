@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
 import Questionnaire from '@/models/Questionnaire';

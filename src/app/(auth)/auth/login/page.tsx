@@ -1,117 +1,41 @@
-// "use client";
-
-// import { useState, ChangeEvent, FormEvent } from "react";
-// import { signIn } from "next-auth/react";
-// import { useRouter } from "next/navigation";
-
-// export default function SuperAdminLogin() {
-//   const [email, setEmail] = useState<string>("");
-//   const [password, setPassword] = useState<string>("");
-//   const [error, setError] = useState<string | null>(null);
-//   const router = useRouter();
-
-//   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-//     e.preventDefault();
-//     setError(null);
-
-
-//     const result = await signIn("superadmin", {
-//       redirect: false,
-//       email,
-//       password,
-//     });
-
-//     if (result?.error) {
-//       setError(result.error);
-//     } else {
-
-//       router.push("/super-admin/dashboard");
-//     }
-//   };
-
-//   return (
-//     <>
-
-//       <div style={{ padding: "2rem" }}>
-//         <h1>super admin login</h1>
-
-
-//         {error && <p>{error}</p>}
-
-
-//         <form onSubmit={handleSubmit}>
-//           <div style={{ marginBottom: "1rem" }}>
-//             <label>Email: </label>
-//             <input
-//               type="email"
-//               name="email"
-//               value={email}
-//               onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div style={{ marginBottom: "1rem" }}>
-//             <label>Password: </label>
-//             <input
-//               type="password"
-//               name="password"
-//               value={password}
-//               onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <button type="submit" style={{ padding: "0.5rem 1rem" }}>
-//             Login
-//           </button>
-//         </form>
-//       </div>
-//     </>
-
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
-
 import { useState, ChangeEvent, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import loginIlluStration from "@/images/oral-health-hero-banner.png";
 import vectorLogin from "@/images/oral-health-vector-1.png";
 import Image from "next/image";
-import { FiMail, FiLock } from "react-icons/fi";
+import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function SuperAdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
     const result = await signIn("superadmin", {
-      redirect: false,
+      redirect: true,
       email,
       password,
     });
+
+    console.log(result)
 
     if (result?.error) {
       setError(result.error);
     } else {
       router.push("/super-admin/dashboard");
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -144,12 +68,20 @@ export default function SuperAdminLogin() {
             <div className={`input-wrapper ${password ? "filled" : ""}`}>
               <FiLock size={18} className="input-icon" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={togglePasswordVisibility}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <FiEye size={18} /> : <FiEyeOff size={18} />}
+              </button>
             </div>
           </div>
 
@@ -164,7 +96,7 @@ export default function SuperAdminLogin() {
           <button className="login-button" type="submit">Login</button>
 
           <p className="signup-text">
-            Don’t have an account? <a href="#">Sign Up</a>
+            Don&apos;t have an account? <a href="#">Sign Up</a>
           </p>
         </form>
 
